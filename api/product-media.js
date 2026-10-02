@@ -166,7 +166,17 @@ async function searchRakutenProduct(query, applicationId, accessKey, affiliateId
   }
 
   const data = await response.json();
-  const items = Array.isArray(data?.items) ? data.items : [];
+  const rawEntries = Array.isArray(data?.Products)
+    ? data.Products
+    : Array.isArray(data?.products)
+      ? data.products
+      : Array.isArray(data?.items)
+        ? data.items
+        : [];
+  const items = rawEntries
+    .map((entry) => entry?.Product || entry?.product || entry)
+    .filter(Boolean);
+
   const ranked = items
     .filter((item) => item?.mediumImageUrl || item?.smallImageUrl)
     .map((item) => ({
@@ -186,7 +196,7 @@ async function searchRakutenProduct(query, applicationId, accessKey, affiliateId
     width: item.mediumImageUrl ? 128 : 64,
     height: item.mediumImageUrl ? 128 : 64,
     productUrl: item.affiliateUrl || item.productUrlPC || null,
-    price: item.salesMinPrice ?? null,
+    price: item.salesMinPrice ?? item.minPrice ?? null,
     searchedKeyword: keyword,
     matchScore: best.score,
     productCode: item.productCode || null,
