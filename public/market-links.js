@@ -91,11 +91,47 @@
     });
   };
 
+  const syncEarphoneCount = () => {
+    if (!location.pathname.startsWith('/earphones/')) return;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach((node) => {
+      if (node.nodeValue?.includes('11機種')) node.nodeValue = node.nodeValue.replaceAll('11機種', '20機種');
+    });
+  };
+
+  const enhanceCategories = () => {
+    if (location.pathname !== '/' || document.querySelector('#categories')) return;
+    const hero = document.querySelector('.hero');
+    if (!hero) return;
+    if (!document.getElementById('category-expansion-style')) {
+      const style = document.createElement('style');
+      style.id = 'category-expansion-style';
+      style.textContent = `.category-section{max-width:1120px;margin:0 auto;padding:32px 24px 18px}.category-heading{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:18px}.category-heading h2{margin:3px 0 0;font-size:30px;color:#20344f}.category-heading p{margin:0;color:#7c8a9e;font-size:13px}.category-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}.category-card{display:grid;grid-template-columns:58px 1fr auto;align-items:center;gap:14px;padding:21px;border:1px solid #dfe7f1;border-radius:20px;background:#fff;text-decoration:none;color:#263850;box-shadow:0 8px 24px rgba(30,61,102,.05);transition:.2s}.category-card:hover{transform:translateY(-2px);border-color:#a9c9fb;box-shadow:0 14px 32px rgba(30,61,102,.1)}.category-icon{width:58px;height:58px;display:grid;place-items:center;border-radius:17px;background:#eef5ff;font-size:27px}.category-card b{display:block;font-size:17px}.category-card small{display:block;margin-top:5px;color:#8190a4;line-height:1.5}.category-arrow{color:#0f6cf9;font-size:21px;font-weight:900}.category-card.new{background:linear-gradient(145deg,#fff,#f5f9ff);border-color:#cfe0f7}.category-new{display:inline-flex;margin-left:7px;padding:3px 6px;border-radius:999px;background:#0f6cf9;color:#fff;font-size:8px;vertical-align:2px}@media(max-width:680px){.category-section{padding:24px 16px 12px}.category-heading{display:block}.category-heading p{margin-top:7px}.category-grid{grid-template-columns:1fr}.category-card{padding:17px}.category-heading h2{font-size:25px}}`;
+      document.head.appendChild(style);
+    }
+    const section = document.createElement('section');
+    section.id = 'categories';
+    section.className = 'category-section';
+    section.innerHTML = `<div class="category-heading"><div><p class="eyebrow">CATEGORIES</p><h2>比較するカテゴリを選ぶ</h2></div><p>同じ「みんなの比較表」で、ほかの商品も条件別に比較できます。</p></div><div class="category-grid"><a class="category-card" href="#quiz"><span class="category-icon">🎧</span><span><b>ワイヤレスイヤホン</b><small>20機種を価格・音質・ANC・バッテリーなどで比較</small></span><span class="category-arrow">→</span></a><a class="category-card new" href="/mobile-batteries/"><span class="category-icon">🔋</span><span><b>モバイルバッテリー <span class="category-new">NEW</span></b><small>7製品を容量・出力・軽さ・ケーブル・ワイヤレス充電で比較</small></span><span class="category-arrow">→</span></a></div>`;
+    hero.insertAdjacentElement('afterend', section);
+    const nav = document.querySelector('.site-header nav');
+    if (nav && !nav.querySelector('[href="#categories"]')) {
+      const link = document.createElement('a');
+      link.href = '#categories';
+      link.textContent = 'カテゴリ';
+      nav.prepend(link);
+    }
+  };
+
   const run = () => {
     enhanceRankingCards();
     enhanceProductPage();
     enhanceComparePage();
     enhanceFooter();
+    syncEarphoneCount();
+    enhanceCategories();
   };
 
   let scheduled = false;
