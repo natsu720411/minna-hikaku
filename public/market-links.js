@@ -20,10 +20,7 @@
       if (!name || !actions) return;
       const wrap = document.createElement('div');
       wrap.className = 'market-links';
-      wrap.append(
-        makeLink('Amazonで探す', amazonUrl(name), 'amazon'),
-        makeLink('楽天で探す', rakutenUrl(name), 'rakuten')
-      );
+      wrap.append(makeLink('Amazonで探す', amazonUrl(name), 'amazon'), makeLink('楽天で探す', rakutenUrl(name), 'rakuten'));
       actions.appendChild(wrap);
     });
   };
@@ -36,15 +33,7 @@
     const price = priceText.replace(/[^0-9]/g, '');
     const brand = brandText.split('：')[1]?.trim();
     const official = main.querySelector('.official')?.href;
-    const schema = {
-      '@context': 'https://schema.org',
-      '@type': 'Product',
-      name,
-      ...(brand ? { brand: { '@type': 'Brand', name: brand } } : {}),
-      url: location.href,
-      ...(official ? { sameAs: official } : {}),
-      ...(price ? { offers: { '@type': 'Offer', priceCurrency: 'JPY', price, url: official || location.href } } : {})
-    };
+    const schema = {'@context':'https://schema.org','@type':'Product',name,...(brand?{brand:{'@type':'Brand',name:brand}}:{}),url:location.href,...(official?{sameAs:official}:{}),...(price?{offers:{'@type':'Offer',priceCurrency:'JPY',price,url:official||location.href}}:{})};
     const script = document.createElement('script');
     script.type = 'application/ld+json';
     script.id = 'dynamic-product-schema';
@@ -66,10 +55,7 @@
     box.innerHTML = `<strong>${name}の販売先を探す</strong><p>価格は販売店やセールで変動します。購入前に最新価格を確認してください。</p>`;
     const links = document.createElement('div');
     links.className = 'market-links market-links-wide';
-    links.append(
-      makeLink('Amazonで探す', amazonUrl(name), 'amazon'),
-      makeLink('楽天で探す', rakutenUrl(name), 'rakuten')
-    );
+    links.append(makeLink('Amazonで探す', amazonUrl(name), 'amazon'), makeLink('楽天で探す', rakutenUrl(name), 'rakuten'));
     box.appendChild(links);
     summary?.insertAdjacentElement('afterend', box);
   };
@@ -80,7 +66,8 @@
     const heading = main?.querySelector('h1');
     if (!main || !heading || main.querySelector('.compare-shop-box')) return;
     const raw = heading.textContent.replace(/を比較/g, '').trim();
-    const names = raw.split(/\s+vs\s+/i).map((v) => v.trim()).filter(Boolean);
+    let names = raw.split(/\s+vs\s+/i).map((v) => v.trim()).filter(Boolean);
+    if (names.length < 2 && raw.includes('と')) names = raw.split('と').map((v) => v.trim()).filter(Boolean);
     if (names.length < 2) return;
     const box = document.createElement('div');
     box.className = 'product-shop-box compare-shop-box';
@@ -94,10 +81,7 @@
       label.textContent = name;
       const links = document.createElement('div');
       links.className = 'market-links';
-      links.append(
-        makeLink('Amazon', amazonUrl(name), 'amazon'),
-        makeLink('楽天', rakutenUrl(name), 'rakuten')
-      );
+      links.append(makeLink('Amazon', amazonUrl(name), 'amazon'), makeLink('楽天', rakutenUrl(name), 'rakuten'));
       row.append(label, links);
       box.appendChild(row);
     });
@@ -125,14 +109,7 @@
     });
   };
 
-  const run = () => {
-    enhanceRankingCards();
-    enhanceProductPage();
-    enhanceComparePage();
-    addAndroidGuide();
-    enhanceFooter();
-  };
-
+  const run = () => { enhanceRankingCards(); enhanceProductPage(); enhanceComparePage(); addAndroidGuide(); enhanceFooter(); };
   window.addEventListener('DOMContentLoaded', run);
   const root = document.getElementById('root');
   if (root) new MutationObserver(run).observe(root, { childList: true, subtree: true });
