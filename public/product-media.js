@@ -7,6 +7,7 @@
   let queueTail = Promise.resolve();
   let lastApiRequestAt = 0;
   const MIN_API_INTERVAL_MS = 1200;
+  const MEDIA_API_VERSION = '20261003-2';
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -46,7 +47,11 @@
   };
 
   const fetchLookup = async (key, attempt = 0) => {
-    const response = await fetch(`/api/product-media?q=${encodeURIComponent(key)}`, { headers: { Accept: 'application/json' } });
+    const url = `/api/product-media?q=${encodeURIComponent(key)}&v=${encodeURIComponent(MEDIA_API_VERSION)}`;
+    const response = await fetch(url, {
+      cache: 'no-store',
+      headers: { Accept: 'application/json' },
+    });
     if (response.status === 429 && attempt < 2) {
       await sleep(1400 * (attempt + 1));
       return fetchLookup(key, attempt + 1);
