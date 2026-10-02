@@ -11,6 +11,15 @@ const json = (res, status, body) => {
 const cleanQuery = (value) => String(value || '').trim().slice(0, 120);
 const SITE_ORIGIN = 'https://minna-hikaku.vercel.app';
 
+const normalizeRakutenKeyword = (value) => {
+  const tokens = cleanQuery(value).split(/\s+/).filter(Boolean);
+  const validTokens = tokens.filter((token) => {
+    const asciiOnly = /^[\x00-\x7F]+$/.test(token);
+    return !asciiOnly || token.length >= 2;
+  });
+  return validTokens.join(' ').trim();
+};
+
 async function getAmazonToken() {
   if (amazonToken && Date.now() < amazonTokenExpiresAt - 60_000) return amazonToken;
   const clientId = process.env.AMAZON_CREATORS_CLIENT_ID;
@@ -84,10 +93,13 @@ async function searchRakuten(query) {
   const affiliateId = process.env.RAKUTEN_AFFILIATE_ID;
   if (!applicationId || !accessKey) throw new Error('rakuten_not_configured');
 
+  const keyword = normalizeRakutenKeyword(query);
+  if (!keyword) throw new Error('rakuten_invalid_keyword');
+
   const url = new URL('https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701');
   url.searchParams.set('applicationId', applicationId);
   url.searchParams.set('accessKey', accessKey);
-  url.searchParams.set('keyword', query);
+  url.searchParams.set('keyword', keyword);
   url.searchParams.set('hits', '1');
   url.searchParams.set('imageFlag', '1');
   url.searchParams.set('format', 'json');
@@ -123,6 +135,7 @@ async function searchRakuten(query) {
     height: 128,
     productUrl: item.affiliateUrl || item.itemUrl || null,
     price: item.itemPrice ?? null,
+    searchedKeyword: keyword,
   };
 }
 
