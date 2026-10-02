@@ -1,4 +1,3 @@
-// Redeploy marker: load production affiliate API environment variables.
 let amazonToken = null;
 let amazonTokenExpiresAt = 0;
 
@@ -10,6 +9,7 @@ const json = (res, status, body) => {
 };
 
 const cleanQuery = (value) => String(value || '').trim().slice(0, 120);
+const SITE_ORIGIN = 'https://minna-hikaku.vercel.app';
 
 async function getAmazonToken() {
   if (amazonToken && Date.now() < amazonTokenExpiresAt - 60_000) return amazonToken;
@@ -95,8 +95,22 @@ async function searchRakuten(query) {
   url.searchParams.set('elements', 'itemName,itemPrice,itemUrl,affiliateUrl,mediumImageUrls,smallImageUrls');
   if (affiliateId) url.searchParams.set('affiliateId', affiliateId);
 
-  const response = await fetch(url, { headers: { Accept: 'application/json' } });
-  if (!response.ok) throw new Error(`rakuten_search_${response.status}`);
+  const response = await fetch(url, {
+    headers: {
+      Accept: 'application/json',
+      Origin: SITE_ORIGIN,
+      Referer: `${SITE_ORIGIN}/`,
+      'User-Agent': 'minna-hikaku/1.0',
+    },
+  });
+  if (!response.ok) {
+    let detail = '';
+    try {
+      const raw = await response.text();
+      detail = raw.replace(/[\r\n\t]+/g, ' ').slice(0, 220);
+    } catch (_) {}
+    throw new Error(`rakuten_search_${response.status}${detail ? `:${detail}` : ''}`);
+  }
   const data = await response.json();
   const item = data?.items?.[0]?.item || data?.items?.[0];
   const imageUrl = rakutenImage(item);
