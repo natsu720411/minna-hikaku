@@ -30,20 +30,44 @@ const cleanTokens = (value) => cleanQuery(value)
   .map((token) => token.trim())
   .filter(Boolean);
 
-const buildRakutenKeyword = (value) => {
-  let tokens = cleanTokens(value);
-  if (tokens.length > 1 && KNOWN_BRANDS.has(tokens[0].toLowerCase())) tokens = tokens.slice(1);
-
-  const meaningful = tokens.filter((token) => !/^\d$/.test(token));
-  const compact = meaningful.join('').replace(/[^\p{L}\p{N}\-+]/gu, '');
-  if (compact.length >= 4) return compact.slice(0, 128);
-
-  const fallback = cleanTokens(value)
-    .filter((token) => !/^\d$/.test(token))
-    .join('')
-    .replace(/[^\p{L}\p{N}\-+]/gu, '');
-  return fallback.slice(0, 128);
+const buildSearchTokens = (value) => {
+  const tokens = cleanTokens(value);
+  return tokens.filter((token) => !/^\d$/.test(token));
 };
+
+const buildProductKeyword = (value) => {
+  const tokens = buildSearchTokens(value);
+  return tokens.join(' ').slice(0, 128);
+};
+
+const buildModelKeyword = (value) => {
+  let tokens = buildSearchTokens(value);
+  if (tokens.length > 1 && KNOWN_BRANDS.has(tokens[0].toLowerCase())) tokens = tokens.slice(1);
+  const keyword = tokens.join(' ').trim();
+  return (keyword || buildProductKeyword(value)).slice(0, 128);
+};
+
+const rakutenHeaders = {
+  Accept: 'application/json',
+  Origin: SITE_ORIGIN,
+  Referer: `${SITE_ORIGIN}/`,
+  'User-Agent': 'minna-hikaku/1.0',
+};
+
+async function fetchRakuten(url) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const response = await fetch(url, { headers: rakutenHeaders });
+    if (response.status !== 429) return response;
+    if (attempt < 2) {
+      const retryAfter = Number(response.headers.get('retry-after') || 1);
+      await sleep(Math.max(1300, retryAfter * 1000 + 250));
+      continue;
+    }
+    const error = new Error('rakuten_rate_limited');
+    error.statusCode = 429;
+    throw error;
+  }
+}
 
 async function getAmazonToken() {
   if (amazonToken && Date.now() < amazonTokenExpiresAt - 60_000) return amazonToken;
@@ -106,41 +130,85 @@ async function searchAmazon(query) {
   };
 }
 
-const rakutenImage = (item) => {
+const scoreText = (text, query) => {
+  const haystack = normalizeComparable(text);
+  const full = normalizeComparable(query);
+  const tokens = cleanTokens(query).map(normalizeComparable).filter(Boolean);
+  let score = 0;
+  if (full && haystack.includes(full)) score += 160;
+  tokens.forEach((token, index) => {
+    if (token.length < 2 && /^\d$/.test(token)) return;
+    if (haystack.includes(token)) score += index === 0 ? 24 : 30;
+  });
+  return score;
+};
+
+async function searchRakutenProduct(query, applicationId, accessKey, affiliateId) {
+  const keyword = buildProductKeyword(query);
+  if (!keyword) return null;
+
+  const url = new URL('https://openapi.rakuten.co.jp/ichibaproduct/api/Product/Search/20250801');
+  url.searchParams.set('applicationId', applicationId);
+  url.searchParams.set('accessKey', accessKey);
+  url.searchParams.set('keyword', keyword);
+  url.searchParams.set('hits', '30');
+  url.searchParams.set('format', 'json');
+  url.searchParams.set('formatVersion', '2');
+  url.searchParams.set('elements', 'productName,productNo,brandName,productUrlPC,affiliateUrl,mediumImageUrl,smallImageUrl,salesMinPrice,productCode');
+  if (affiliateId) url.searchParams.set('affiliateId', affiliateId);
+
+  const response = await fetchRakuten(url);
+  if (!response.ok) {
+    let detail = '';
+    try { detail = (await response.text()).replace(/[\r\n\t]+/g, ' ').slice(0, 220); } catch (_) {}
+    if (response.status === 404) return null;
+    throw new Error(`rakuten_product_${response.status}${detail ? `:${detail}` : ''}`);
+  }
+
+  const data = await response.json();
+  const items = Array.isArray(data?.items) ? data.items : [];
+  const ranked = items
+    .filter((item) => item?.mediumImageUrl || item?.smallImageUrl)
+    .map((item) => ({
+      item,
+      score: scoreText(`${item.productName || ''} ${item.productNo || ''} ${item.brandName || ''}`, query),
+    }))
+    .sort((a, b) => b.score - a.score);
+
+  const best = ranked[0];
+  if (!best || best.score < 30) return null;
+  const item = best.item;
+  return {
+    provider: 'rakuten',
+    sourceType: 'product',
+    title: item.productName || query,
+    imageUrl: item.mediumImageUrl || item.smallImageUrl,
+    width: item.mediumImageUrl ? 128 : 64,
+    height: item.mediumImageUrl ? 128 : 64,
+    productUrl: item.affiliateUrl || item.productUrlPC || null,
+    price: item.salesMinPrice ?? null,
+    searchedKeyword: keyword,
+    matchScore: best.score,
+    productCode: item.productCode || null,
+  };
+}
+
+const rakutenItemImage = (item) => {
   const raw = item?.mediumImageUrls?.[0] || item?.smallImageUrls?.[0];
   if (!raw) return null;
   return typeof raw === 'string' ? raw : raw.imageUrl || raw.url || null;
 };
 
-const scoreRakutenItem = (item, query) => {
-  const title = item?.itemName || '';
-  const titleCompact = normalizeComparable(title);
-  const queryCompact = normalizeComparable(query);
-  const keywordCompact = normalizeComparable(buildRakutenKeyword(query));
-  let score = 0;
-
-  if (queryCompact && titleCompact.includes(queryCompact)) score += 140;
-  if (keywordCompact && titleCompact.includes(keywordCompact)) score += 100;
-
-  cleanTokens(query).forEach((token) => {
-    if (/^\d$/.test(token)) return;
-    const compact = normalizeComparable(token);
-    if (compact.length >= 2 && titleCompact.includes(compact)) score += 20;
-  });
-
-  if (rakutenImage(item)) score += 8;
-  return score;
-};
-
-async function requestRakuten(query, applicationId, accessKey, affiliateId) {
-  const keyword = buildRakutenKeyword(query);
-  if (!keyword || keyword.length < 2) throw new Error('rakuten_invalid_keyword');
+async function searchRakutenItem(query, applicationId, accessKey, affiliateId) {
+  const keyword = buildModelKeyword(query);
+  if (!keyword) return null;
 
   const url = new URL('https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701');
   url.searchParams.set('applicationId', applicationId);
   url.searchParams.set('accessKey', accessKey);
   url.searchParams.set('keyword', keyword);
   url.searchParams.set('hits', '30');
+  url.searchParams.set('availability', '0');
   url.searchParams.set('imageFlag', '1');
   url.searchParams.set('field', '0');
   url.searchParams.set('format', 'json');
@@ -148,67 +216,37 @@ async function requestRakuten(query, applicationId, accessKey, affiliateId) {
   url.searchParams.set('elements', 'itemName,itemPrice,itemUrl,affiliateUrl,mediumImageUrls,smallImageUrls');
   if (affiliateId) url.searchParams.set('affiliateId', affiliateId);
 
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    const response = await fetch(url, {
-      headers: {
-        Accept: 'application/json',
-        Origin: SITE_ORIGIN,
-        Referer: `${SITE_ORIGIN}/`,
-        'User-Agent': 'minna-hikaku/1.0',
-      },
-    });
-
-    if (response.status === 429) {
-      if (attempt < 2) {
-        const retryAfter = Number(response.headers.get('retry-after') || 1);
-        await sleep(Math.max(1200, retryAfter * 1000 + 200));
-        continue;
-      }
-      const error = new Error('rakuten_rate_limited');
-      error.statusCode = 429;
-      throw error;
-    }
-
-    if (!response.ok) {
-      let detail = '';
-      try { detail = (await response.text()).replace(/[\r\n\t]+/g, ' ').slice(0, 220); } catch (_) {}
-      throw new Error(`rakuten_search_${response.status}${detail ? `:${detail}` : ''}`);
-    }
-
-    const data = await response.json();
-    const items = Array.isArray(data?.items) ? data.items : [];
-    const candidates = items
-      .map((entry) => entry?.item || entry)
-      .filter((item) => item && rakutenImage(item));
-
-    if (!candidates.length) {
-      throw new Error(`rakuten_no_result:${keyword}:count=${Number(data?.count || 0)}`);
-    }
-
-    const ranked = candidates
-      .map((item) => ({ item, score: scoreRakutenItem(item, query) }))
-      .sort((a, b) => b.score - a.score);
-
-    const best = ranked[0];
-    if (!best || best.score < 28) {
-      throw new Error(`rakuten_no_match:${keyword}:count=${Number(data?.count || 0)}`);
-    }
-
-    const item = best.item;
-    return {
-      provider: 'rakuten',
-      title: item.itemName || query,
-      imageUrl: rakutenImage(item),
-      width: 128,
-      height: 128,
-      productUrl: item.affiliateUrl || item.itemUrl || null,
-      price: item.itemPrice ?? null,
-      searchedKeyword: keyword,
-      matchScore: best.score,
-    };
+  const response = await fetchRakuten(url);
+  if (!response.ok) {
+    let detail = '';
+    try { detail = (await response.text()).replace(/[\r\n\t]+/g, ' ').slice(0, 220); } catch (_) {}
+    if (response.status === 404) return null;
+    throw new Error(`rakuten_item_${response.status}${detail ? `:${detail}` : ''}`);
   }
 
-  return null;
+  const data = await response.json();
+  const items = Array.isArray(data?.items) ? data.items : [];
+  const ranked = items
+    .map((entry) => entry?.item || entry)
+    .filter((item) => item && rakutenItemImage(item))
+    .map((item) => ({ item, score: scoreText(item.itemName || '', query) }))
+    .sort((a, b) => b.score - a.score);
+
+  const best = ranked[0];
+  if (!best || best.score < 30) return null;
+  const item = best.item;
+  return {
+    provider: 'rakuten',
+    sourceType: 'item',
+    title: item.itemName || query,
+    imageUrl: rakutenItemImage(item),
+    width: 128,
+    height: 128,
+    productUrl: item.affiliateUrl || item.itemUrl || null,
+    price: item.itemPrice ?? null,
+    searchedKeyword: keyword,
+    matchScore: best.score,
+  };
 }
 
 async function searchRakuten(query) {
@@ -216,7 +254,15 @@ async function searchRakuten(query) {
   const accessKey = process.env.RAKUTEN_ACCESS_KEY;
   const affiliateId = process.env.RAKUTEN_AFFILIATE_ID;
   if (!applicationId || !accessKey) throw new Error('rakuten_not_configured');
-  return requestRakuten(query, applicationId, accessKey, affiliateId);
+
+  const product = await searchRakutenProduct(query, applicationId, accessKey, affiliateId);
+  if (product) return product;
+
+  await sleep(1300);
+  const item = await searchRakutenItem(query, applicationId, accessKey, affiliateId);
+  if (item) return item;
+
+  throw new Error('rakuten_no_result');
 }
 
 export default async function handler(req, res) {
