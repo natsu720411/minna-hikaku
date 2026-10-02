@@ -11,13 +11,41 @@ const json = (res, status, body) => {
 const cleanQuery = (value) => String(value || '').trim().slice(0, 120);
 const SITE_ORIGIN = 'https://minna-hikaku.vercel.app';
 
-const normalizeRakutenKeyword = (value) => {
-  const tokens = cleanQuery(value).split(/\s+/).filter(Boolean);
-  const validTokens = tokens.filter((token) => {
-    const asciiOnly = /^[\x00-\x7F]+$/.test(token);
-    return !asciiOnly || token.length >= 2;
+const cleanRakutenTokens = (value) => cleanQuery(value)
+  .replace(/[()（）［］\[\]{}]/g, ' ')
+  .replace(/[,，]/g, ' ')
+  .split(/\s+/)
+  .filter(Boolean);
+
+const mergeSingleAsciiTokens = (tokens) => {
+  const merged = [];
+  tokens.forEach((token) => {
+    const isSingleAscii = /^[\x00-\x7F]$/.test(token);
+    if (isSingleAscii && merged.length) merged[merged.length - 1] += token;
+    else merged.push(token);
   });
-  return validTokens.join(' ').trim();
+  return merged;
+};
+
+const validRakutenToken = (token) => {
+  const asciiOnly = /^[\x00-\x7F]+$/.test(token);
+  return !asciiOnly || token.length >= 2;
+};
+
+const buildRakutenKeywords = (value) => {
+  const rawTokens = cleanRakutenTokens(value);
+  const mergedTokens = mergeSingleAsciiTokens(rawTokens).filter(validRakutenToken);
+  const compact = rawTokens.join('').replace(/[^\p{L}\p{N}\-+]/gu, '');
+  const primary = mergedTokens.join(' ').trim();
+  const withoutBrand = mergedTokens.length > 2 ? mergedTokens.slice(1).join(' ').trim() : '';
+  const modelCompact = rawTokens.length > 1
+    ? rawTokens.slice(1).join('').replace(/[^\p{L}\p{N}\-+]/gu, '')
+    : '';
+
+  return [...new Set([primary, compact, modelCompact, withoutBrand])]
+    .map((keyword) => keyword.trim())
+    .filter((keyword) => keyword.length >= 2)
+    .slice(0, 4);
 };
 
 async function getAmazonToken() {
@@ -87,15 +115,7 @@ const rakutenImage = (item) => {
   return typeof raw === 'string' ? raw : raw.imageUrl || raw.url || null;
 };
 
-async function searchRakuten(query) {
-  const applicationId = process.env.RAKUTEN_APP_ID;
-  const accessKey = process.env.RAKUTEN_ACCESS_KEY;
-  const affiliateId = process.env.RAKUTEN_AFFILIATE_ID;
-  if (!applicationId || !accessKey) throw new Error('rakuten_not_configured');
-
-  const keyword = normalizeRakutenKeyword(query);
-  if (!keyword) throw new Error('rakuten_invalid_keyword');
-
+async function requestRakuten(keyword, applicationId, accessKey, affiliateId) {
   const url = new URL('https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701');
   url.searchParams.set('applicationId', applicationId);
   url.searchParams.set('accessKey', accessKey);
@@ -115,6 +135,7 @@ async function searchRakuten(query) {
       'User-Agent': 'minna-hikaku/1.0',
     },
   });
+
   if (!response.ok) {
     let detail = '';
     try {
@@ -123,13 +144,15 @@ async function searchRakuten(query) {
     } catch (_) {}
     throw new Error(`rakuten_search_${response.status}${detail ? `:${detail}` : ''}`);
   }
+
   const data = await response.json();
   const item = data?.items?.[0]?.item || data?.items?.[0];
   const imageUrl = rakutenImage(item);
-  if (!item || !imageUrl) throw new Error('rakuten_no_result');
+  if (!item || !imageUrl) return null;
+
   return {
     provider: 'rakuten',
-    title: item.itemName || query,
+    title: item.itemName || keyword,
     imageUrl,
     width: 128,
     height: 128,
@@ -137,6 +160,23 @@ async function searchRakuten(query) {
     price: item.itemPrice ?? null,
     searchedKeyword: keyword,
   };
+}
+
+async function searchRakuten(query) {
+  const applicationId = process.env.RAKUTEN_APP_ID;
+  const accessKey = process.env.RAKUTEN_ACCESS_KEY;
+  const affiliateId = process.env.RAKUTEN_AFFILIATE_ID;
+  if (!applicationId || !accessKey) throw new Error('rakuten_not_configured');
+
+  const keywords = buildRakutenKeywords(query);
+  if (!keywords.length) throw new Error('rakuten_invalid_keyword');
+
+  for (const keyword of keywords) {
+    const result = await requestRakuten(keyword, applicationId, accessKey, affiliateId);
+    if (result) return result;
+  }
+
+  throw new Error(`rakuten_no_result:${keywords.join('|')}`);
 }
 
 export default async function handler(req, res) {
