@@ -88,6 +88,7 @@ function App() {
         </a>
         <nav>
           <a href="#popular">人気の比較</a>
+          <a href="/earphones/">選び方ガイド</a>
           <a href="#how">使い方</a>
           <a href="#method">比較基準</a>
         </nav>
@@ -127,6 +128,22 @@ function App() {
                 <span className="preset-icon">{item.icon}</span><span>{item.label}</span><b>→</b>
               </button>
             ))}
+          </div>
+        </section>
+
+        <section className="home-guide-section">
+          <div className="home-guide-box">
+            <p className="eyebrow">BUYING GUIDES</p>
+            <h2>目的別イヤホンガイド</h2>
+            <p>予算や使い方が決まっている人は、目的別ページから候補を絞れます。</p>
+            <div className="home-guide-grid">
+              <a href="/earphones/under-10000/">💰 1万円以下で選ぶ</a>
+              <a href="/earphones/noise-cancelling/">🔇 ノイキャン重視</a>
+              <a href="/earphones/student/">🎓 大学生・通学向け</a>
+              <a href="/earphones/iphone/">🍎 iPhone向け</a>
+              <a href="/earphones/sports/">🏃 スポーツ・ジム向け</a>
+              <a href="/earphones/">📚 イヤホンガイド一覧</a>
+            </div>
           </div>
         </section>
 
