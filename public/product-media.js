@@ -4,6 +4,22 @@
 
   const cache = new Map();
   const pending = new Map();
+  let queueTail = Promise.resolve();
+  let lastApiRequestAt = 0;
+  const MIN_API_INTERVAL_MS = 1200;
+
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const enqueueApiRequest = (task) => {
+    const run = queueTail.then(async () => {
+      const waitMs = Math.max(0, MIN_API_INTERVAL_MS - (Date.now() - lastApiRequestAt));
+      if (waitMs) await sleep(waitMs);
+      lastApiRequestAt = Date.now();
+      return task();
+    });
+    queueTail = run.catch(() => null);
+    return run;
+  };
 
   const addStyles = () => {
     if (document.getElementById('affiliate-product-media-style')) return;
@@ -29,21 +45,31 @@
     document.head.appendChild(style);
   };
 
+  const fetchLookup = async (key, attempt = 0) => {
+    const response = await fetch(`/api/product-media?q=${encodeURIComponent(key)}`, { headers: { Accept: 'application/json' } });
+    if (response.status === 429 && attempt < 2) {
+      await sleep(1400 * (attempt + 1));
+      return fetchLookup(key, attempt + 1);
+    }
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data?.ok ? data.result : null;
+  };
+
   const lookup = async (name) => {
     const key = name.trim();
     if (!key) return null;
     if (cache.has(key)) return cache.get(key);
     if (pending.has(key)) return pending.get(key);
-    const request = fetch(`/api/product-media?q=${encodeURIComponent(key)}`, { headers: { Accept: 'application/json' } })
-      .then(async (response) => {
-        if (!response.ok) return null;
-        const data = await response.json();
-        const result = data?.ok ? data.result : null;
+
+    const request = enqueueApiRequest(() => fetchLookup(key))
+      .then((result) => {
         cache.set(key, result);
         return result;
       })
       .catch(() => null)
       .finally(() => pending.delete(key));
+
     pending.set(key, request);
     return request;
   };
@@ -63,7 +89,7 @@
     if (provider === 'rakuten' && !document.querySelector('a[href="https://developers.rakuten.com/"]')) {
       const wrap = document.createElement('div');
       wrap.className = 'api-credit';
-      wrap.insertAdjacentHTML('beforeend', '<a href="https://developers.rakuten.com/" target="_blank">Supported by Rakuten Developers</a>');
+      wrap.insertAdjacentHTML('beforeend', '<a href="https://developers.rakuten.com/" target="_blank" rel="noopener noreferrer">Supported by Rakuten Developers</a>');
       target.appendChild(wrap);
     }
   };
