@@ -12,39 +12,37 @@ const json = (res, status, body) => {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const cleanQuery = (value) => String(value || '').trim().slice(0, 120);
 const SITE_ORIGIN = 'https://minna-hikaku.vercel.app';
-
-const cleanRakutenTokens = (value) => cleanQuery(value)
-  .replace(/[()（）［］\[\]{}]/g, ' ')
-  .replace(/[,，]/g, ' ')
-  .split(/\s+/)
-  .filter(Boolean);
-
-const mergeSingleAsciiTokens = (tokens) => {
-  const merged = [];
-  tokens.forEach((token) => {
-    const isSingleAscii = /^[\x00-\x7F]$/.test(token);
-    if (isSingleAscii && merged.length) merged[merged.length - 1] += token;
-    else merged.push(token);
-  });
-  return merged;
-};
-
-const validRakutenToken = (token) => {
-  const asciiOnly = /^[\x00-\x7F]+$/.test(token);
-  return !asciiOnly || token.length >= 2;
-};
+const KNOWN_BRANDS = new Set([
+  'apple','sony','samsung','google','jbl','bose','technics','anker','huawei','beats','nothing','earfun',
+  'xiaomi','poco','motorola','sharp','cio','belkin','elecom','buffalo'
+]);
 
 const normalizeComparable = (value) => String(value || '')
   .normalize('NFKC')
   .toLowerCase()
   .replace(/[^\p{L}\p{N}]+/gu, '');
 
-const buildRakutenSearch = (value) => {
-  const tokens = mergeSingleAsciiTokens(cleanRakutenTokens(value)).filter(validRakutenToken);
-  return {
-    keyword: tokens.join(' ').trim(),
-    tokens,
-  };
+const cleanTokens = (value) => cleanQuery(value)
+  .normalize('NFKC')
+  .replace(/[()（）［］\[\]{}]/g, ' ')
+  .replace(/[,，/]/g, ' ')
+  .split(/\s+/)
+  .map((token) => token.trim())
+  .filter(Boolean);
+
+const buildRakutenKeyword = (value) => {
+  let tokens = cleanTokens(value);
+  if (tokens.length > 1 && KNOWN_BRANDS.has(tokens[0].toLowerCase())) tokens = tokens.slice(1);
+
+  const meaningful = tokens.filter((token) => !/^\d$/.test(token));
+  const compact = meaningful.join('').replace(/[^\p{L}\p{N}\-+]/gu, '');
+  if (compact.length >= 4) return compact.slice(0, 128);
+
+  const fallback = cleanTokens(value)
+    .filter((token) => !/^\d$/.test(token))
+    .join('')
+    .replace(/[^\p{L}\p{N}\-+]/gu, '');
+  return fallback.slice(0, 128);
 };
 
 async function getAmazonToken() {
@@ -114,19 +112,20 @@ const rakutenImage = (item) => {
   return typeof raw === 'string' ? raw : raw.imageUrl || raw.url || null;
 };
 
-const scoreRakutenItem = (item, query, tokens) => {
+const scoreRakutenItem = (item, query) => {
   const title = item?.itemName || '';
   const titleCompact = normalizeComparable(title);
   const queryCompact = normalizeComparable(query);
-  const modelCompact = normalizeComparable(tokens.slice(1).join(''));
+  const keywordCompact = normalizeComparable(buildRakutenKeyword(query));
   let score = 0;
 
-  if (queryCompact && titleCompact.includes(queryCompact)) score += 120;
-  if (modelCompact && modelCompact.length >= 4 && titleCompact.includes(modelCompact)) score += 90;
+  if (queryCompact && titleCompact.includes(queryCompact)) score += 140;
+  if (keywordCompact && titleCompact.includes(keywordCompact)) score += 100;
 
-  tokens.forEach((token, index) => {
+  cleanTokens(query).forEach((token) => {
+    if (/^\d$/.test(token)) return;
     const compact = normalizeComparable(token);
-    if (compact && titleCompact.includes(compact)) score += index === 0 ? 16 : 24;
+    if (compact.length >= 2 && titleCompact.includes(compact)) score += 20;
   });
 
   if (rakutenImage(item)) score += 8;
@@ -134,8 +133,8 @@ const scoreRakutenItem = (item, query, tokens) => {
 };
 
 async function requestRakuten(query, applicationId, accessKey, affiliateId) {
-  const { keyword, tokens } = buildRakutenSearch(query);
-  if (!keyword) throw new Error('rakuten_invalid_keyword');
+  const keyword = buildRakutenKeyword(query);
+  if (!keyword || keyword.length < 2) throw new Error('rakuten_invalid_keyword');
 
   const url = new URL('https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701');
   url.searchParams.set('applicationId', applicationId);
@@ -144,7 +143,6 @@ async function requestRakuten(query, applicationId, accessKey, affiliateId) {
   url.searchParams.set('hits', '30');
   url.searchParams.set('imageFlag', '1');
   url.searchParams.set('field', '0');
-  url.searchParams.set('orFlag', '1');
   url.searchParams.set('format', 'json');
   url.searchParams.set('formatVersion', '2');
   url.searchParams.set('elements', 'itemName,itemPrice,itemUrl,affiliateUrl,mediumImageUrls,smallImageUrls');
@@ -166,9 +164,7 @@ async function requestRakuten(query, applicationId, accessKey, affiliateId) {
         await sleep(Math.max(1200, retryAfter * 1000 + 200));
         continue;
       }
-      let detail = '';
-      try { detail = (await response.text()).replace(/[\r\n\t]+/g, ' ').slice(0, 220); } catch (_) {}
-      const error = new Error(`rakuten_rate_limited${detail ? `:${detail}` : ''}`);
+      const error = new Error('rakuten_rate_limited');
       error.statusCode = 429;
       throw error;
     }
@@ -185,21 +181,24 @@ async function requestRakuten(query, applicationId, accessKey, affiliateId) {
       .map((entry) => entry?.item || entry)
       .filter((item) => item && rakutenImage(item));
 
-    if (!candidates.length) return null;
+    if (!candidates.length) {
+      throw new Error(`rakuten_no_result:${keyword}:count=${Number(data?.count || 0)}`);
+    }
 
     const ranked = candidates
-      .map((item) => ({ item, score: scoreRakutenItem(item, query, tokens) }))
+      .map((item) => ({ item, score: scoreRakutenItem(item, query) }))
       .sort((a, b) => b.score - a.score);
 
     const best = ranked[0];
-    if (!best || best.score < 24) return null;
+    if (!best || best.score < 28) {
+      throw new Error(`rakuten_no_match:${keyword}:count=${Number(data?.count || 0)}`);
+    }
 
     const item = best.item;
-    const imageUrl = rakutenImage(item);
     return {
       provider: 'rakuten',
       title: item.itemName || query,
-      imageUrl,
+      imageUrl: rakutenImage(item),
       width: 128,
       height: 128,
       productUrl: item.affiliateUrl || item.itemUrl || null,
@@ -217,10 +216,7 @@ async function searchRakuten(query) {
   const accessKey = process.env.RAKUTEN_ACCESS_KEY;
   const affiliateId = process.env.RAKUTEN_AFFILIATE_ID;
   if (!applicationId || !accessKey) throw new Error('rakuten_not_configured');
-
-  const result = await requestRakuten(query, applicationId, accessKey, affiliateId);
-  if (result) return result;
-  throw new Error('rakuten_no_result');
+  return requestRakuten(query, applicationId, accessKey, affiliateId);
 }
 
 export default async function handler(req, res) {
