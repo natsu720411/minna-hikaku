@@ -115,11 +115,22 @@
     grid.insertBefore(link, allLink || null);
   };
 
+  const enhanceFooter = () => {
+    document.querySelectorAll('footer').forEach((footer) => {
+      if (footer.querySelector('.trust-footer-links')) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'trust-footer-links';
+      wrap.innerHTML = '<a href="/about/">サイトについて</a><a href="/methodology/">比較方法</a><a href="/affiliate-disclosure/">広告・アフィリエイト方針</a>';
+      footer.appendChild(wrap);
+    });
+  };
+
   const run = () => {
     enhanceRankingCards();
     enhanceProductPage();
     enhanceComparePage();
     addAndroidGuide();
+    enhanceFooter();
   };
 
   window.addEventListener('DOMContentLoaded', run);
