@@ -4,7 +4,7 @@ let amazonTokenExpiresAt = 0;
 const json = (res, status, body) => {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  res.setHeader('Cache-Control', status === 200 ? 'public, s-maxage=3600, stale-while-revalidate=86400' : 'no-store');
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
   if (status === 429) res.setHeader('Retry-After', '2');
   res.end(JSON.stringify(body));
 };
@@ -18,9 +18,12 @@ const KNOWN_BRANDS = new Set([
 ]);
 const ACCESSORY_TERMS = [
   '保護フィルム','液晶保護','保護シート','保護ガラス','強化ガラス','ガラスフィルム','カメラフィルム','レンズ保護',
-  'ケース用','充電ケース用','収納ケース','保護ケース','ケースカバー','スキンシール','ステッカー','イヤーピース','イヤーチップ',
-  '交換用イヤー','ストラップ','ホルダー','バンパー','保護カバー','保護プロテクター','専用ポーチ','交換パーツ',
-  'screen protector','protective film','tempered glass','case cover','replacement tips','ear tips','skin sticker'
+  'ケース用','充電ケース用','収納ケース','保護ケース','ケースカバー','シリコンケース','クリアケース','レザーケース',
+  'ハードケース','ソフトケース','イヤホンケース','キャリングケース','専用ケース','スキンシール','ステッカー',
+  'イヤーピース','イヤーチップ','交換用イヤー','ストラップ','ホルダー','バンパー','保護カバー',
+  '保護プロテクター','専用ポーチ','交換パーツ','ダストプラグ','防塵シール','デコレーション',
+  'screen protector','protective film','tempered glass','case cover','silicone case','protective case',
+  'replacement tips','ear tips','skin sticker','carrying case','dust plug'
 ];
 
 const normalizeComparable = (value) => String(value || '')
@@ -58,9 +61,17 @@ const expectedBrand = (query) => {
   return KNOWN_BRANDS.has(first) ? first : '';
 };
 
-const accessoryPenalty = (text) => {
-  const normalized = String(text || '').normalize('NFKC').toLowerCase();
-  return ACCESSORY_TERMS.some((term) => normalized.includes(term.toLowerCase())) ? 320 : 0;
+const isAccessory = (text) => {
+  const compact = normalizeComparable(text);
+  return ACCESSORY_TERMS.some((term) => compact.includes(normalizeComparable(term)));
+};
+
+const brandIsCompatible = (item, query) => {
+  const brand = expectedBrand(query);
+  if (!brand) return true;
+  const itemBrand = normalizeComparable(item?.brandName || '');
+  if (!itemBrand) return true;
+  return itemBrand.includes(normalizeComparable(brand));
 };
 
 const rakutenHeaders = {
@@ -161,14 +172,13 @@ const scoreText = (text, query) => {
 
 const scoreProduct = (item, query) => {
   const title = `${item.productName || ''} ${item.productNo || ''} ${item.brandName || ''}`;
-  let score = scoreText(title, query) - accessoryPenalty(title);
+  let score = scoreText(title, query);
   const brand = expectedBrand(query);
   if (brand) {
     const itemBrand = normalizeComparable(item.brandName || '');
     const itemTitle = normalizeComparable(item.productName || '');
     const targetBrand = normalizeComparable(brand);
     if (itemBrand && itemBrand.includes(targetBrand)) score += 180;
-    else if (itemBrand) score -= 180;
     else if (itemTitle.startsWith(targetBrand)) score += 80;
   }
   return score;
@@ -176,7 +186,7 @@ const scoreProduct = (item, query) => {
 
 const scoreItem = (item, query) => {
   const title = item.itemName || '';
-  let score = scoreText(title, query) - accessoryPenalty(title);
+  let score = scoreText(title, query);
   const brand = expectedBrand(query);
   if (brand && normalizeComparable(title).includes(normalizeComparable(brand))) score += 50;
   return score;
@@ -217,7 +227,13 @@ async function searchRakutenProduct(query, applicationId, accessKey, affiliateId
     .filter(Boolean);
 
   const ranked = items
-    .filter((item) => item?.mediumImageUrl || item?.smallImageUrl)
+    .filter((item) => {
+      if (!item?.mediumImageUrl && !item?.smallImageUrl) return false;
+      const text = `${item.productName || ''} ${item.productNo || ''} ${item.brandName || ''}`;
+      if (isAccessory(text)) return false;
+      if (!brandIsCompatible(item, query)) return false;
+      return true;
+    })
     .map((item) => ({ item, score: scoreProduct(item, query) }))
     .sort((a, b) => b.score - a.score);
 
@@ -274,7 +290,7 @@ async function searchRakutenItem(query, applicationId, accessKey, affiliateId) {
   const items = Array.isArray(data?.items) ? data.items : [];
   const ranked = items
     .map((entry) => entry?.item || entry)
-    .filter((item) => item && rakutenItemImage(item))
+    .filter((item) => item && rakutenItemImage(item) && !isAccessory(item.itemName || ''))
     .map((item) => ({ item, score: scoreItem(item, query) }))
     .sort((a, b) => b.score - a.score);
 
