@@ -25,6 +25,18 @@ const ACCESSORY_TERMS = [
   'screen protector','protective film','tempered glass','case cover','silicone case','protective case',
   'replacement tips','ear tips','skin sticker','carrying case','dust plug'
 ];
+const SEARCH_OVERRIDES = {
+  jbllivebeam3: {
+    keyword: 'JBLLIVEBEAM3',
+    fallbackKeyword: 'JBL Live Beam3',
+    requiredTerms: ['完全ワイヤレス', 'ワイヤレスイヤホン', 'イヤホン'],
+  },
+  soundcoreliberty5: {
+    keyword: 'A3957N11',
+    fallbackKeyword: 'Soundcore Liberty 5',
+    requiredTerms: ['完全ワイヤレス', 'ワイヤレスイヤホン', 'イヤホン'],
+  },
+};
 
 const normalizeComparable = (value) => String(value || '')
   .normalize('NFKC')
@@ -61,9 +73,17 @@ const expectedBrand = (query) => {
   return KNOWN_BRANDS.has(first) ? first : '';
 };
 
+const getSearchOverride = (query) => SEARCH_OVERRIDES[normalizeComparable(query)] || null;
+
 const isAccessory = (text) => {
   const compact = normalizeComparable(text);
   return ACCESSORY_TERMS.some((term) => compact.includes(normalizeComparable(term)));
+};
+
+const matchesRequiredTerms = (text, terms = []) => {
+  if (!terms.length) return true;
+  const compact = normalizeComparable(text);
+  return terms.some((term) => compact.includes(normalizeComparable(term)));
 };
 
 const brandIsCompatible = (item, query) => {
@@ -261,8 +281,8 @@ const rakutenItemImage = (item) => {
   return typeof raw === 'string' ? raw : raw.imageUrl || raw.url || null;
 };
 
-async function searchRakutenItem(query, applicationId, accessKey, affiliateId) {
-  const keyword = buildModelKeyword(query);
+async function searchRakutenItem(query, applicationId, accessKey, affiliateId, options = {}) {
+  const keyword = options.keyword || buildModelKeyword(query);
   if (!keyword) return null;
 
   const url = new URL('https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701');
@@ -290,7 +310,13 @@ async function searchRakutenItem(query, applicationId, accessKey, affiliateId) {
   const items = Array.isArray(data?.items) ? data.items : [];
   const ranked = items
     .map((entry) => entry?.item || entry)
-    .filter((item) => item && rakutenItemImage(item) && !isAccessory(item.itemName || ''))
+    .filter((item) => {
+      if (!item || !rakutenItemImage(item)) return false;
+      const title = item.itemName || '';
+      if (isAccessory(title)) return false;
+      if (!matchesRequiredTerms(title, options.requiredTerms || [])) return false;
+      return true;
+    })
     .map((item) => ({ item, score: scoreItem(item, query) }))
     .sort((a, b) => b.score - a.score);
 
@@ -316,6 +342,26 @@ async function searchRakuten(query) {
   const accessKey = process.env.RAKUTEN_ACCESS_KEY;
   const affiliateId = process.env.RAKUTEN_AFFILIATE_ID;
   if (!applicationId || !accessKey) throw new Error('rakuten_not_configured');
+
+  const override = getSearchOverride(query);
+  if (override) {
+    const exact = await searchRakutenItem(query, applicationId, accessKey, affiliateId, {
+      keyword: override.keyword,
+      requiredTerms: override.requiredTerms,
+    });
+    if (exact) return exact;
+
+    if (override.fallbackKeyword) {
+      await sleep(1300);
+      const fallback = await searchRakutenItem(query, applicationId, accessKey, affiliateId, {
+        keyword: override.fallbackKeyword,
+        requiredTerms: override.requiredTerms,
+      });
+      if (fallback) return fallback;
+    }
+
+    throw new Error('rakuten_no_safe_result');
+  }
 
   const product = await searchRakutenProduct(query, applicationId, accessKey, affiliateId);
   if (product) return product;
