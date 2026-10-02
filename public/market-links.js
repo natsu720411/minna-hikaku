@@ -29,12 +29,47 @@
     });
   };
 
+  const injectProductSchema = (main, name) => {
+    if (document.getElementById('dynamic-product-schema')) return;
+    const items = [...main.querySelectorAll('.summary-box li')].map((el) => el.textContent.trim());
+    const priceText = items.find((text) => text.includes('価格：') || text.includes('参考価格：')) || '';
+    const brandText = items.find((text) => text.includes('メーカー：')) || '';
+    const price = priceText.replace(/[^0-9]/g, '');
+    const brand = brandText.split('：')[1]?.trim();
+    const official = main.querySelector('.official')?.href;
+
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name,
+      ...(brand ? { brand: { '@type': 'Brand', name: brand } } : {}),
+      url: location.href,
+      ...(official ? { sameAs: official } : {}),
+      ...(price ? {
+        offers: {
+          '@type': 'Offer',
+          priceCurrency: 'JPY',
+          price,
+          url: official || location.href
+        }
+      } : {})
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'dynamic-product-schema';
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+  };
+
   const enhanceProductPage = () => {
     if (!location.pathname.includes('/earphones/products/')) return;
     const main = document.querySelector('.guide-main');
     const heading = main?.querySelector('h1');
-    if (!main || !heading || main.querySelector('.product-shop-box')) return;
+    if (!main || !heading) return;
     const name = heading.textContent.replace('を比較', '').trim();
+    injectProductSchema(main, name);
+    if (main.querySelector('.product-shop-box')) return;
     const summary = main.querySelector('.summary-box');
     const box = document.createElement('div');
     box.className = 'product-shop-box';
