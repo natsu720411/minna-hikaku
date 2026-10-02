@@ -1,5 +1,6 @@
 (() => {
-  const amazonUrl = (name) => `https://www.amazon.co.jp/s?k=${encodeURIComponent(name)}`;
+  const AMAZON_ASSOCIATE_TAG = 'minnahikaku-22';
+  const amazonUrl = (name) => `https://www.amazon.co.jp/s?k=${encodeURIComponent(name)}&tag=${encodeURIComponent(AMAZON_ASSOCIATE_TAG)}`;
   const rakutenUrl = (name) => `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(name)}/`;
 
   const loadUi = () => {
@@ -32,11 +33,12 @@
     a.className = `market-btn ${cls}`;
     a.href = href;
     a.target = '_blank';
-    a.rel = 'nofollow noopener noreferrer';
+    a.rel = cls === 'amazon' ? 'nofollow noopener noreferrer sponsored' : 'nofollow noopener noreferrer';
     a.textContent = label;
     a.dataset.track = cls === 'amazon' ? 'amazon_click' : 'rakuten_click';
     a.dataset.product = name || '';
-    if (name) a.setAttribute('aria-label', `${name}を${label}`);
+    if (cls === 'amazon') a.dataset.affiliate = 'amazon';
+    if (name) a.setAttribute('aria-label', cls === 'amazon' ? `${name}をAmazonで見る（アフィリエイトリンク）` : `${name}を${label}`);
     return a;
   };
 
@@ -49,6 +51,7 @@
         if (link.dataset.product !== name) return;
         link.href = href;
         link.dataset.affiliate = 'rakuten';
+        link.rel = 'nofollow noopener noreferrer sponsored';
         link.setAttribute('aria-label', `${name}を楽天で見る（アフィリエイトリンク）`);
       });
     });
@@ -121,11 +124,19 @@
 
   const enhanceFooter = () => {
     document.querySelectorAll('footer').forEach((footer) => {
-      if (footer.querySelector('.trust-footer-links') || footer.querySelector('.footer-trust-links')) return;
-      const wrap = document.createElement('div');
-      wrap.className = 'trust-footer-links';
-      wrap.innerHTML = '<a href="/about/">サイトについて</a><a href="/methodology/">比較方法</a><a href="/affiliate-disclosure/">広告・アフィリエイト方針</a>';
-      footer.appendChild(wrap);
+      if (!footer.querySelector('.trust-footer-links') && !footer.querySelector('.footer-trust-links')) {
+        const wrap = document.createElement('div');
+        wrap.className = 'trust-footer-links';
+        wrap.innerHTML = '<a href="/about/">サイトについて</a><a href="/methodology/">比較方法</a><a href="/affiliate-disclosure/">広告・アフィリエイト方針</a>';
+        footer.appendChild(wrap);
+      }
+      if (!footer.querySelector('[data-amazon-associate-disclosure]')) {
+        const note = document.createElement('p');
+        note.dataset.amazonAssociateDisclosure = '1';
+        note.className = 'api-affiliate-note';
+        note.textContent = 'Amazonのアソシエイトとして、みんなの比較表は適格販売により収入を得ています。';
+        footer.appendChild(note);
+      }
     });
   };
 
