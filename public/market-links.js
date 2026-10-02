@@ -10,6 +10,14 @@
     document.head.appendChild(link);
   };
 
+  const loadProductMedia = () => {
+    if (document.querySelector('script[src="/product-media.js"]')) return;
+    const script = document.createElement('script');
+    script.src = '/product-media.js';
+    script.defer = true;
+    document.head.appendChild(script);
+  };
+
   window.dataLayer = window.dataLayer || [];
   const track = (event, params = {}) => {
     try {
@@ -152,6 +160,7 @@
 
   const run = () => {
     loadUi();
+    loadProductMedia();
     enhanceRankingCards();
     enhanceProductPage();
     enhanceComparePage();
@@ -162,6 +171,7 @@
   };
 
   loadUi();
+  loadProductMedia();
   let scheduled = false;
   const scheduleRun = () => {
     if (scheduled) return;
