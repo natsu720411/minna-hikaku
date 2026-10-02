@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { earphones, criteria } from './data/earphones';
 import './style.css';
 import './enhancements.css';
+import './ux.css';
 
 const LAST_UPDATED = '2026年10月2日';
 
@@ -52,11 +53,16 @@ function App() {
   }, [budget, primary, weights]);
 
   const primaryLabel = criteria.find((c) => c.key === primary)?.label;
+  const budgetLabel = budgets.find((b) => b.value === budget)?.label || '予算は決めていない';
+
+  const scrollTo = (selector) => {
+    setTimeout(() => document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30);
+  };
 
   const showResults = () => {
     setStep(4);
     setSelected([]);
-    setTimeout(() => document.querySelector('#results')?.scrollIntoView({ behavior: 'smooth' }), 30);
+    scrollTo('#results');
   };
 
   const startPreset = (preset) => {
@@ -64,6 +70,12 @@ function App() {
     setBudget(preset.budget);
     setWeights(initialWeights);
     showResults();
+  };
+
+  const changeConditions = () => {
+    setStep(1);
+    setSelected([]);
+    scrollTo('#quiz');
   };
 
   const toggleCompare = (id) => {
@@ -82,12 +94,13 @@ function App() {
 
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#quiz">比較条件へスキップ</a>
       <header className="site-header">
         <a className="logo" href="#top" aria-label="みんなの比較表トップ">
           <span className="logo-mark">✓</span>
           <span>みんなの比較表</span>
         </a>
-        <nav>
+        <nav aria-label="メインナビゲーション">
           <a href="#popular">人気の比較</a>
           <a href="/earphones/">選び方ガイド</a>
           <a href="#how">使い方</a>
@@ -102,7 +115,7 @@ function App() {
             <p className="eyebrow">EARPHONES COMPARISON</p>
             <h1>あなたの重視ポイントで、<br /><span>ランキングが変わる。</span></h1>
             <p className="hero-text">価格・音質・ノイキャン・バッテリー。人によって「いいイヤホン」は違うから、あなたの条件から比較します。</p>
-            <button className="primary-btn" onClick={() => { setStep(1); document.querySelector('#quiz')?.scrollIntoView({ behavior: 'smooth' }); }}>
+            <button type="button" className="primary-btn" onClick={() => { setStep(1); scrollTo('#quiz'); }}>
               3問で比較をはじめる <span>→</span>
             </button>
             <div className="trust-row"><span>✓ 登録不要</span><span>✓ 約30秒</span><span>✓ {earphones.length}製品を比較</span><span>✓ 公式情報リンク付き</span></div>
@@ -125,7 +138,7 @@ function App() {
           <div className="section-heading"><div><p className="eyebrow">POPULAR</p><h2>人気の比較から探す</h2></div><p>目的からすぐにランキングを見られます。</p></div>
           <div className="preset-grid">
             {quickPresets.map((item) => (
-              <button className="preset-card" key={item.label} onClick={() => startPreset(item)}>
+              <button type="button" className="preset-card" key={item.label} onClick={() => startPreset(item)}>
                 <span className="preset-icon">{item.icon}</span><span>{item.label}</span><b>→</b>
               </button>
             ))}
@@ -152,16 +165,16 @@ function App() {
         <section id="quiz" className="quiz-wrap">
           <div className="quiz-head">
             <div><p className="eyebrow">PERSONAL FINDER</p><h2>3問であなた向けを探す</h2></div>
-            <div className="step-dots">{[1,2,3].map((n) => <span key={n} className={step >= n ? 'active' : ''}>{n}</span>)}</div>
+            <div className="step-dots" aria-label="比較条件の進行状況">{[1,2,3].map((n) => <span key={n} className={step >= n ? 'active' : ''}>{n}</span>)}</div>
           </div>
 
-          {step === 0 && <div className="quiz-empty"><span>🎧</span><h3>比較を始める準備ができました</h3><p>たった3問で、あなた向けのランキングを作ります。</p><button className="primary-btn" onClick={() => setStep(1)}>スタート</button></div>}
+          {step === 0 && <div className="quiz-empty"><span>🎧</span><h3>比較を始める準備ができました</h3><p>たった3問で、あなた向けのランキングを作ります。</p><button type="button" className="primary-btn" onClick={() => setStep(1)}>スタート</button></div>}
 
-          {step === 1 && <div className="question-card"><p className="question-number">QUESTION 1</p><h3>イヤホンの予算は？</h3><div className="choice-grid">{budgets.map((b) => <button key={b.label} className={budget === b.value ? 'choice active' : 'choice'} onClick={() => setBudget(b.value)}>{b.label}</button>)}</div><div className="quiz-actions"><button className="ghost-btn" onClick={() => setStep(0)}>戻る</button><button className="primary-btn" onClick={() => setStep(2)}>次へ →</button></div></div>}
+          {step === 1 && <div className="question-card"><p className="question-number">QUESTION 1</p><h3>イヤホンの予算は？</h3><div className="choice-grid">{budgets.map((b) => <button type="button" key={b.label} aria-pressed={budget === b.value} className={budget === b.value ? 'choice active' : 'choice'} onClick={() => setBudget(b.value)}>{b.label}</button>)}</div><div className="quiz-actions"><button type="button" className="ghost-btn" onClick={() => setStep(0)}>戻る</button><button type="button" className="primary-btn" onClick={() => setStep(2)}>次へ →</button></div></div>}
 
-          {step === 2 && <div className="question-card"><p className="question-number">QUESTION 2</p><h3>一番重視するポイントは？</h3><div className="criteria-grid">{criteria.map((c) => <button key={c.key} className={primary === c.key ? 'criterion active' : 'criterion'} onClick={() => setPrimary(c.key)}><span>{c.icon}</span><b>{c.label}</b></button>)}</div><div className="quiz-actions"><button className="ghost-btn" onClick={() => setStep(1)}>戻る</button><button className="primary-btn" onClick={() => setStep(3)}>次へ →</button></div></div>}
+          {step === 2 && <div className="question-card"><p className="question-number">QUESTION 2</p><h3>一番重視するポイントは？</h3><div className="criteria-grid">{criteria.map((c) => <button type="button" key={c.key} aria-pressed={primary === c.key} className={primary === c.key ? 'criterion active' : 'criterion'} onClick={() => setPrimary(c.key)}><span>{c.icon}</span><b>{c.label}</b></button>)}</div><div className="quiz-actions"><button type="button" className="ghost-btn" onClick={() => setStep(1)}>戻る</button><button type="button" className="primary-btn" onClick={() => setStep(3)}>次へ →</button></div></div>}
 
-          {step === 3 && <div className="question-card"><p className="question-number">QUESTION 3</p><h3>ほかの条件も調整する</h3><p className="subcopy">重要度を0〜3で調整できます。迷ったらそのままでOK。</p><div className="weight-list">{criteria.map((c) => <div className="weight-row" key={c.key}><span>{c.icon} {c.label}</span><div className="weight-buttons">{[0,1,2,3].map((value) => <button key={value} className={weights[c.key] === value ? 'active' : ''} onClick={() => setWeights((w) => ({ ...w, [c.key]: value }))}>{['不要','普通','重視','最重視'][value]}</button>)}</div></div>)}</div><div className="quiz-actions"><button className="ghost-btn" onClick={() => setStep(2)}>戻る</button><button className="primary-btn" onClick={showResults}>結果を見る →</button></div></div>}
+          {step === 3 && <div className="question-card"><p className="question-number">QUESTION 3</p><h3>ほかの条件も調整する</h3><p className="subcopy">重要度を0〜3で調整できます。迷ったらそのままでOK。</p><div className="weight-list">{criteria.map((c) => <div className="weight-row" key={c.key}><span>{c.icon} {c.label}</span><div className="weight-buttons">{[0,1,2,3].map((value) => <button type="button" key={value} aria-pressed={weights[c.key] === value} className={weights[c.key] === value ? 'active' : ''} onClick={() => setWeights((w) => ({ ...w, [c.key]: value }))}>{['不要','普通','重視','最重視'][value]}</button>)}</div></div>)}</div><div className="quiz-actions"><button type="button" className="ghost-btn" onClick={() => setStep(2)}>戻る</button><button type="button" className="primary-btn" onClick={showResults}>結果を見る →</button></div></div>}
         </section>
 
         {step === 4 && <section id="results" className="section results-section">
@@ -169,6 +182,7 @@ function App() {
             <p className="eyebrow">YOUR RANKING</p>
             <h2>あなたは「<span>{primaryLabel}重視</span>」タイプ</h2>
             <p>公式公称スペックと編集スコアを、あなたが選んだ重要度で重み付けしています。相性点は絶対的な製品評価ではありません。</p>
+            <div className="result-summary"><span>{ranking.length}製品を表示</span><span>{budgetLabel}</span><button type="button" onClick={changeConditions}>条件を変更する</button></div>
           </div>
 
           <div className="ranking-list">
@@ -181,16 +195,16 @@ function App() {
                   <h3><a className="product-title-link" href={productPath(item.id)}>{item.name}</a></h3>
                   <div className="tag-row">{item.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
                   <p className="reason">{primaryLabel}を重視した条件で高得点。{item.price <= 20000 ? '価格とのバランスも取りやすい候補です。' : '上位機能を重視する人向けの候補です。'}</p>
-                  <div className="rank-links"><a className="detail-link" href={productPath(item.id)}>詳しく見る →</a><a className="source-link" href={item.sourceUrl} target="_blank" rel="noreferrer">{item.sourceLabel}で仕様を見る ↗</a></div>
+                  <div className="rank-links"><a className="detail-link" href={productPath(item.id)}>詳しく見る →</a><a className="source-link" href={item.sourceUrl} target="_blank" rel="noopener noreferrer">{item.sourceLabel}で仕様を見る ↗</a></div>
                 </div>
                 <div className="match-box"><strong>{item.match}</strong><span>/ 100</span><small>あなたとの相性</small></div>
-                <div className="rank-actions"><button className={selected.includes(item.id) ? 'compare-btn selected' : 'compare-btn'} onClick={() => toggleCompare(item.id)}>{selected.includes(item.id) ? '✓ 比較中' : '+ 比較する'}</button><div className="price">¥{item.price.toLocaleString()}<small>公式参考価格</small></div></div>
+                <div className="rank-actions"><button type="button" aria-pressed={selected.includes(item.id)} aria-label={`${item.name}を比較${selected.includes(item.id) ? 'から外す' : 'に追加する'}`} className={selected.includes(item.id) ? 'compare-btn selected' : 'compare-btn'} onClick={() => toggleCompare(item.id)}>{selected.includes(item.id) ? '✓ 比較中' : '+ 比較する'}</button><div className="price">¥{item.price.toLocaleString()}<small>公式参考価格</small></div></div>
               </article>
-            )) : <div className="no-result"><h3>この予算に合う商品がありません</h3><p>予算を上げてもう一度試してください。</p></div>}
+            )) : <div className="no-result"><h3>この予算に合う商品がありません</h3><p>予算を上げてもう一度試してください。</p><button type="button" className="primary-btn" onClick={changeConditions}>条件を変更する</button></div>}
           </div>
         </section>}
 
-        {step === 4 && selectedItems.length > 0 && <section className="compare-panel"><div className="compare-title"><div><p className="eyebrow">COMPARE</p><h2>選んだ商品を比較</h2></div><span>{selectedItems.length}/3商品</span></div><div className="table-scroll"><table><thead><tr><th>比較項目</th>{selectedItems.map((item) => <th key={item.id}><a className="compare-product-link" href={productPath(item.id)}>{item.name}</a></th>)}</tr></thead><tbody><tr><td>公式参考価格</td>{selectedItems.map((item) => <td key={item.id}>¥{item.price.toLocaleString()}</td>)}</tr><tr><td>音質スコア</td>{selectedItems.map((item) => <td key={item.id}>{item.scores.sound}点</td>)}</tr><tr><td>ノイキャンスコア</td>{selectedItems.map((item) => <td key={item.id}>{item.scores.noiseCancel}点</td>)}</tr><tr><td>バッテリー</td>{selectedItems.map((item) => <td key={item.id}>{item.batteryText}</td>)}</tr><tr><td>防水・防塵</td>{selectedItems.map((item) => <td key={item.id}>{item.waterRating}</td>)}</tr><tr><td>コスパスコア</td>{selectedItems.map((item) => <td key={item.id}>{item.scores.value}点</td>)}</tr></tbody></table></div></section>}
+        {step === 4 && selectedItems.length > 0 && <section className="compare-panel" aria-label="選択した商品の比較表"><div className="compare-title"><div><p className="eyebrow">COMPARE</p><h2>選んだ商品を比較</h2></div><span>{selectedItems.length}/3商品</span></div><div className="table-scroll"><table><thead><tr><th>比較項目</th>{selectedItems.map((item) => <th key={item.id}><a className="compare-product-link" href={productPath(item.id)}>{item.name}</a></th>)}</tr></thead><tbody><tr><td>公式参考価格</td>{selectedItems.map((item) => <td key={item.id}>¥{item.price.toLocaleString()}</td>)}</tr><tr><td>音質スコア</td>{selectedItems.map((item) => <td key={item.id}>{item.scores.sound}点</td>)}</tr><tr><td>ノイキャンスコア</td>{selectedItems.map((item) => <td key={item.id}>{item.scores.noiseCancel}点</td>)}</tr><tr><td>バッテリー</td>{selectedItems.map((item) => <td key={item.id}>{item.batteryText}</td>)}</tr><tr><td>防水・防塵</td>{selectedItems.map((item) => <td key={item.id}>{item.waterRating}</td>)}</tr><tr><td>コスパスコア</td>{selectedItems.map((item) => <td key={item.id}>{item.scores.value}点</td>)}</tr></tbody></table></div></section>}
 
         <section id="how" className="section how-section">
           <div className="section-heading"><div><p className="eyebrow">HOW IT WORKS</p><h2>比較の仕組み</h2></div></div>
@@ -216,7 +230,9 @@ function App() {
         </section>
       </main>
 
-      <footer><div className="logo"><span className="logo-mark">✓</span><span>みんなの比較表</span></div><p>あなたの「重視」で、比較をもっと自分向けに。</p><small>最終更新：{LAST_UPDATED}。価格・仕様は変更される場合があります。購入前に各メーカー・販売店の最新情報をご確認ください。</small></footer>
+      {step === 4 && selectedItems.length > 0 && <div className="compare-dock" role="region" aria-label="比較中の商品" aria-live="polite"><div className="compare-dock-count"><strong>{selectedItems.length}</strong><small>/ 3</small></div><div className="compare-dock-main"><b>比較する商品を選択中</b><div className="compare-dock-chips">{selectedItems.map((item) => <span key={item.id}>{item.name}</span>)}</div></div><div className="compare-dock-actions"><button type="button" className="compare-dock-view" onClick={() => scrollTo('.compare-panel')}>比較表を見る</button><button type="button" className="compare-dock-clear" onClick={() => setSelected([])}>クリア</button></div></div>}
+
+      <footer><div className="logo"><span className="logo-mark">✓</span><span>みんなの比較表</span></div><p>あなたの「重視」で、比較をもっと自分向けに。</p><div className="footer-trust-links"><a href="/about/">サイトについて</a><a href="/methodology/">比較方法</a><a href="/affiliate-disclosure/">広告・アフィリエイト方針</a></div><small>最終更新：{LAST_UPDATED}。価格・仕様は変更される場合があります。購入前に各メーカー・販売店の最新情報をご確認ください。</small></footer>
     </div>
   );
 }
