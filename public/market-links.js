@@ -18,7 +18,6 @@
       const name = card.querySelector('.rank-main h3')?.textContent?.trim();
       const actions = card.querySelector('.rank-actions');
       if (!name || !actions) return;
-
       const wrap = document.createElement('div');
       wrap.className = 'market-links';
       wrap.append(
@@ -32,12 +31,11 @@
   const injectProductSchema = (main, name) => {
     if (document.getElementById('dynamic-product-schema')) return;
     const items = [...main.querySelectorAll('.summary-box li')].map((el) => el.textContent.trim());
-    const priceText = items.find((text) => text.includes('価格：') || text.includes('参考価格：')) || '';
+    const priceText = items.find((text) => text.includes('価格：') || text.includes('参考価格：') || text.includes('公式通販価格：') || text.includes('通常価格：') || text.includes('発売時価格：')) || '';
     const brandText = items.find((text) => text.includes('メーカー：')) || '';
     const price = priceText.replace(/[^0-9]/g, '');
     const brand = brandText.split('：')[1]?.trim();
     const official = main.querySelector('.official')?.href;
-
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'Product',
@@ -45,16 +43,8 @@
       ...(brand ? { brand: { '@type': 'Brand', name: brand } } : {}),
       url: location.href,
       ...(official ? { sameAs: official } : {}),
-      ...(price ? {
-        offers: {
-          '@type': 'Offer',
-          priceCurrency: 'JPY',
-          price,
-          url: official || location.href
-        }
-      } : {})
+      ...(price ? { offers: { '@type': 'Offer', priceCurrency: 'JPY', price, url: official || location.href } } : {})
     };
-
     const script = document.createElement('script');
     script.type = 'application/ld+json';
     script.id = 'dynamic-product-schema';
@@ -84,6 +74,37 @@
     summary?.insertAdjacentElement('afterend', box);
   };
 
+  const enhanceComparePage = () => {
+    if (!location.pathname.includes('/earphones/compare/')) return;
+    const main = document.querySelector('.guide-main');
+    const heading = main?.querySelector('h1');
+    if (!main || !heading || main.querySelector('.compare-shop-box')) return;
+    const raw = heading.textContent.replace(/を比較/g, '').trim();
+    const names = raw.split(/\s+vs\s+/i).map((v) => v.trim()).filter(Boolean);
+    if (names.length < 2) return;
+    const box = document.createElement('div');
+    box.className = 'product-shop-box compare-shop-box';
+    const title = document.createElement('strong');
+    title.textContent = '2製品の販売先を確認';
+    box.appendChild(title);
+    names.slice(0, 2).forEach((name) => {
+      const row = document.createElement('div');
+      row.className = 'compare-market-row';
+      const label = document.createElement('b');
+      label.textContent = name;
+      const links = document.createElement('div');
+      links.className = 'market-links';
+      links.append(
+        makeLink('Amazon', amazonUrl(name), 'amazon'),
+        makeLink('楽天', rakutenUrl(name), 'rakuten')
+      );
+      row.append(label, links);
+      box.appendChild(row);
+    });
+    const lead = main.querySelector('.lead');
+    lead?.insertAdjacentElement('afterend', box);
+  };
+
   const addAndroidGuide = () => {
     const grid = document.querySelector('.home-guide-grid');
     if (!grid || grid.querySelector('[href="/earphones/android/"]')) return;
@@ -97,6 +118,7 @@
   const run = () => {
     enhanceRankingCards();
     enhanceProductPage();
+    enhanceComparePage();
     addAndroidGuide();
   };
 
