@@ -40,6 +40,26 @@
     return a;
   };
 
+  const syncRakutenAffiliateLinks = () => {
+    document.querySelectorAll('.api-product-thumb[data-provider="rakuten"][data-product]').forEach((media) => {
+      const name = media.dataset.product || '';
+      const href = media.getAttribute('href') || '';
+      if (!name || !href || href === '#') return;
+      document.querySelectorAll('.market-btn.rakuten[data-product]').forEach((link) => {
+        if (link.dataset.product !== name) return;
+        link.href = href;
+        link.dataset.affiliate = 'rakuten';
+        link.setAttribute('aria-label', `${name}を楽天で見る（アフィリエイトリンク）`);
+      });
+    });
+  };
+
+  const observeAffiliateMedia = () => {
+    if (!document.body || document.documentElement.dataset.rakutenAffiliateObserver) return;
+    document.documentElement.dataset.rakutenAffiliateObserver = '1';
+    new MutationObserver(syncRakutenAffiliateLinks).observe(document.body, { childList: true, subtree: true });
+  };
+
   const enhanceRankingCards = () => {
     document.querySelectorAll('.rank-card').forEach((card) => {
       if (card.querySelector('.market-links')) return;
@@ -167,6 +187,8 @@
     enhanceFooter();
     syncEarphoneCount();
     enhanceCategories();
+    syncRakutenAffiliateLinks();
+    observeAffiliateMedia();
     bindTracking();
   };
 

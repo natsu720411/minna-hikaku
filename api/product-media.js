@@ -27,11 +27,13 @@ const ACCESSORY_TERMS = [
 ];
 const SEARCH_OVERRIDES = {
   jbllivebeam3: {
+    productCode: '4968929221707',
     keyword: 'JBLLIVEBEAM3',
     fallbackKeyword: 'JBL Live Beam3',
     requiredTerms: ['完全ワイヤレス', 'ワイヤレスイヤホン', 'イヤホン'],
   },
   soundcoreliberty5: {
+    productCode: '4571411228452',
     keyword: 'A3957N11',
     fallbackKeyword: 'Soundcore Liberty 5',
     requiredTerms: ['完全ワイヤレス', 'ワイヤレスイヤホン', 'イヤホン'],
@@ -212,15 +214,20 @@ const scoreItem = (item, query) => {
   return score;
 };
 
-async function searchRakutenProduct(query, applicationId, accessKey, affiliateId) {
-  const keyword = buildProductKeyword(query);
-  if (!keyword) return null;
+async function searchRakutenProduct(query, applicationId, accessKey, affiliateId, options = {}) {
+  const keyword = options.keyword || buildProductKeyword(query);
+  const productCode = options.productCode || '';
+  if (!keyword && !productCode) return null;
 
   const url = new URL('https://openapi.rakuten.co.jp/ichibaproduct/api/Product/Search/20250801');
   url.searchParams.set('applicationId', applicationId);
   url.searchParams.set('accessKey', accessKey);
-  url.searchParams.set('keyword', keyword);
-  url.searchParams.set('hits', '30');
+  if (productCode) {
+    url.searchParams.set('productCode', productCode);
+  } else {
+    url.searchParams.set('keyword', keyword);
+    url.searchParams.set('hits', '30');
+  }
   url.searchParams.set('format', 'json');
   url.searchParams.set('formatVersion', '2');
   url.searchParams.set('elements', 'productName,productNo,brandName,productUrlPC,affiliateUrl,mediumImageUrl,smallImageUrl,salesMinPrice,productCode');
@@ -254,7 +261,7 @@ async function searchRakutenProduct(query, applicationId, accessKey, affiliateId
       if (!brandIsCompatible(item, query)) return false;
       return true;
     })
-    .map((item) => ({ item, score: scoreProduct(item, query) }))
+    .map((item) => ({ item, score: productCode ? 999 : scoreProduct(item, query) }))
     .sort((a, b) => b.score - a.score);
 
   const best = ranked[0];
@@ -262,16 +269,16 @@ async function searchRakutenProduct(query, applicationId, accessKey, affiliateId
   const item = best.item;
   return {
     provider: 'rakuten',
-    sourceType: 'product',
+    sourceType: productCode ? 'product-code' : 'product',
     title: item.productName || query,
     imageUrl: item.mediumImageUrl || item.smallImageUrl,
     width: item.mediumImageUrl ? 128 : 64,
     height: item.mediumImageUrl ? 128 : 64,
     productUrl: item.affiliateUrl || item.productUrlPC || null,
     price: item.salesMinPrice ?? item.minPrice ?? null,
-    searchedKeyword: keyword,
+    searchedKeyword: productCode || keyword,
     matchScore: best.score,
-    productCode: item.productCode || null,
+    productCode: item.productCode || productCode || null,
   };
 }
 
@@ -345,6 +352,14 @@ async function searchRakuten(query) {
 
   const override = getSearchOverride(query);
   if (override) {
+    if (override.productCode) {
+      const exactProduct = await searchRakutenProduct(query, applicationId, accessKey, affiliateId, {
+        productCode: override.productCode,
+      });
+      if (exactProduct) return exactProduct;
+    }
+
+    await sleep(1300);
     const exact = await searchRakutenItem(query, applicationId, accessKey, affiliateId, {
       keyword: override.keyword,
       requiredTerms: override.requiredTerms,
