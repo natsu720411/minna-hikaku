@@ -16,6 +16,12 @@ const KNOWN_BRANDS = new Set([
   'apple','sony','samsung','google','jbl','bose','technics','anker','huawei','beats','nothing','earfun',
   'xiaomi','poco','motorola','sharp','cio','belkin','elecom','buffalo'
 ]);
+const ACCESSORY_TERMS = [
+  '保護フィルム','液晶保護','保護シート','保護ガラス','強化ガラス','ガラスフィルム','カメラフィルム','レンズ保護',
+  'ケース用','充電ケース用','収納ケース','保護ケース','ケースカバー','スキンシール','ステッカー','イヤーピース','イヤーチップ',
+  '交換用イヤー','ストラップ','ホルダー','バンパー','保護カバー','保護プロテクター','専用ポーチ','交換パーツ',
+  'screen protector','protective film','tempered glass','case cover','replacement tips','ear tips','skin sticker'
+];
 
 const normalizeComparable = (value) => String(value || '')
   .normalize('NFKC')
@@ -45,6 +51,16 @@ const buildModelKeyword = (value) => {
   if (tokens.length > 1 && KNOWN_BRANDS.has(tokens[0].toLowerCase())) tokens = tokens.slice(1);
   const keyword = tokens.join(' ').trim();
   return (keyword || buildProductKeyword(value)).slice(0, 128);
+};
+
+const expectedBrand = (query) => {
+  const first = cleanTokens(query)[0]?.toLowerCase() || '';
+  return KNOWN_BRANDS.has(first) ? first : '';
+};
+
+const accessoryPenalty = (text) => {
+  const normalized = String(text || '').normalize('NFKC').toLowerCase();
+  return ACCESSORY_TERMS.some((term) => normalized.includes(term.toLowerCase())) ? 320 : 0;
 };
 
 const rakutenHeaders = {
@@ -143,6 +159,29 @@ const scoreText = (text, query) => {
   return score;
 };
 
+const scoreProduct = (item, query) => {
+  const title = `${item.productName || ''} ${item.productNo || ''} ${item.brandName || ''}`;
+  let score = scoreText(title, query) - accessoryPenalty(title);
+  const brand = expectedBrand(query);
+  if (brand) {
+    const itemBrand = normalizeComparable(item.brandName || '');
+    const itemTitle = normalizeComparable(item.productName || '');
+    const targetBrand = normalizeComparable(brand);
+    if (itemBrand && itemBrand.includes(targetBrand)) score += 180;
+    else if (itemBrand) score -= 180;
+    else if (itemTitle.startsWith(targetBrand)) score += 80;
+  }
+  return score;
+};
+
+const scoreItem = (item, query) => {
+  const title = item.itemName || '';
+  let score = scoreText(title, query) - accessoryPenalty(title);
+  const brand = expectedBrand(query);
+  if (brand && normalizeComparable(title).includes(normalizeComparable(brand))) score += 50;
+  return score;
+};
+
 async function searchRakutenProduct(query, applicationId, accessKey, affiliateId) {
   const keyword = buildProductKeyword(query);
   if (!keyword) return null;
@@ -179,14 +218,11 @@ async function searchRakutenProduct(query, applicationId, accessKey, affiliateId
 
   const ranked = items
     .filter((item) => item?.mediumImageUrl || item?.smallImageUrl)
-    .map((item) => ({
-      item,
-      score: scoreText(`${item.productName || ''} ${item.productNo || ''} ${item.brandName || ''}`, query),
-    }))
+    .map((item) => ({ item, score: scoreProduct(item, query) }))
     .sort((a, b) => b.score - a.score);
 
   const best = ranked[0];
-  if (!best || best.score < 30) return null;
+  if (!best || best.score < 80) return null;
   const item = best.item;
   return {
     provider: 'rakuten',
@@ -239,11 +275,11 @@ async function searchRakutenItem(query, applicationId, accessKey, affiliateId) {
   const ranked = items
     .map((entry) => entry?.item || entry)
     .filter((item) => item && rakutenItemImage(item))
-    .map((item) => ({ item, score: scoreText(item.itemName || '', query) }))
+    .map((item) => ({ item, score: scoreItem(item, query) }))
     .sort((a, b) => b.score - a.score);
 
   const best = ranked[0];
-  if (!best || best.score < 30) return null;
+  if (!best || best.score < 60) return null;
   const item = best.item;
   return {
     provider: 'rakuten',
