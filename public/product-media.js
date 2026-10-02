@@ -22,6 +22,8 @@
       .product-visual.api-media-ready img{object-fit:contain;background:#fff}
       .api-detail-media{margin:8px 0 20px;width:150px;height:150px}
       .api-affiliate-note{font-size:10px;color:#7f8da0;line-height:1.55;margin:8px 0 0}
+      .api-credit{margin-top:8px;font-size:10px}
+      .api-credit a{color:inherit}
       @media(max-width:680px){.api-product-thumb{width:70px;height:70px;border-radius:15px}.catalog-api-media{width:68px;height:68px;margin-right:9px}.api-detail-media{width:120px;height:120px}}
     `;
     document.head.appendChild(style);
@@ -47,13 +49,23 @@
   };
 
   const affiliateDisclosure = (provider) => {
-    if (provider !== 'amazon' || document.getElementById('amazon-associate-disclosure')) return;
-    const note = document.createElement('p');
-    note.id = 'amazon-associate-disclosure';
-    note.className = 'api-affiliate-note';
-    note.textContent = 'Amazonのアソシエイトとして、みんなの比較表は適格販売により収入を得ています。';
     const footer = document.querySelector('footer');
-    (footer?.firstElementChild || footer || document.body).appendChild(note);
+    const target = footer?.firstElementChild || footer || document.body;
+
+    if (provider === 'amazon' && !document.getElementById('amazon-associate-disclosure')) {
+      const note = document.createElement('p');
+      note.id = 'amazon-associate-disclosure';
+      note.className = 'api-affiliate-note';
+      note.textContent = 'Amazonのアソシエイトとして、みんなの比較表は適格販売により収入を得ています。';
+      target.appendChild(note);
+    }
+
+    if (provider === 'rakuten' && !document.querySelector('a[href="https://developers.rakuten.com/"]')) {
+      const wrap = document.createElement('div');
+      wrap.className = 'api-credit';
+      wrap.insertAdjacentHTML('beforeend', '<a href="https://developers.rakuten.com/" target="_blank">Supported by Rakuten Developers</a>');
+      target.appendChild(wrap);
+    }
   };
 
   const imageLink = (result, name, extraClass = '') => {
