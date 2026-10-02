@@ -1,3 +1,4 @@
+// Redeploy marker: load production affiliate API environment variables.
 let amazonToken = null;
 let amazonTokenExpiresAt = 0;
 
