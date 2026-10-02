@@ -7,7 +7,7 @@
   let queueTail = Promise.resolve();
   let lastApiRequestAt = 0;
   const MIN_API_INTERVAL_MS = 1200;
-  const MEDIA_API_VERSION = '20261003-2';
+  const MEDIA_API_VERSION = '20261003-3';
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -122,6 +122,17 @@
     return link;
   };
 
+  const applyRakutenAffiliateLink = (scope, result, name) => {
+    if (!scope || result?.provider !== 'rakuten' || !result?.productUrl) return;
+    const button = scope.querySelector?.('.market-btn.rakuten');
+    if (!button) return;
+    button.href = result.productUrl;
+    button.dataset.track = 'rakuten_click';
+    button.dataset.product = name || '';
+    button.dataset.affiliate = 'rakuten';
+    button.rel = 'nofollow noopener noreferrer sponsored';
+  };
+
   const enhanceReactCard = async (card) => {
     if (card.dataset.apiMediaProcessed) return;
     card.dataset.apiMediaProcessed = '1';
@@ -129,7 +140,9 @@
     const visual = card.querySelector('.big-product-icon');
     if (!name || !visual) return;
     const result = await lookup(name);
-    if (!result?.imageUrl) return;
+    if (!result) return;
+    applyRakutenAffiliateLink(card, result, name);
+    if (!result.imageUrl) return;
     visual.textContent = '';
     visual.classList.add('api-media-ready');
     visual.appendChild(imageLink(result, name));
@@ -142,7 +155,9 @@
     const content = card.children?.[1];
     if (!name || !content) return;
     const result = await lookup(name);
-    if (!result?.imageUrl) return;
+    if (!result) return;
+    applyRakutenAffiliateLink(card, result, name);
+    if (!result.imageUrl) return;
     const media = imageLink(result, name, 'catalog-api-media');
     const brand = content.querySelector('.brand');
     if (brand) brand.insertAdjacentElement('afterend', media);
@@ -158,7 +173,9 @@
     const name = heading.textContent.replace(/を比較.*$/,'').replace(/詳細.*$/,'').trim();
     if (!name) return;
     const result = await lookup(name);
-    if (!result?.imageUrl) return;
+    if (!result) return;
+    applyRakutenAffiliateLink(main, result, name);
+    if (!result.imageUrl) return;
     const existing = main.querySelector('.product-visual');
     if (existing) {
       existing.textContent = '';
