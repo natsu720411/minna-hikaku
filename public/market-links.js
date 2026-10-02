@@ -2,13 +2,14 @@
   const amazonUrl = (name) => `https://www.amazon.co.jp/s?k=${encodeURIComponent(name)}`;
   const rakutenUrl = (name) => `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(name)}/`;
 
-  const makeLink = (label, href, cls) => {
+  const makeLink = (label, href, cls, name) => {
     const a = document.createElement('a');
     a.className = `market-btn ${cls}`;
     a.href = href;
     a.target = '_blank';
     a.rel = 'nofollow noopener noreferrer';
     a.textContent = label;
+    if (name) a.setAttribute('aria-label', `${name}を${label}`);
     return a;
   };
 
@@ -20,42 +21,30 @@
       if (!name || !actions) return;
       const wrap = document.createElement('div');
       wrap.className = 'market-links';
-      wrap.append(makeLink('Amazonで探す', amazonUrl(name), 'amazon'), makeLink('楽天で探す', rakutenUrl(name), 'rakuten'));
+      wrap.append(
+        makeLink('Amazonで探す', amazonUrl(name), 'amazon', name),
+        makeLink('楽天で探す', rakutenUrl(name), 'rakuten', name),
+      );
       actions.appendChild(wrap);
     });
-  };
-
-  const injectProductSchema = (main, name) => {
-    if (document.getElementById('dynamic-product-schema')) return;
-    const items = [...main.querySelectorAll('.summary-box li')].map((el) => el.textContent.trim());
-    const priceText = items.find((text) => text.includes('価格：') || text.includes('参考価格：') || text.includes('公式通販価格：') || text.includes('通常価格：') || text.includes('発売時価格：')) || '';
-    const brandText = items.find((text) => text.includes('メーカー：')) || '';
-    const price = priceText.replace(/[^0-9]/g, '');
-    const brand = brandText.split('：')[1]?.trim();
-    const official = main.querySelector('.official')?.href;
-    const schema = {'@context':'https://schema.org','@type':'Product',name,...(brand?{brand:{'@type':'Brand',name:brand}}:{}),url:location.href,...(official?{sameAs:official}:{}),...(price?{offers:{'@type':'Offer',priceCurrency:'JPY',price,url:official||location.href}}:{})};
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.id = 'dynamic-product-schema';
-    script.textContent = JSON.stringify(schema);
-    document.head.appendChild(script);
   };
 
   const enhanceProductPage = () => {
     if (!location.pathname.includes('/earphones/products/')) return;
     const main = document.querySelector('.guide-main');
     const heading = main?.querySelector('h1');
-    if (!main || !heading) return;
+    if (!main || !heading || main.querySelector('.product-shop-box')) return;
     const name = heading.textContent.replace('を比較', '').trim();
-    injectProductSchema(main, name);
-    if (main.querySelector('.product-shop-box')) return;
     const summary = main.querySelector('.summary-box');
     const box = document.createElement('div');
     box.className = 'product-shop-box';
     box.innerHTML = `<strong>${name}の販売先を探す</strong><p>価格は販売店やセールで変動します。購入前に最新価格を確認してください。</p>`;
     const links = document.createElement('div');
     links.className = 'market-links market-links-wide';
-    links.append(makeLink('Amazonで探す', amazonUrl(name), 'amazon'), makeLink('楽天で探す', rakutenUrl(name), 'rakuten'));
+    links.append(
+      makeLink('Amazonで探す', amazonUrl(name), 'amazon', name),
+      makeLink('楽天で探す', rakutenUrl(name), 'rakuten', name),
+    );
     box.appendChild(links);
     summary?.insertAdjacentElement('afterend', box);
   };
@@ -81,7 +70,10 @@
       label.textContent = name;
       const links = document.createElement('div');
       links.className = 'market-links';
-      links.append(makeLink('Amazon', amazonUrl(name), 'amazon'), makeLink('楽天', rakutenUrl(name), 'rakuten'));
+      links.append(
+        makeLink('Amazon', amazonUrl(name), 'amazon', name),
+        makeLink('楽天', rakutenUrl(name), 'rakuten', name),
+      );
       row.append(label, links);
       box.appendChild(row);
     });
@@ -89,19 +81,9 @@
     lead?.insertAdjacentElement('afterend', box);
   };
 
-  const addAndroidGuide = () => {
-    const grid = document.querySelector('.home-guide-grid');
-    if (!grid || grid.querySelector('[href="/earphones/android/"]')) return;
-    const link = document.createElement('a');
-    link.href = '/earphones/android/';
-    link.textContent = '🤖 Android・Pixel向け';
-    const allLink = grid.querySelector('[href="/earphones/"]');
-    grid.insertBefore(link, allLink || null);
-  };
-
   const enhanceFooter = () => {
     document.querySelectorAll('footer').forEach((footer) => {
-      if (footer.querySelector('.trust-footer-links')) return;
+      if (footer.querySelector('.trust-footer-links') || footer.querySelector('.footer-trust-links')) return;
       const wrap = document.createElement('div');
       wrap.className = 'trust-footer-links';
       wrap.innerHTML = '<a href="/about/">サイトについて</a><a href="/methodology/">比較方法</a><a href="/affiliate-disclosure/">広告・アフィリエイト方針</a>';
@@ -109,8 +91,24 @@
     });
   };
 
-  const run = () => { enhanceRankingCards(); enhanceProductPage(); enhanceComparePage(); addAndroidGuide(); enhanceFooter(); };
-  window.addEventListener('DOMContentLoaded', run);
+  const run = () => {
+    enhanceRankingCards();
+    enhanceProductPage();
+    enhanceComparePage();
+    enhanceFooter();
+  };
+
+  let scheduled = false;
+  const scheduleRun = () => {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(() => {
+      scheduled = false;
+      run();
+    });
+  };
+
+  window.addEventListener('DOMContentLoaded', scheduleRun, { once: true });
   const root = document.getElementById('root');
-  if (root) new MutationObserver(run).observe(root, { childList: true, subtree: true });
+  if (root) new MutationObserver(scheduleRun).observe(root, { childList: true, subtree: true });
 })();
