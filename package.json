@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "generate:details": "node scripts/generate-category-details.mjs --target=public && node scripts/expand-category-comparisons.mjs --target=public && node scripts/expand-legacy-comparisons.mjs --target=public && node scripts/normalize-sitemaps.mjs",
-    "build": "node scripts/prebuild-sitemaps.mjs && vite build",
+    "generate:details": "node scripts/generate-category-details.mjs --target=public && node scripts/expand-category-comparisons.mjs --target=public && node scripts/expand-legacy-comparisons.mjs --target=public && node scripts/normalize-sitemaps.mjs && node scripts/enhance-static-navigation.mjs --target=public && node scripts/validate-generated-site.mjs --target=public",
+    "build": "node scripts/prebuild-sitemaps.mjs && vite build && node scripts/enhance-static-navigation.mjs --target=dist && node scripts/validate-generated-site.mjs --target=dist",
     "preview": "vite preview"
   },
   "dependencies": {
