@@ -9,53 +9,58 @@
   const MIN_API_INTERVAL_MS = 1200;
   const MEDIA_API_VERSION = '20261004-1';
 
+  const ACCESSORY_TERMS = [
+    '保護フィルム','液晶保護','保護シート','保護ガラス','強化ガラス','ガラスフィルム','カメラフィルム','レンズ保護',
+    'ケース','カバー','収納ケース','保護ケース','シリコンケース','クリアケース','レザーケース','ハードケース','ソフトケース','キャリングケース','専用ケース',
+    'バンド','ベルト','交換バンド','ウォッチバンド','ストラップ','ホルダー','スタンド','充電台','充電スタンド','ドック',
+    'イヤーピース','イヤーチップ','交換用','スキンシール','ステッカー','バンパー','専用ポーチ','交換パーツ','ダストプラグ','防塵シール',
+    'タッチペン','スタイラス','キーボードケース','キーボードカバー','ペン先','替え芯','保護プロテクター',
+    'ケーブル','usbケーブル','usb-cケーブル','type-cケーブル','延長コード','電源コード','変換アダプタ','変換アダプター','変換プラグ',
+    'screen protector','protective film','tempered glass','case cover','silicone case','protective case','carrying case','watch band','replacement band','strap',
+    'keyboard case','stylus','pencil case','charging stand','charging dock','usb cable','type-c cable','power cable','adapter cable','replacement tips','ear tips'
+  ];
+  const GENERIC_TOKENS = new Set([
+    'wifi','wi-fi','gps','bluetooth','モデル','製品','充電器','charger','watch','ウォッチ','tablet','タブレット','ipad','galaxy','google','apple','samsung','huawei','xiaomi','garmin','lenovo','anker','cio','ugreen','belkin',
+    'gb','mah','usb','type','ports','port','インチ','inch'
+  ]);
+  const BRAND_TOKENS = ['apple','samsung','google','huawei','xiaomi','redmi','garmin','lenovo','anker','cio','ugreen','belkin','sony','jbl','bose','technics','nothing','earfun','beats','soundcore','pixel','galaxy'];
+
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-  const normalize = (value = '') => String(value)
-    .normalize('NFKC')
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}]+/gu, '');
-
-  const GENERIC_ACCESSORY_TERMS = [
-    '保護フィルム','液晶保護','ガラスフィルム','強化ガラス','保護ケース','収納ケース','ケースカバー',
-    'シリコンケース','クリアケース','キャリングケース','イヤーピース','イヤーチップ','交換用','ストラップ',
-    'ホルダー','バンパー','保護カバー','専用ポーチ','スキンシール','screenprotector','protectivefilm',
-    'temperedglass','siliconecase','protectivecase','replacementtips','eartips','carryingcase'
-  ].map(normalize);
-
-  const categoryAccessoryTerms = (name = '') => {
-    const n = normalize(name);
-    if (/(watch|ウォッチ|garmin|forerunner|venu)/.test(n)) {
-      return ['交換バンド','替えバンド','バンド','ベルト','充電スタンド','充電ケーブル','ウォッチケース'].map(normalize);
-    }
-    if (/(ipad|tablet|tab|pad|matepad|タブレット)/.test(n)) {
-      return ['キーボードケース','キーボードカバー','タッチペン','スタイラス','タブレットスタンド'].map(normalize);
-    }
-    if (/(charger|充電器|novaport|nexode|boostcharge)/.test(n)) {
-      return ['充電ケーブルのみ','usbケーブル','typecケーブル','変換ケーブル'].map(normalize);
-    }
-    return [];
+  const normalize = (value) => String(value || '').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
+  const tokenize = (value) => String(value || '').normalize('NFKC').toLowerCase().replace(/[()（）［］\[\]{}]/g, ' ').split(/[^\p{L}\p{N}+.-]+/u).map((x) => x.trim()).filter(Boolean);
+  const isAccessoryTitle = (title) => {
+    const compact = normalize(title);
+    return ACCESSORY_TERMS.some((term) => compact.includes(normalize(term)));
   };
+  const expectedBrand = (query) => {
+    const compact = normalize(query);
+    return BRAND_TOKENS.find((brand) => compact.includes(normalize(brand))) || '';
+  };
+  const meaningfulTokens = (value) => tokenize(value).filter((token) => {
+    const clean = token.replace(/^\d+(gb|mah|w|mm)$/i, '$1').toLowerCase();
+    if (!token || GENERIC_TOKENS.has(token) || GENERIC_TOKENS.has(clean)) return false;
+    if (/^\d+$/.test(token) && token.length < 2) return false;
+    return token.length >= 2 || /\d/.test(token);
+  });
+  const isLikelyProductMatch = (result, query) => {
+    const title = result?.title || '';
+    if (!title || isAccessoryTitle(title)) return false;
+    const q = normalize(query);
+    const t = normalize(title);
+    if (q && t.includes(q)) return true;
 
-  const isSafeResult = (name, result) => {
-    if (!result) return false;
-    const title = normalize(result.title || '');
-    if (!title) return true;
-    const blocked = [...GENERIC_ACCESSORY_TERMS, ...categoryAccessoryTerms(name)];
-    if (blocked.some((term) => term && title.includes(term))) return false;
+    const brand = expectedBrand(query);
+    if (brand && !t.includes(normalize(brand))) return false;
 
-    const tokens = String(name || '')
-      .normalize('NFKC')
-      .split(/[\s()（）/,+-]+/)
-      .map((token) => normalize(token))
-      .filter((token) => token.length >= 3 && !['wifi','gps','gan','usb','ports','display'].includes(token));
+    const tokens = meaningfulTokens(query);
     if (!tokens.length) return true;
+    const matched = tokens.filter((token) => t.includes(normalize(token)));
+    const distinctive = tokens.filter((token) => /\d/.test(token) || token.length >= 4);
+    const distinctiveMatched = distinctive.filter((token) => t.includes(normalize(token)));
 
-    const distinctive = tokens.filter((token) =>
-      /\d/.test(token) || token.length >= 5 || ['ipad','pixel','galaxy','anker','xiaomi','redmi','garmin','huawei','lenovo','ugreen','belkin','novaport','nexode'].includes(token)
-    );
-    const targets = distinctive.length ? distinctive : tokens;
-    return targets.some((token) => title.includes(token));
+    if (tokens.length <= 2) return matched.length >= 1 && (!distinctive.length || distinctiveMatched.length >= 1);
+    const ratio = matched.length / tokens.length;
+    return ratio >= 0.55 && (!distinctive.length || distinctiveMatched.length >= Math.min(2, distinctive.length));
   };
 
   const enqueueApiRequest = (task) => {
@@ -86,27 +91,23 @@
       .product-visual.api-media-ready img{object-fit:contain;background:#fff}
       .api-detail-media{margin:8px 0 20px;width:150px;height:150px}
       .api-affiliate-note{font-size:10px;color:#7f8da0;line-height:1.55;margin:8px 0 0}
-      .api-credit{margin-top:8px;font-size:10px}
-      .api-credit a{color:inherit}
+      .api-credit{margin-top:8px;font-size:10px}.api-credit a{color:inherit}
       @media(max-width:680px){.api-product-thumb{width:70px;height:70px;border-radius:15px}.catalog-api-media{width:68px;height:68px;margin-right:9px}.api-detail-media{width:120px;height:120px}}
     `;
     document.head.appendChild(style);
   };
 
-  const fetchLookup = async (key, attempt = 0) => {
-    const url = `/api/product-media?q=${encodeURIComponent(key)}&v=${encodeURIComponent(MEDIA_API_VERSION)}`;
-    const response = await fetch(url, {
-      cache: 'no-store',
-      headers: { Accept: 'application/json' },
-    });
+  const fetchLookup = async (key, provider = 'auto', attempt = 0) => {
+    const providerPart = provider === 'auto' ? '' : `&provider=${encodeURIComponent(provider)}`;
+    const url = `/api/product-media?q=${encodeURIComponent(key)}&v=${encodeURIComponent(MEDIA_API_VERSION)}${providerPart}`;
+    const response = await fetch(url, { cache: 'no-store', headers: { Accept: 'application/json' } });
     if (response.status === 429 && attempt < 2) {
       await sleep(1400 * (attempt + 1));
-      return fetchLookup(key, attempt + 1);
+      return fetchLookup(key, provider, attempt + 1);
     }
     if (!response.ok) return null;
     const data = await response.json();
-    const result = data?.ok ? data.result : null;
-    return isSafeResult(key, result) ? result : null;
+    return data?.ok ? data.result : null;
   };
 
   const lookup = async (name) => {
@@ -115,13 +116,16 @@
     if (cache.has(key)) return cache.get(key);
     if (pending.has(key)) return pending.get(key);
 
-    const request = enqueueApiRequest(() => fetchLookup(key))
-      .then((result) => {
-        cache.set(key, result);
-        return result;
-      })
-      .catch(() => null)
-      .finally(() => pending.delete(key));
+    const request = enqueueApiRequest(async () => {
+      const first = await fetchLookup(key, 'auto');
+      if (first && isLikelyProductMatch(first, key)) return first;
+      const rakuten = await fetchLookup(key, 'rakuten');
+      if (rakuten && isLikelyProductMatch(rakuten, key)) return rakuten;
+      return null;
+    }).then((result) => {
+      cache.set(key, result);
+      return result;
+    }).catch(() => null).finally(() => pending.delete(key));
 
     pending.set(key, request);
     return request;
@@ -130,7 +134,6 @@
   const affiliateDisclosure = (provider) => {
     const footer = document.querySelector('footer');
     const target = footer?.firstElementChild || footer || document.body;
-
     if (provider === 'amazon' && !document.getElementById('amazon-associate-disclosure')) {
       const note = document.createElement('p');
       note.id = 'amazon-associate-disclosure';
@@ -138,7 +141,6 @@
       note.textContent = 'Amazonのアソシエイトとして、みんなの比較表は適格販売により収入を得ています。';
       target.appendChild(note);
     }
-
     if (provider === 'rakuten' && !document.querySelector('a[href="https://developers.rakuten.com/"]')) {
       const wrap = document.createElement('div');
       wrap.className = 'api-credit';
@@ -152,9 +154,7 @@
     link.className = `api-product-thumb ${extraClass}`.trim();
     link.href = result.productUrl || '#';
     link.target = '_blank';
-    link.rel = result.provider === 'rakuten'
-      ? 'nofollow noopener noreferrer sponsored'
-      : 'nofollow noopener noreferrer';
+    link.rel = result.provider === 'rakuten' ? 'nofollow noopener noreferrer sponsored' : 'nofollow noopener noreferrer';
     link.dataset.provider = result.provider;
     link.dataset.label = `${result.provider === 'amazon' ? 'Amazon' : '楽天'}の商品画像`;
     link.dataset.track = result.provider === 'amazon' ? 'amazon_click' : 'rakuten_click';
@@ -252,7 +252,7 @@
     };
     scan();
     const targets = [document.getElementById('root'), document.getElementById('list')].filter(Boolean);
-    targets.forEach((target) => new MutationObserver(scan).observe(target, { childList: true, subtree:true }));
+    targets.forEach((target) => new MutationObserver(scan).observe(target, { childList: true, subtree: true }));
   };
 
   const start = () => {

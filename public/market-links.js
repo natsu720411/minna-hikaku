@@ -166,24 +166,58 @@
     });
   };
 
+  const categoryCards = [
+    { href:'/earphones/', icon:'🎧', title:'ワイヤレスイヤホン', count:'30機種', desc:'音質・ノイキャン・価格・電池持ち', category:'earphones', badge:'診断あり' },
+    { href:'/mobile-batteries/', icon:'🔋', title:'モバイルバッテリー', count:'30製品', desc:'容量・出力・軽さ・Qi2・ケーブル', category:'mobile_batteries' },
+    { href:'/smartphones/', icon:'📱', title:'スマートフォン', count:'30機種', desc:'カメラ・性能・バッテリー・価格', category:'smartphones' },
+    { href:'/smartwatches/', icon:'⌚', title:'スマートウォッチ', count:'20モデル', desc:'健康管理・スポーツ・電池・軽さ', category:'smartwatches', badge:'NEW' },
+    { href:'/tablets/', icon:'📚', title:'タブレット', count:'20モデル', desc:'性能・画面・ペン・持ち運び', category:'tablets', badge:'NEW' },
+    { href:'/chargers/', icon:'🔌', title:'USB充電器', count:'20製品', desc:'最大出力・ポート数・小型・PC対応', category:'chargers', badge:'NEW' },
+  ];
+
+  const categoryStyle = () => {
+    if (document.getElementById('category-showcase-style')) return;
+    const style = document.createElement('style');
+    style.id = 'category-showcase-style';
+    style.textContent = `
+      #categories{scroll-margin-top:96px}
+      #categories .home-guide-box{max-width:1180px;margin:0 auto;padding:34px 24px 18px}
+      .category-showcase-head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:20px}
+      .category-showcase-head h2{margin:0;font-size:32px;letter-spacing:-.035em}
+      .category-showcase-head>p{margin:0;color:#7a889c;font-size:13px;max-width:430px;line-height:1.7}
+      .category-showcase-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+      .category-showcase-card{position:relative;display:grid;grid-template-columns:58px 1fr auto;gap:13px;align-items:center;min-height:118px;padding:18px;border:1px solid #dfe7f1;border-radius:20px;background:linear-gradient(145deg,#fff 0%,#fbfdff 100%);color:#22364f;text-decoration:none;box-shadow:0 7px 22px rgba(30,61,102,.045);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+      .category-showcase-card:hover{transform:translateY(-3px);border-color:#a8c9fb;box-shadow:0 16px 34px rgba(28,72,130,.1)}
+      .category-showcase-icon{width:58px;height:58px;display:grid;place-items:center;border-radius:17px;background:#eef5ff;border:1px solid #deebff;font-size:27px}
+      .category-showcase-main{min-width:0}.category-showcase-title{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.category-showcase-title b{font-size:15px;line-height:1.35}.category-showcase-count{display:inline-flex;align-items:center;border-radius:999px;background:#eff4fa;color:#61748d;padding:4px 7px;font-size:9px;font-weight:900}.category-showcase-desc{display:block;margin-top:7px;color:#8190a4;font-size:10px;line-height:1.55;font-weight:700}.category-showcase-arrow{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:#f0f5fc;color:#0f6cf9;font-size:16px;font-weight:950}.category-showcase-card:hover .category-showcase-arrow{background:#0f6cf9;color:#fff}.category-showcase-badge{position:absolute;right:12px;top:10px;border-radius:999px;padding:4px 7px;background:#eaf3ff;color:#0b5fd7;font-size:8px;font-weight:950;letter-spacing:.04em}
+      @media(max-width:900px){#categories .home-guide-box{padding-left:18px;padding-right:18px}.category-showcase-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.category-showcase-head{align-items:flex-start;flex-direction:column;gap:8px}}
+      @media(max-width:620px){#categories{scroll-margin-top:76px}.category-showcase-grid{grid-template-columns:1fr;gap:10px}.category-showcase-card{min-height:98px;padding:14px;grid-template-columns:50px 1fr 30px;border-radius:17px}.category-showcase-icon{width:50px;height:50px;border-radius:14px;font-size:23px}.category-showcase-title b{font-size:14px}.category-showcase-desc{font-size:9px}.category-showcase-head h2{font-size:26px}.category-showcase-badge{right:10px;top:8px}}
+    `;
+    document.head.appendChild(style);
+  };
+
   const enhanceCategories = () => {
-    if (location.pathname !== '/' || document.querySelector('#categories')) return;
-    const hero = document.querySelector('.hero');
-    if (!hero) return;
-    if (!document.getElementById('category-expansion-style')) {
-      const style = document.createElement('style');
-      style.id = 'category-expansion-style';
-      style.textContent = '.category-section{max-width:1120px;margin:0 auto;padding:32px 24px 18px}.category-heading{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:18px}.category-heading h2{margin:3px 0 0;font-size:30px}.category-heading p{margin:0;color:#7c8a9e;font-size:13px}.category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.category-card{display:grid;grid-template-columns:54px 1fr auto;align-items:center;gap:12px;padding:19px;border:1px solid #dfe7f1;border-radius:20px;background:#fff;text-decoration:none;color:#263850}.category-icon{width:54px;height:54px;display:grid;place-items:center;border-radius:16px;background:#eef5ff;font-size:25px}.category-card b{display:block;font-size:15px}.category-card small{display:block;margin-top:5px;color:#8190a4;line-height:1.5;font-size:10px}.category-arrow{color:#0f6cf9;font-size:20px;font-weight:900}@media(max-width:900px){.category-grid{grid-template-columns:1fr 1fr}.category-grid .category-card:last-child{grid-column:1/-1}}@media(max-width:680px){.category-section{padding:24px 16px 12px}.category-heading{display:block}.category-grid{grid-template-columns:1fr}.category-grid .category-card:last-child{grid-column:auto}}';
-      document.head.appendChild(style);
+    if (location.pathname !== '/') return;
+    categoryStyle();
+    let section = document.querySelector('#categories');
+    if (!section) {
+      const hero = document.querySelector('.hero');
+      if (!hero) return;
+      section = document.createElement('section');
+      section.id = 'categories';
+      section.className = 'home-guide-section';
+      hero.insertAdjacentElement('afterend', section);
     }
-    const section = document.createElement('section');
-    section.id = 'categories';
-    section.className = 'category-section';
-    section.innerHTML = '<div class="category-heading"><div><p class="eyebrow">CATEGORIES</p><h2>比較するカテゴリを選ぶ</h2></div><p>同じ「みんなの比較表」で、ほかの商品も条件別に比較できます。</p></div><div class="category-grid"><a class="category-card" href="#quiz" data-track="category_click" data-category="earphones"><span class="category-icon">🎧</span><span><b>ワイヤレスイヤホン</b><small>30機種を価格・音質・ANC・バッテリーなどで比較</small></span><span class="category-arrow">→</span></a><a class="category-card" href="/mobile-batteries/" data-track="category_click" data-category="mobile_batteries"><span class="category-icon">🔋</span><span><b>モバイルバッテリー</b><small>30製品を容量・出力・軽さ・ケーブルなどで比較</small></span><span class="category-arrow">→</span></a><a class="category-card" href="/smartphones/" data-track="category_click" data-category="smartphones"><span class="category-icon">📱</span><span><b>スマートフォン</b><small>30機種を価格・カメラ・性能・バッテリー・AIで比較</small></span><span class="category-arrow">→</span></a></div>';
-    hero.insertAdjacentElement('afterend', section);
+    if (section.dataset.categoryShowcase === '1') return;
+    section.dataset.categoryShowcase = '1';
+    const cards = categoryCards.map((item) => `<a class="category-showcase-card" href="${item.href}" data-track="category_click" data-category="${item.category}">${item.badge ? `<span class="category-showcase-badge">${item.badge}</span>` : ''}<span class="category-showcase-icon">${item.icon}</span><span class="category-showcase-main"><span class="category-showcase-title"><b>${item.title}</b><span class="category-showcase-count">${item.count}</span></span><span class="category-showcase-desc">${item.desc}</span></span><span class="category-showcase-arrow">→</span></a>`).join('');
+    section.innerHTML = `<div class="home-guide-box"><p class="eyebrow">CATEGORIES</p><div class="category-showcase-head"><div><h2>6カテゴリから比較する</h2></div><p>価格だけでなく、使い方や重視ポイントを変えながら自分に合う候補を探せます。</p></div><div class="category-showcase-grid">${cards}</div></div>`;
     const nav = document.querySelector('.site-header nav');
     if (nav && !nav.querySelector('[href="#categories"]')) {
-      const link = document.createElement('a'); link.href = '#categories'; link.textContent = 'カテゴリ'; nav.prepend(link);
+      const link = document.createElement('a');
+      link.href = '#categories';
+      link.textContent = 'カテゴリ';
+      nav.prepend(link);
     }
   };
 
