@@ -3,3 +3,4 @@ Allow: /
 
 Sitemap: https://minna-hikaku.vercel.app/sitemap.xml
 Sitemap: https://minna-hikaku.vercel.app/sitemap-guides.xml
+Sitemap: https://minna-hikaku.vercel.app/sitemap-categories.xml
