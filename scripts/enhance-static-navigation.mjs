@@ -66,7 +66,7 @@ const cleanText = (value = '') => String(value)
   .trim();
 
 const pairDifferenceMarkup = (html) => {
-  const rows = [...html.matchAll(/<tr><th>([\s\S]*?)<\/th><td>([\s\S]*?)<\/td><td>([\s\S]*?)<\/td><\/tr>/g)]
+  const rows = [...html.matchAll(/<tr><(?:th|td)>([\s\S]*?)<\/(?:th|td)><td>([\s\S]*?)<\/td><td>([\s\S]*?)<\/td><\/tr>/g)]
     .map((match) => ({ label: cleanText(match[1]), a: cleanText(match[2]), b: cleanText(match[3]) }))
     .filter((row) => row.label && row.a && row.b && row.a !== row.b)
     .slice(0, 5);
