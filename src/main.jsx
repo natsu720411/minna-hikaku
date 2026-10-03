@@ -5,7 +5,7 @@ import './style.css';
 import './enhancements.css';
 import './ux.css';
 
-const LAST_UPDATED = '2026年10月2日';
+const LAST_UPDATED = '2026年10月3日';
 
 const budgets = [
   { label: '5,000円以下', value: 5000 },
@@ -122,13 +122,13 @@ function App() {
       <a className="skip-link" href="#quiz">比較条件へスキップ</a>
       <header className="site-header">
         <a className="logo" href="#top" aria-label="みんなの比較表トップ"><span className="logo-mark">✓</span><span>みんなの比較表</span></a>
-        <nav aria-label="メインナビゲーション"><a href="#popular">人気の比較</a><a href="/earphones/">選び方ガイド</a><a href="#how">使い方</a><a href="#method">比較基準</a></nav>
+        <nav aria-label="メインナビゲーション"><a href="#categories">カテゴリ</a><a href="#popular">イヤホン診断</a><a href="/earphones/">イヤホンガイド</a><a href="#method">比較基準</a></nav>
       </header>
 
       <main id="top">
         <section className="hero">
           <div className="hero-copy">
-            <div className="update-badge">2026年10月更新・公式仕様を確認</div>
+            <div className="update-badge">2026年10月3日更新・公式仕様を確認</div>
             <p className="eyebrow">EARPHONES COMPARISON</p>
             <h1>あなたの重視ポイントで、<br /><span>ランキングが変わる。</span></h1>
             <p className="hero-text">価格・音質・ノイキャン・バッテリー。人によって「いいイヤホン」は違うから、あなたの条件から比較します。</p>
@@ -144,7 +144,13 @@ function App() {
 
         <section id="popular" className="section"><div className="section-heading"><div><p className="eyebrow">POPULAR</p><h2>人気の比較から探す</h2></div><p>目的からすぐにランキングを見られます。</p></div><div className="preset-grid">{quickPresets.map((item) => <button type="button" className="preset-card" key={item.label} onClick={() => startPreset(item)}><span className="preset-icon">{item.icon}</span><span>{item.label}</span><b>→</b></button>)}</div></section>
 
-        <section className="home-guide-section"><div className="home-guide-box"><p className="eyebrow">BUYING GUIDES</p><h2>目的別イヤホンガイド</h2><p>予算や使い方が決まっている人は、目的別ページから候補を絞れます。</p><div className="home-guide-grid"><a href="/earphones/under-10000/">💰 1万円以下で選ぶ</a><a href="/earphones/noise-cancelling/">🔇 ノイキャン重視</a><a href="/earphones/student/">🎓 大学生・通学向け</a><a href="/earphones/iphone/">🍎 iPhone向け</a><a href="/earphones/android/">🤖 Android向け</a><a href="/earphones/sports/">🏃 スポーツ・ジム向け</a><a href="/earphones/">📚 イヤホンガイド一覧</a></div></div></section>
+        <section id="categories" className="home-guide-section"><div className="home-guide-box"><p className="eyebrow">CATEGORIES</p><h2>比較したいカテゴリを選ぶ</h2><p>イヤホンだけでなく、モバイルバッテリーとスマートフォンも同じサイト内で比較できます。</p><div className="home-guide-grid"><a href="/earphones/">🎧 ワイヤレスイヤホン30機種</a><a href="/mobile-batteries/">🔋 モバイルバッテリー30製品</a><a href="/smartphones/">📱 スマートフォン30機種</a></div></div></section>
+
+        <section className="home-guide-section"><div className="home-guide-box"><p className="eyebrow">EARPHONE GUIDES</p><h2>目的別イヤホンガイド</h2><p>予算や使い方が決まっている人は、目的別ページから候補を絞れます。</p><div className="home-guide-grid"><a href="/earphones/under-10000/">💰 1万円以下で選ぶ</a><a href="/earphones/under-20000/">🏷️ 2万円以下で選ぶ</a><a href="/earphones/noise-cancelling/">🔇 ノイキャン重視</a><a href="/earphones/open-ear/">👂 オープンイヤー</a><a href="/earphones/student/">🎓 大学生・通学向け</a><a href="/earphones/iphone/">🍎 iPhone向け</a><a href="/earphones/android/">🤖 Android向け</a><a href="/earphones/sports/">🏃 スポーツ・ジム向け</a><a href="/earphones/">📚 イヤホンガイド一覧</a></div></div></section>
+
+        <section className="home-guide-section"><div className="home-guide-box"><p className="eyebrow">MOBILE BATTERY GUIDES</p><h2>目的別モバイルバッテリーガイド</h2><p>端末や充電方法、容量・重さから自分に合う候補へ移動できます。</p><div className="home-guide-grid"><a href="/mobile-batteries/iphone/">🍎 iPhone向け</a><a href="/mobile-batteries/qi2/">🧲 Qi2・マグネット</a><a href="/mobile-batteries/lightweight/">🪶 軽量モデル</a><a href="/mobile-batteries/10000mah/">🔋 10000mAh</a><a href="/mobile-batteries/laptop/">💻 ノートPC向け</a><a href="/mobile-batteries/under-10000/">💰 1万円以下</a><a href="/mobile-batteries/">📚 30製品を比較</a></div></div></section>
+
+        <section className="home-guide-section"><div className="home-guide-box"><p className="eyebrow">SMARTPHONE GUIDES</p><h2>目的別スマートフォンガイド</h2><p>バッテリー、カメラ、ゲーム、価格など重視ポイントから候補を探せます。</p><div className="home-guide-grid"><a href="/smartphones/battery/">🔋 バッテリー重視</a><a href="/smartphones/camera/">📷 カメラ重視</a><a href="/smartphones/gaming/">🎮 ゲーム向け</a><a href="/smartphones/lightweight/">🪶 軽量モデル</a><a href="/smartphones/student/">🎓 大学生向け</a><a href="/smartphones/under-100000/">💰 10万円以下</a><a href="/smartphones/">📚 30機種を比較</a></div></div></section>
 
         <section id="quiz" className="quiz-wrap">
           <div className="quiz-head"><div><p className="eyebrow">PERSONAL FINDER</p><h2>3問であなた向けを探す</h2></div><div className="step-dots" aria-label="比較条件の進行状況">{[1,2,3].map((n) => <span key={n} className={step >= n ? 'active' : ''}>{n}</span>)}</div></div>
