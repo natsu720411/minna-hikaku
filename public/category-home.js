@@ -50,6 +50,15 @@
     ['/chargers/compare/ugreen-nexode-pro-65-vs-belkin-boostcharge-pro-65-dual/','🔌 UGREEN 65W vs Belkin 65W','USB充電器'],
   ];
 
+  const comparisonHubs = [
+    ['/earphones/compare/','🎧 イヤホン12組'],
+    ['/mobile-batteries/compare/','🔋 モバイルバッテリー12組'],
+    ['/smartphones/compare/','📱 スマホ12組'],
+    ['/smartwatches/compare/','⌚ スマートウォッチ12組'],
+    ['/tablets/compare/','📚 タブレット12組'],
+    ['/chargers/compare/','🔌 USB充電器12組'],
+  ];
+
   const addStyles = () => {
     if (document.getElementById('home-discovery-style')) return;
     const style = document.createElement('style');
@@ -71,8 +80,13 @@
       .home-direct-compare-card:hover{border-color:#aacafb;transform:translateY(-2px);box-shadow:0 9px 22px rgba(29,67,117,.07)}
       .home-direct-compare-card b{display:block;font-size:12px;line-height:1.5}
       .home-direct-compare-card small{display:block;margin-top:6px;color:#8290a4;font-size:9px;font-weight:800}
+      .home-compare-hubs{margin-top:18px;padding-top:16px;border-top:1px solid #e7edf5}
+      .home-compare-hubs>span{display:block;margin-bottom:9px;color:#6f8096;font-size:11px;font-weight:900}
+      .home-compare-hub-links{display:flex;gap:7px;flex-wrap:wrap}
+      .home-compare-hub-links a{display:inline-flex;align-items:center;min-height:34px;padding:0 11px;border-radius:999px;border:1px solid #dce6f1;background:#fff;color:#3c536f;text-decoration:none;font-size:10px;font-weight:900;transition:.18s ease}
+      .home-compare-hub-links a:hover{border-color:#a8c9fb;color:#0f6cf9;background:#f8fbff}
       @media(max-width:900px){.home-direct-compare-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.home-direct-compare-head{align-items:flex-start;flex-direction:column;gap:6px}}
-      @media(max-width:620px){.home-category-link{width:100%;min-height:44px}.home-hero-actions{display:grid;grid-template-columns:1fr;width:100%}.home-hero-actions .primary-btn{width:100%}.home-direct-compare{padding:14px 14px 8px}.home-direct-compare-box{padding:20px 16px;border-radius:18px}.home-direct-compare-grid{grid-template-columns:1fr}.home-direct-compare-head h2{font-size:23px}}
+      @media(max-width:620px){.home-category-link{width:100%;min-height:44px}.home-hero-actions{display:grid;grid-template-columns:1fr;width:100%}.home-hero-actions .primary-btn{width:100%}.home-direct-compare{padding:14px 14px 8px}.home-direct-compare-box{padding:20px 16px;border-radius:18px}.home-direct-compare-grid{grid-template-columns:1fr}.home-direct-compare-head h2{font-size:23px}.home-compare-hub-links{display:grid;grid-template-columns:1fr 1fr}.home-compare-hub-links a{justify-content:center;text-align:center;padding:7px 8px}}
     `;
     document.head.appendChild(style);
   };
@@ -163,7 +177,7 @@
     const section = document.createElement('section');
     section.className = 'home-direct-compare';
     section.dataset.homeDirectComparisons = '1';
-    section.innerHTML = `<div class="home-direct-compare-box"><p class="eyebrow">DIRECT COMPARISON</p><div class="home-direct-compare-head"><h2>気になる2製品を直接比べる</h2><p>候補が2つまで絞れたら、価格と主要仕様を同じ表で確認できます。</p></div><div class="home-direct-compare-grid">${directComparisons.map(([href,label,category]) => `<a class="home-direct-compare-card" href="${href}"><b>${label}</b><small>${category}の違いを見る →</small></a>`).join('')}</div></div>`;
+    section.innerHTML = `<div class="home-direct-compare-box"><p class="eyebrow">DIRECT COMPARISON</p><div class="home-direct-compare-head"><h2>気になる2製品を直接比べる</h2><p>候補が2つまで絞れたら、価格と主要仕様を同じ表で確認できます。</p></div><div class="home-direct-compare-grid">${directComparisons.map(([href,label,category]) => `<a class="home-direct-compare-card" href="${href}"><b>${label}</b><small>${category}の違いを見る →</small></a>`).join('')}</div><div class="home-compare-hubs"><span>カテゴリ別に12組の直接比較をすべて見る</span><div class="home-compare-hub-links">${comparisonHubs.map(([href,label]) => `<a href="${href}" data-track="compare_action">${label}</a>`).join('')}</div></div></div>`;
     quiz.insertAdjacentElement('beforebegin', section);
     return true;
   };
