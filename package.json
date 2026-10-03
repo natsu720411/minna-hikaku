@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "generate:details": "node scripts/generate-category-details.mjs --target=public",
+    "build": "vite build && node scripts/generate-category-details.mjs --target=dist",
     "preview": "vite preview"
   },
   "dependencies": {
