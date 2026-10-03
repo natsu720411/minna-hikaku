@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "generate:details": "node scripts/generate-category-details.mjs --target=public && node scripts/expand-category-comparisons.mjs --target=public && node scripts/normalize-sitemaps.mjs",
+    "generate:details": "node scripts/generate-category-details.mjs --target=public && node scripts/expand-category-comparisons.mjs --target=public && node scripts/expand-legacy-comparisons.mjs --target=public && node scripts/normalize-sitemaps.mjs",
     "build": "node scripts/prebuild-sitemaps.mjs && vite build",
     "preview": "vite preview"
   },
