@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/chargers/products/cio-novaport-trio-67/:path*",
+      "destination": "/chargers/products/cio-trio-67/:path*",
+      "permanent": true
+    }
+  ]
+}
