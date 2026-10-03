@@ -1,7 +1,23 @@
 (() => {
   const AMAZON_ASSOCIATE_TAG = 'minnahikaku-22';
+  const GA_MEASUREMENT_ID = 'G-CZLLRFVS45';
   const amazonUrl = (name) => `https://www.amazon.co.jp/s?k=${encodeURIComponent(name)}&tag=${encodeURIComponent(AMAZON_ASSOCIATE_TAG)}`;
   const rakutenUrl = (name) => `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(name)}/`;
+
+  const loadAnalytics = () => {
+    if (document.documentElement.dataset.gaMeasurementId === GA_MEASUREMENT_ID) return;
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+    if (!document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}"]`)) {
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+      document.head.appendChild(script);
+    }
+    window.gtag('js', new Date());
+    window.gtag('config', GA_MEASUREMENT_ID, { send_page_view: true });
+    document.documentElement.dataset.gaMeasurementId = GA_MEASUREMENT_ID;
+  };
 
   const loadUi = () => {
     if (document.querySelector('link[href="/site-ui.css"]')) return;
@@ -19,11 +35,10 @@
     document.head.appendChild(script);
   };
 
-  window.dataLayer = window.dataLayer || [];
   const track = (event, params = {}) => {
     try {
-      if (typeof window.gtag === 'function') window.gtag('event', event, params);
-      else window.dataLayer.push({ event, ...params });
+      loadAnalytics();
+      window.gtag('event', event, params);
     } catch (_) {}
   };
   window.minnaTrack = track;
@@ -178,8 +193,15 @@
     document.addEventListener('click', (event) => {
       const el = event.target.closest('[data-track],a[target="_blank"],.compare-btn,.dock-btn,.detail-link');
       if (!el) return;
-      if (el.dataset.track) track(el.dataset.track, { product: el.dataset.product || '', category: el.dataset.category || '', path: location.pathname });
-      else if (el.matches('a[target="_blank"]')) track('official_or_external_click', { label: el.textContent.trim(), path: location.pathname });
+      if (el.dataset.track) track(el.dataset.track, {
+        product: el.dataset.product || '',
+        category: el.dataset.category || '',
+        path: location.pathname,
+        affiliate: el.dataset.affiliate || '',
+        link_url: el.href || '',
+        link_text: el.textContent?.trim() || '',
+      });
+      else if (el.matches('a[target="_blank"]')) track('official_or_external_click', { label: el.textContent.trim(), path: location.pathname, link_url: el.href || '' });
       else if (el.matches('.compare-btn,.dock-btn')) track('compare_action', { label: el.textContent.trim(), path: location.pathname });
       else if (el.matches('.detail-link')) track('detail_click', { label: el.textContent.trim(), path: location.pathname });
     });
@@ -190,6 +212,7 @@
   };
 
   const run = () => {
+    loadAnalytics();
     loadUi();
     loadProductMedia();
     enhanceRankingCards();
@@ -203,6 +226,7 @@
     bindTracking();
   };
 
+  loadAnalytics();
   loadUi();
   loadProductMedia();
   let scheduled = false;
