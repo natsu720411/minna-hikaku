@@ -7,9 +7,56 @@
   let queueTail = Promise.resolve();
   let lastApiRequestAt = 0;
   const MIN_API_INTERVAL_MS = 1200;
-  const MEDIA_API_VERSION = '20261003-3';
+  const MEDIA_API_VERSION = '20261004-1';
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const normalize = (value = '') => String(value)
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, '');
+
+  const GENERIC_ACCESSORY_TERMS = [
+    '保護フィルム','液晶保護','ガラスフィルム','強化ガラス','保護ケース','収納ケース','ケースカバー',
+    'シリコンケース','クリアケース','キャリングケース','イヤーピース','イヤーチップ','交換用','ストラップ',
+    'ホルダー','バンパー','保護カバー','専用ポーチ','スキンシール','screenprotector','protectivefilm',
+    'temperedglass','siliconecase','protectivecase','replacementtips','eartips','carryingcase'
+  ].map(normalize);
+
+  const categoryAccessoryTerms = (name = '') => {
+    const n = normalize(name);
+    if (/(watch|ウォッチ|garmin|forerunner|venu)/.test(n)) {
+      return ['交換バンド','替えバンド','バンド','ベルト','充電スタンド','充電ケーブル','ウォッチケース'].map(normalize);
+    }
+    if (/(ipad|tablet|tab|pad|matepad|タブレット)/.test(n)) {
+      return ['キーボードケース','キーボードカバー','タッチペン','スタイラス','タブレットスタンド'].map(normalize);
+    }
+    if (/(charger|充電器|novaport|nexode|boostcharge)/.test(n)) {
+      return ['充電ケーブルのみ','usbケーブル','typecケーブル','変換ケーブル'].map(normalize);
+    }
+    return [];
+  };
+
+  const isSafeResult = (name, result) => {
+    if (!result) return false;
+    const title = normalize(result.title || '');
+    if (!title) return true;
+    const blocked = [...GENERIC_ACCESSORY_TERMS, ...categoryAccessoryTerms(name)];
+    if (blocked.some((term) => term && title.includes(term))) return false;
+
+    const tokens = String(name || '')
+      .normalize('NFKC')
+      .split(/[\s()（）/,+-]+/)
+      .map((token) => normalize(token))
+      .filter((token) => token.length >= 3 && !['wifi','gps','gan','usb','ports','display'].includes(token));
+    if (!tokens.length) return true;
+
+    const distinctive = tokens.filter((token) =>
+      /\d/.test(token) || token.length >= 5 || ['ipad','pixel','galaxy','anker','xiaomi','redmi','garmin','huawei','lenovo','ugreen','belkin','novaport','nexode'].includes(token)
+    );
+    const targets = distinctive.length ? distinctive : tokens;
+    return targets.some((token) => title.includes(token));
+  };
 
   const enqueueApiRequest = (task) => {
     const run = queueTail.then(async () => {
@@ -58,7 +105,8 @@
     }
     if (!response.ok) return null;
     const data = await response.json();
-    return data?.ok ? data.result : null;
+    const result = data?.ok ? data.result : null;
+    return isSafeResult(key, result) ? result : null;
   };
 
   const lookup = async (name) => {
@@ -104,11 +152,14 @@
     link.className = `api-product-thumb ${extraClass}`.trim();
     link.href = result.productUrl || '#';
     link.target = '_blank';
-    link.rel = 'nofollow noopener noreferrer';
+    link.rel = result.provider === 'rakuten'
+      ? 'nofollow noopener noreferrer sponsored'
+      : 'nofollow noopener noreferrer';
     link.dataset.provider = result.provider;
     link.dataset.label = `${result.provider === 'amazon' ? 'Amazon' : '楽天'}の商品画像`;
     link.dataset.track = result.provider === 'amazon' ? 'amazon_click' : 'rakuten_click';
     link.dataset.product = name;
+    if (result.provider === 'rakuten') link.dataset.affiliate = 'rakuten';
     link.setAttribute('aria-label', `${name}を${result.provider === 'amazon' ? 'Amazon' : '楽天'}で見る`);
     const img = document.createElement('img');
     img.src = result.imageUrl;
@@ -201,7 +252,7 @@
     };
     scan();
     const targets = [document.getElementById('root'), document.getElementById('list')].filter(Boolean);
-    targets.forEach((target) => new MutationObserver(scan).observe(target, { childList: true, subtree: true }));
+    targets.forEach((target) => new MutationObserver(scan).observe(target, { childList: true, subtree:true }));
   };
 
   const start = () => {
