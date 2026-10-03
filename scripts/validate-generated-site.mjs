@@ -48,9 +48,33 @@ for (const name of ['sitemap.xml','sitemap-guides.xml','sitemap-categories.xml',
   if (!robots.includes(name)) errors.push(`robots.txt is missing ${name}.`);
 }
 
+const samplePairPages = [
+  'earphones/compare/airpods-pro-3-vs-wf-1000xm6/index.html',
+  'mobile-batteries/compare/anker-nano-10000-45w-vs-xiaomi-33w-10000/index.html',
+  'smartphones/compare/iphone-17-vs-pixel-10/index.html',
+  'smartwatches/compare/apple-watch-series-11-42-vs-pixel-watch-4-41/index.html',
+  'tablets/compare/ipad-pro-m5-11-vs-galaxy-tab-s11/index.html',
+  'chargers/compare/anker-nano-70-3port-vs-cio-trio-67/index.html',
+];
+for (const rel of samplePairPages) {
+  const html = read(rel);
+  if (html && !html.includes('data-pair-differences="1"')) errors.push(`${rel} is missing the pair-difference summary.`);
+  if (html && !html.includes('data-site-trust="1"')) errors.push(`${rel} is missing the trust/source box.`);
+}
+
+const sampleProductPages = [
+  'smartwatches/products/apple-watch-series-11-42/index.html',
+  'tablets/products/ipad-a16/index.html',
+  'chargers/products/anker-nano-70-3port/index.html',
+];
+for (const rel of sampleProductPages) {
+  const html = read(rel);
+  if (html && !html.includes('data-site-trust="1"')) errors.push(`${rel} is missing the trust/source box.`);
+}
+
 if (errors.length) {
   console.error('Generated-site validation failed:');
   errors.forEach((error) => console.error(`- ${error}`));
   process.exit(1);
 }
-console.log(`Generated-site validation passed: ${comparisonLocs} comparison URLs, ${productLocs} product URLs.`);
+console.log(`Generated-site validation passed: ${comparisonLocs} comparison URLs, ${productLocs} product URLs, richer comparison/trust checks passed.`);

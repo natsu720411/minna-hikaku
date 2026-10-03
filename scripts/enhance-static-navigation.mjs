@@ -31,12 +31,17 @@ const pathnameFor = (file) => {
 };
 
 const currentCategory = (pathname) => categories.find((item) => pathname.startsWith(item.href))?.key || '';
+const isProductPage = (pathname) => /\/products\/[^/]+\/$/.test(pathname);
+const isPairPage = (pathname) => /\/compare\/[^/]+\/$/.test(pathname);
 
 const navStyle = `<style id="site-category-nav-style">
-.site-category-nav{margin:34px 0 8px;padding:22px;border:1px solid #e1e8f1;border-radius:20px;background:linear-gradient(145deg,#fff,#f8fbff)}
+.site-category-nav{margin:34px 0 8px;padding:22px;border:1px solid #e1e8f1;border-radius:20px;background:linear-gradient(145deg,#fff,#f8fbff);content-visibility:auto;contain-intrinsic-size:420px}
 .site-category-nav h2{margin:0 0 6px;font-size:20px}.site-category-nav>p{margin:0 0 14px;color:#6f8096;font-size:12px;line-height:1.7}
 .site-category-nav-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.site-category-nav-grid a{display:block;padding:12px 13px;border:1px solid #dfe7f1;border-radius:13px;background:#fff;color:#304a69;text-decoration:none;font-size:12px;font-weight:850;line-height:1.5}.site-category-nav-grid a:hover{border-color:#a8c9fb;color:#0f6cf9}.site-category-nav-grid small{display:block;margin-top:2px;color:#8290a4;font-size:9px}.site-category-nav-all{grid-column:1/-1;text-align:center;background:#eef5ff!important;border-color:#d4e4fb!important;color:#155cb9!important}
-@media(max-width:760px){.site-category-nav{padding:17px 14px}.site-category-nav-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:460px){.site-category-nav-grid{grid-template-columns:1fr}}
+.site-trust-box{margin:30px 0 8px;padding:18px;border:1px solid #dfe7f1;border-radius:17px;background:#f8fafc;content-visibility:auto;contain-intrinsic-size:220px}.site-trust-box h2{margin:0 0 10px!important;font-size:18px!important}.site-trust-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.site-trust-grid>div{padding:11px;border-radius:12px;background:#fff;border:1px solid #e5ebf2}.site-trust-grid b{display:block;font-size:10px;color:#65768c;margin-bottom:3px}.site-trust-grid span{font-size:12px;font-weight:850;color:#2c425f}.site-trust-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}.site-trust-links a{font-size:11px;font-weight:850;color:#0f6cf9;text-decoration:none}
+.pair-difference-summary{margin:24px 0;padding:20px;border:1px solid #dfe7f1;border-radius:18px;background:linear-gradient(145deg,#fff,#f8fbff);content-visibility:auto;contain-intrinsic-size:300px}.pair-difference-summary h2{margin:0 0 8px!important;font-size:21px!important}.pair-difference-summary>p{margin:0 0 12px;color:#6e7e93;font-size:12px;line-height:1.7}.pair-difference-list{display:grid;gap:8px;margin:0;padding:0;list-style:none}.pair-difference-list li{padding:11px 13px;border-radius:12px;background:#fff;border:1px solid #e5ebf2;font-size:12px;line-height:1.65}.pair-difference-list b{color:#203650}.pair-difference-list span{color:#64758b}
+.discovery-block,.criteria-grid,.related,.cta{content-visibility:auto;contain-intrinsic-size:420px}
+@media(max-width:760px){.site-category-nav{padding:17px 14px}.site-category-nav-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.site-trust-grid{grid-template-columns:1fr}.pair-difference-summary{padding:16px 14px}}@media(max-width:460px){.site-category-nav-grid{grid-template-columns:1fr}}
 </style>`;
 
 const navMarkup = (current) => {
@@ -45,6 +50,29 @@ const navMarkup = (current) => {
     return `<a href="${item.href}" data-track="category_click" data-category="${item.key}">${item.icon} ${item.label}<small>${item.count}${suffix}</small></a>`;
   }).join('');
   return `<section class="site-category-nav" data-site-category-nav="1" aria-label="ほかの商品カテゴリ"><h2>ほかのカテゴリも比較</h2><p>6カテゴリ・150商品を、予算や重視ポイントを変えながら比較できます。</p><div class="site-category-nav-grid">${links}<a class="site-category-nav-all" href="/compare/">6カテゴリの比較・直接比較一覧をまとめて見る →</a></div></section>`;
+};
+
+const trustMarkup = () => `<section class="site-trust-box" data-site-trust="1" aria-label="掲載情報の確認方針"><h2>掲載情報の確認方針</h2><div class="site-trust-grid"><div><b>最終生成・確認日</b><span>${TODAY}</span></div><div><b>仕様の出典</b><span>メーカー公式情報を優先</span></div><div><b>ランキング</b><span>広告掲載の有無と分離</span></div></div><div class="site-trust-links"><a href="/methodology/">比較方法・スコアの考え方 →</a><a href="/affiliate-disclosure/">広告・アフィリエイト方針 →</a></div></section>`;
+
+const cleanText = (value = '') => String(value)
+  .replace(/<[^>]+>/g, ' ')
+  .replace(/&nbsp;/g, ' ')
+  .replace(/&amp;/g, '&')
+  .replace(/&lt;/g, '<')
+  .replace(/&gt;/g, '>')
+  .replace(/&quot;/g, '"')
+  .replace(/&#39;/g, "'")
+  .replace(/\s+/g, ' ')
+  .trim();
+
+const pairDifferenceMarkup = (html) => {
+  const rows = [...html.matchAll(/<tr><th>([\s\S]*?)<\/th><td>([\s\S]*?)<\/td><td>([\s\S]*?)<\/td><\/tr>/g)]
+    .map((match) => ({ label: cleanText(match[1]), a: cleanText(match[2]), b: cleanText(match[3]) }))
+    .filter((row) => row.label && row.a && row.b && row.a !== row.b)
+    .slice(0, 5);
+  if (!rows.length) return '';
+  const items = rows.map((row) => `<li><b>${row.label}</b><br><span>左：${row.a} ／ 右：${row.b}</span></li>`).join('');
+  return `<section class="pair-difference-summary" data-pair-differences="1"><h2>表から分かる主な違い</h2><p>優劣を決めるのではなく、仕様表のうち差がある項目を抜き出しています。自分が重視する項目から確認してください。</p><ul class="pair-difference-list">${items}</ul></section>`;
 };
 
 const patchRoot = (html) => {
@@ -66,6 +94,14 @@ const patchRoot = (html) => {
   return html;
 };
 
+const patchPairPage = (html) => {
+  if (!html.includes('data-pair-differences="1"')) {
+    const summary = pairDifferenceMarkup(html);
+    if (summary) html = html.replace(/<\/table><\/div>/, `</table></div>${summary}`);
+  }
+  return html;
+};
+
 const ensureSitemapEntry = () => {
   const file = path.join(targetDir, 'sitemap.xml');
   if (!fs.existsSync(file)) return;
@@ -79,6 +115,8 @@ const ensureSitemapEntry = () => {
 
 if (!fs.existsSync(targetDir)) throw new Error(`Target directory not found: ${targetDir}`);
 let changed = 0;
+let pairSummaries = 0;
+let trustBoxes = 0;
 for (const file of walk(targetDir)) {
   const pathname = pathnameFor(file);
   let html = fs.readFileSync(file, 'utf8');
@@ -88,6 +126,15 @@ for (const file of walk(targetDir)) {
     html = patchRoot(html);
   } else if (pathname !== '/compare/') {
     if (!html.includes('id="site-category-nav-style"') && html.includes('</head>')) html = html.replace('</head>', `${navStyle}</head>`);
+    if (isPairPage(pathname)) {
+      const hadSummary = html.includes('data-pair-differences="1"');
+      html = patchPairPage(html);
+      if (!hadSummary && html.includes('data-pair-differences="1"')) pairSummaries += 1;
+    }
+    if ((isProductPage(pathname) || isPairPage(pathname)) && !html.includes('data-site-trust="1"') && html.includes('</main>')) {
+      html = html.replace('</main>', `${trustMarkup()}</main>`);
+      trustBoxes += 1;
+    }
     if (!html.includes('data-site-category-nav="1"') && html.includes('</main>')) html = html.replace('</main>', `${navMarkup(currentCategory(pathname))}</main>`);
     if (html.includes('class="guide-nav"') && !html.includes('href="/compare/"')) {
       html = html.replace('<nav class="guide-nav">', '<nav class="guide-nav"><a href="/compare/">全カテゴリ</a>');
@@ -100,4 +147,4 @@ for (const file of walk(targetDir)) {
   }
 }
 ensureSitemapEntry();
-console.log(`Enhanced static navigation in ${changed} HTML files (${targetName}).`);
+console.log(`Enhanced ${changed} HTML files (${targetName}); pair summaries: ${pairSummaries}; trust boxes: ${trustBoxes}.`);
