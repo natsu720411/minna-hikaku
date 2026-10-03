@@ -7,4 +7,5 @@ const run = (file, target) => {
 
 run('scripts/generate-category-details.mjs', 'public');
 run('scripts/expand-category-comparisons.mjs', 'public');
+run('scripts/expand-legacy-comparisons.mjs', 'public');
 run('scripts/normalize-sitemaps.mjs', 'public');
