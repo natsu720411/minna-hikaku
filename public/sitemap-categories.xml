@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://minna-hikaku.vercel.app/smartwatches/</loc><lastmod>2026-10-04</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://minna-hikaku.vercel.app/smartwatches/iphone/</loc><lastmod>2026-10-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://minna-hikaku.vercel.app/smartwatches/android/</loc><lastmod>2026-10-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://minna-hikaku.vercel.app/smartwatches/battery/</loc><lastmod>2026-10-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://minna-hikaku.vercel.app/smartwatches/sports/</loc><lastmod>2026-10-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://minna-hikaku.vercel.app/tablets/</loc><lastmod>2026-10-04</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://minna-hikaku.vercel.app/tablets/student/</loc><lastmod>2026-10-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://minna-hikaku.vercel.app/tablets/drawing/</loc><lastmod>2026-10-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://minna-hikaku.vercel.app/tablets/lightweight/</loc><lastmod>2026-10-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://minna-hikaku.vercel.app/tablets/gaming/</loc><lastmod>2026-10-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://minna-hikaku.vercel.app/chargers/</loc><lastmod>2026-10-04</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://minna-hikaku.vercel.app/chargers/iphone/</loc><lastmod>2026-10-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://minna-hikaku.vercel.app/chargers/laptop/</loc><lastmod>2026-10-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://minna-hikaku.vercel.app/chargers/compact/</loc><lastmod>2026-10-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://minna-hikaku.vercel.app/chargers/multiport/</loc><lastmod>2026-10-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>
