@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "generate:details": "node scripts/generate-category-details.mjs --target=public && node scripts/expand-category-comparisons.mjs --target=public && node scripts/expand-legacy-comparisons.mjs --target=public && node scripts/normalize-sitemaps.mjs && node scripts/enhance-static-navigation.mjs --target=public && node scripts/apply-site-finishing.mjs --target=public --root",
-    "build": "node scripts/prebuild-sitemaps.mjs && node scripts/apply-site-finishing.mjs --target=public --root && vite build && node scripts/enhance-static-navigation.mjs --target=dist && node scripts/apply-site-finishing.mjs --target=dist && node scripts/validate-generated-site.mjs --target=dist && node scripts/site-quality-audit.mjs --target=dist",
-    "audit": "node scripts/site-quality-audit.mjs --target=dist",
+    "generate:details": "node scripts/generate-category-details.mjs --target=public && node scripts/expand-category-comparisons.mjs --target=public && node scripts/expand-legacy-comparisons.mjs --target=public && node scripts/normalize-sitemaps.mjs && node scripts/enhance-static-navigation.mjs --target=public && node scripts/apply-site-finishing.mjs --target=public --root && node scripts/repair-product-schema.mjs --target=public && node scripts/validate-product-schema.mjs --target=public",
+    "build": "node scripts/prebuild-sitemaps.mjs && node scripts/apply-site-finishing.mjs --target=public --root && vite build && node scripts/enhance-static-navigation.mjs --target=dist && node scripts/apply-site-finishing.mjs --target=dist && node scripts/repair-product-schema.mjs --target=dist && node scripts/validate-product-schema.mjs --target=dist && node scripts/validate-generated-site.mjs --target=dist && node scripts/site-quality-audit.mjs --target=dist",
+    "audit": "node scripts/site-quality-audit.mjs --target=dist && node scripts/validate-product-schema.mjs --target=dist",
     "audit:external": "node scripts/check-external-links.mjs --target=dist --strict",
     "preview": "vite preview"
   },
