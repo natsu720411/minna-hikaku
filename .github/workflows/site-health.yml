@@ -1,0 +1,22 @@
+name: Site health audit
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 1 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npm run build
+      - run: npm run audit:external
