@@ -7,7 +7,7 @@
   let queueTail = Promise.resolve();
   let lastApiRequestAt = 0;
   const MIN_API_INTERVAL_MS = 1200;
-  const MEDIA_API_VERSION = '20261004-1';
+  const MEDIA_API_VERSION = '20261007-2';
 
   const ACCESSORY_TERMS = [
     '保護フィルム','液晶保護','保護シート','保護ガラス','強化ガラス','ガラスフィルム','カメラフィルム','レンズ保護',
@@ -17,13 +17,14 @@
     'タッチペン','スタイラス','キーボードケース','キーボードカバー','ペン先','替え芯','保護プロテクター',
     'ケーブル','usbケーブル','usb-cケーブル','type-cケーブル','延長コード','電源コード','変換アダプタ','変換アダプター','変換プラグ',
     'screen protector','protective film','tempered glass','case cover','silicone case','protective case','carrying case','watch band','replacement band','strap',
-    'keyboard case','stylus','pencil case','charging stand','charging dock','usb cable','type-c cable','power cable','adapter cable','replacement tips','ear tips'
+    'keyboard case','stylus','pencil case','charging stand','charging dock','usb cable','type-c cable','power cable','adapter cable','replacement tips','ear tips',
+    'モニターアーム','モニタースタンド','壁掛け金具','vesaマウント','ノートパソコンケース','ノートpcケース','パソコンバッグ','pcバッグ','スリーブケース','キーボードカバー','lanケーブル','イーサネットケーブル','ルータースタンド','ルーター収納','交換アンテナ','monitor arm','monitor stand','wall mount','vesa mount','laptop sleeve','laptop bag','router stand','ethernet cable','lan cable','replacement antenna'
   ];
   const GENERIC_TOKENS = new Set([
     'wifi','wi-fi','gps','bluetooth','モデル','製品','充電器','charger','watch','ウォッチ','tablet','タブレット','ipad','galaxy','google','apple','samsung','huawei','xiaomi','garmin','lenovo','anker','cio','ugreen','belkin',
-    'gb','mah','usb','type','ports','port','インチ','inch'
+    'gb','mah','usb','type','ports','port','インチ','inch','laptop','notebook','ノートpc','ノートパソコン','monitor','display','モニター','ディスプレイ','router','ルーター'
   ]);
-  const BRAND_TOKENS = ['apple','samsung','google','huawei','xiaomi','redmi','garmin','lenovo','anker','cio','ugreen','belkin','sony','jbl','bose','technics','nothing','earfun','beats','soundcore','pixel','galaxy'];
+  const BRAND_TOKENS = ['apple','samsung','google','huawei','xiaomi','redmi','garmin','lenovo','anker','cio','ugreen','belkin','sony','jbl','bose','technics','nothing','earfun','beats','soundcore','pixel','galaxy','microsoft','dell','hp','asus','acer','msi','lg','panasonic','dynabook','fujitsu','vaio','benq','eizo','iodata','japannext','philips','gigabyte','tp-link','tplink','buffalo','nec','aterm','netgear','eero','elecom'];
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const normalize = (value) => String(value || '').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
