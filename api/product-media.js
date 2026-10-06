@@ -14,7 +14,9 @@ const cleanQuery = (value) => String(value || '').trim().slice(0, 120);
 const SITE_ORIGIN = 'https://minna-hikaku.vercel.app';
 const KNOWN_BRANDS = new Set([
   'apple','sony','samsung','google','jbl','bose','technics','anker','huawei','beats','nothing','earfun',
-  'xiaomi','poco','motorola','sharp','cio','belkin','elecom','buffalo'
+  'xiaomi','poco','motorola','sharp','cio','belkin','elecom','buffalo','garmin','lenovo','ugreen',
+  'microsoft','dell','hp','asus','acer','msi','lg','panasonic','dynabook','fujitsu','vaio','benq','eizo',
+  'iodata','i-o','japannext','philips','gigabyte','tp-link','tplink','nec','aterm','netgear','eero'
 ]);
 const ACCESSORY_TERMS = [
   '保護フィルム','液晶保護','保護シート','保護ガラス','強化ガラス','ガラスフィルム','カメラフィルム','レンズ保護',
