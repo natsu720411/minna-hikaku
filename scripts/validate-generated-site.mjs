@@ -58,7 +58,8 @@ const generatedHtml=walkHtml(targetDir);
 const relParts=(file)=>path.relative(targetDir,file).replaceAll('\\\\','/').split('/');
 const productPages=generatedHtml.filter((file)=>{const parts=relParts(file);return parts.length===4&&parts[1]==='products'&&parts[3]==='index.html';});
 const comparisonPages=generatedHtml.filter((file)=>{const parts=relParts(file);return parts[1]==='compare'&&parts.at(-1)==='index.html'&&(parts.length===3||parts.length===4);});
-const toUrl=(file)=>'https://minna-hikaku.vercel.app/'+path.relative(targetDir,file).replaceAll('\\\\','/').replace(/index\.html$/,'');\nconst comparisons=read('sitemap-comparisons.xml');
+const toUrl=(file)=>'https://minna-hikaku.vercel.app/'+path.relative(targetDir,file).replaceAll('\\\\','/').replace(/index\.html$/,'');
+const comparisons=read('sitemap-comparisons.xml');
 const comparisonLocs=[...comparisons.matchAll(/<loc>/g)].length;
 if(comparisonLocs<comparisonPages.length) errors.push(`Comparison sitemap has ${comparisonLocs} URLs but ${comparisonPages.length} comparison pages exist.`);
 for(const file of comparisonPages){const url=toUrl(file);if(!comparisons.includes(`<loc>${url}</loc>`))errors.push(`Comparison sitemap is missing ${url}`);}
