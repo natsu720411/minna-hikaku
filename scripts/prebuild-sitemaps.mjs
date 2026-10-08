@@ -12,3 +12,4 @@ run('scripts/expand-legacy-comparisons.mjs', 'public');
 run('scripts/generate-expansion-categories.mjs', 'public', ['--root']);
 run('scripts/normalize-sitemaps.mjs', 'public');
 run('scripts/enhance-price-transparency.mjs', 'public');
+run('scripts/enhance-product-seo.mjs', 'public');

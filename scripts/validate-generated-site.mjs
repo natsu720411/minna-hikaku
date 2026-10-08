@@ -67,11 +67,24 @@ for(const file of comparisonPages){const url=toUrl(file);if(!comparisons.include
 const products=read('sitemap-products.xml');
 const productLocs=[...products.matchAll(/<loc>/g)].length;
 if(productLocs<productPages.length) errors.push(`Product sitemap has ${productLocs} URLs but ${productPages.length} product pages exist.`);
+const seenProductSeoTitles=new Map();
+const seenProductSeoDescriptions=new Map();
 for(const file of productPages){
   const url=toUrl(file);
   if(!products.includes(`<loc>${url}</loc>`)) errors.push(`Product sitemap is missing ${url}`);
   const html=fs.readFileSync(file,'utf8');
   if(!html.includes('data-price-transparency="1"')) errors.push(`${path.relative(targetDir,file)} is missing price-transparency guidance.`);
+  if(!html.includes('data-product-seo-links="1"')) errors.push(`${path.relative(targetDir,file)} is missing product SEO internal links.`);
+  const seoTitle=(html.match(/<title>([\s\S]*?)<\/title>/i)||[])[1]||'';
+  const seoDescription=(html.match(/<meta\s+name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>/i)||[])[1]||'';
+  const relProduct=path.relative(targetDir,file).replace(/\\\\/g,'/');
+  if(!seoTitle.includes('2026')) errors.push(`${relProduct} title is missing 2026.`);
+  if(seoTitle.length<20||seoTitle.length>80) errors.push(`${relProduct} title length is ${seoTitle.length}.`);
+  if(seoDescription.length<60||seoDescription.length>180) errors.push(`${relProduct} meta description length is ${seoDescription.length}.`);
+  if(seenProductSeoTitles.has(seoTitle)) errors.push(`Duplicate product SEO title: ${relProduct} / ${seenProductSeoTitles.get(seoTitle)}`);
+  else seenProductSeoTitles.set(seoTitle,relProduct);
+  if(seenProductSeoDescriptions.has(seoDescription)) errors.push(`Duplicate product SEO description: ${relProduct} / ${seenProductSeoDescriptions.get(seoDescription)}`);
+  else seenProductSeoDescriptions.set(seoDescription,relProduct);
 }
 const sitemap=read('sitemap.xml');
 if(!sitemap.includes('<loc>https://minna-hikaku.vercel.app/compare/</loc>')) errors.push('sitemap.xml is missing /compare/.');
