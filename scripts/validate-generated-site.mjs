@@ -53,12 +53,20 @@ const compareHtml=read('compare/index.html');
 for(const key of ["earphones","mobile-batteries","smartphones","smartwatches","tablets","chargers","laptops","monitors","routers","electric-toothbrushes","hair-dryers","cordless-vacuums","robot-vacuums","air-purifiers","rice-cookers"]) if(!compareHtml.includes(`/${key}/`)) errors.push(`/compare/ is missing ${key} navigation.`);
 if(!compareHtml.includes('15カテゴリ・330商品')) errors.push('/compare/ is missing current totals.');
 if(!compareHtml.includes('rel="canonical" href="https://minna-hikaku.vercel.app/compare/"')) errors.push('/compare/ canonical is missing.');
+const walkHtml=(dir)=>fs.readdirSync(dir,{withFileTypes:true}).flatMap((entry)=>{const full=path.join(dir,entry.name);if(entry.isDirectory())return walkHtml(full);return entry.isFile()&&entry.name==='index.html'?[full]:[];});
+const generatedHtml=walkHtml(targetDir);
+const relParts=(file)=>path.relative(targetDir,file).replaceAll('\\\\','/').split('/');
+const productPages=generatedHtml.filter((file)=>{const parts=relParts(file);return parts.length===4&&parts[1]==='products'&&parts[3]==='index.html';});
+const comparisonPages=generatedHtml.filter((file)=>{const parts=relParts(file);return parts[1]==='compare'&&parts.at(-1)==='index.html'&&(parts.length===3||parts.length===4);});
+const toUrl=(file)=>'https://minna-hikaku.vercel.app/'+path.relative(targetDir,file).replaceAll('\\\\','/').replace(/index\\.html$/,'');
 const comparisons=read('sitemap-comparisons.xml');
 const comparisonLocs=[...comparisons.matchAll(/<loc>/g)].length;
-if(comparisonLocs<195) errors.push(`Expected at least 195 comparison sitemap URLs, found ${comparisonLocs}.`);
+if(comparisonLocs<comparisonPages.length) errors.push(`Comparison sitemap has ${comparisonLocs} URLs but ${comparisonPages.length} comparison pages exist.`);
+for(const file of comparisonPages){const url=toUrl(file);if(!comparisons.includes(`<loc>${url}</loc>`))errors.push(`Comparison sitemap is missing ${url}`);}
 const products=read('sitemap-products.xml');
 const productLocs=[...products.matchAll(/<loc>/g)].length;
-if(productLocs<240) errors.push(`Expected at least 240 product sitemap URLs, found ${productLocs}.`);
+if(productLocs<productPages.length) errors.push(`Product sitemap has ${productLocs} URLs but ${productPages.length} product pages exist.`);
+for(const file of productPages){const url=toUrl(file);if(!products.includes(`<loc>${url}</loc>`))errors.push(`Product sitemap is missing ${url}`);}
 const sitemap=read('sitemap.xml');
 if(!sitemap.includes('<loc>https://minna-hikaku.vercel.app/compare/</loc>')) errors.push('sitemap.xml is missing /compare/.');
 const robots=read('robots.txt');
@@ -83,4 +91,4 @@ for(const rel of [
   "rice-cookers/products/zojirushi-nx-ab10/index.html"
 ]){const html=read(rel);if(html&&!html.includes('data-site-trust="1"'))errors.push(`${rel} is missing trust box.`);if(html&&!html.includes('data-site-category-nav="1"'))errors.push(`${rel} is missing category navigation.`);}
 if(errors.length){console.error('Generated-site validation failed:');errors.forEach(e=>console.error(`- ${e}`));process.exit(1);}
-console.log(`Generated-site validation passed: ${comparisonLocs} comparison URLs, ${productLocs} product URLs, 15-category checks passed.`);
+console.log(`Generated-site validation passed: ${comparisonLocs}/${comparisonPages.length} comparison URLs and ${productLocs}/${productPages.length} product URLs covered; 15-category checks passed.`);
