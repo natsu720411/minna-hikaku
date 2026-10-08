@@ -183,7 +183,7 @@ for (const item of items) {
   let html = item.html;
   const specText = item.specs.slice(0, 2).join('・');
   const priceWord = hasNumericPrice(html) ? '価格・' : '価格確認・';
-  const title = cap(item.name + ' ' + priceWord + 'スペック比較｜' + item.category + ' 2026', 68);
+  const title = cap(item.name + '｜2026 ' + priceWord + 'スペック比較｜' + item.category, 68);
   const brandPart = item.brand ? item.brand + 'の' : '';
   const specPart = specText ? specText + 'などの仕様、' : '主な仕様、';
   const description = cap(
