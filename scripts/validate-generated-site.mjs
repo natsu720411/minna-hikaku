@@ -67,7 +67,12 @@ for(const file of comparisonPages){const url=toUrl(file);if(!comparisons.include
 const products=read('sitemap-products.xml');
 const productLocs=[...products.matchAll(/<loc>/g)].length;
 if(productLocs<productPages.length) errors.push(`Product sitemap has ${productLocs} URLs but ${productPages.length} product pages exist.`);
-for(const file of productPages){const url=toUrl(file);if(!products.includes(`<loc>${url}</loc>`))errors.push(`Product sitemap is missing ${url}`);}
+for(const file of productPages){
+  const url=toUrl(file);
+  if(!products.includes(`<loc>${url}</loc>`)) errors.push(`Product sitemap is missing ${url}`);
+  const html=fs.readFileSync(file,'utf8');
+  if(!html.includes('data-price-transparency="1"')) errors.push(`${path.relative(targetDir,file)} is missing price-transparency guidance.`);
+}
 const sitemap=read('sitemap.xml');
 if(!sitemap.includes('<loc>https://minna-hikaku.vercel.app/compare/</loc>')) errors.push('sitemap.xml is missing /compare/.');
 const robots=read('robots.txt');

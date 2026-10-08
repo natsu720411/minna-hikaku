@@ -7,7 +7,7 @@
   let queueTail = Promise.resolve();
   let lastApiRequestAt = 0;
   const MIN_API_INTERVAL_MS = 1200;
-  const MEDIA_API_VERSION = '20261009-1';
+  const MEDIA_API_VERSION = '20261009-2';
 
   const ACCESSORY_TERMS = [
     '保護フィルム','液晶保護','保護シート','保護ガラス','強化ガラス','ガラスフィルム','カメラフィルム','レンズ保護',
@@ -18,13 +18,21 @@
     'ケーブル','usbケーブル','usb-cケーブル','type-cケーブル','延長コード','電源コード','変換アダプタ','変換アダプター','変換プラグ',
     'screen protector','protective film','tempered glass','case cover','silicone case','protective case','carrying case','watch band','replacement band','strap',
     'keyboard case','stylus','pencil case','charging stand','charging dock','usb cable','type-c cable','power cable','adapter cable','replacement tips','ear tips',
-    'モニターアーム','モニタースタンド','壁掛け金具','vesaマウント','ノートパソコンケース','ノートpcケース','パソコンバッグ','pcバッグ','スリーブケース','キーボードカバー','lanケーブル','イーサネットケーブル','ルータースタンド','ルーター収納','交換アンテナ','monitor arm','monitor stand','wall mount','vesa mount','laptop sleeve','laptop bag','router stand','ethernet cable','lan cable','replacement antenna','替えブラシ','交換ブラシ','ブラシヘッド','ドライヤーホルダー','掃除機スタンド','交換フィルター','交換バッテリー','ロボット掃除機用モップ','モップパッド','紙パック','ダストバッグ','空気清浄機フィルター','加湿フィルター','炊飯器内釜','内ぶた','しゃもじ'
+    'モニターアーム','モニタースタンド','壁掛け金具','vesaマウント','ノートパソコンケース','ノートpcケース','パソコンバッグ','pcバッグ','スリーブケース','キーボードカバー','lanケーブル','イーサネットケーブル','ルータースタンド','ルーター収納','交換アンテナ','monitor arm','monitor stand','wall mount','vesa mount','laptop sleeve','laptop bag','router stand','ethernet cable','lan cable','replacement antenna','替えブラシ','交換ブラシ','ブラシヘッド','ドライヤーホルダー','掃除機スタンド','交換フィルター','交換バッテリー','ロボット掃除機用モップ','モップパッド','紙パック','ダストバッグ','空気清浄機フィルター','加湿フィルター','炊飯器内釜','内ぶた','しゃもじ','交換モップ','交換用モップ','サイドブラシ','メインブラシ','ローラーブラシ','ブラシローラー','フィルターセット','ダストボックス','集じん袋','集塵袋','ノズル','アタッチメント','脱臭フィルター','集じんフィルター','蒸気キャップ','パッキン','電源アダプター','ACアダプター','専用充電器','replacement filter','side brush','main brush','roller brush','mop cloth','dust bag','replacement mop','power adapter'
   ];
   const GENERIC_TOKENS = new Set([
     'wifi','wi-fi','gps','bluetooth','モデル','製品','充電器','charger','watch','ウォッチ','tablet','タブレット','ipad','galaxy','google','apple','samsung','huawei','xiaomi','garmin','lenovo','anker','cio','ugreen','belkin',
     'gb','mah','usb','type','ports','port','インチ','inch','laptop','notebook','ノートpc','ノートパソコン','monitor','display','モニター','ディスプレイ','router','ルーター'
   ]);
   const BRAND_TOKENS = ["apple","samsung","google","huawei","xiaomi","redmi","garmin","lenovo","anker","cio","ugreen","belkin","sony","jbl","bose","technics","nothing","earfun","beats","soundcore","pixel","galaxy","microsoft","dell","hp","asus","acer","msi","lg","panasonic","dynabook","fujitsu","vaio","benq","eizo","iodata","japannext","philips","gigabyte","tp-link","tplink","buffalo","nec","aterm","netgear","eero","elecom","oral-b","oralb","braun","refa","salonia","dyson","shark","hitachi","toshiba","irobot","roomba","switchbot","roborock","ecovacs","eufy","daikin","tiger","zojirushi"];
+  const BRAND_ALIAS_GROUPS = [
+    ['apple','アップル'],['samsung','サムスン','galaxy','ギャラクシー'],['google','グーグル','pixel','ピクセル'],
+    ['sony','ソニー','xperia','エクスペリア'],['sharp','シャープ','aquos'],['motorola','モトローラ'],['xiaomi','シャオミ','redmi','poco'],
+    ['panasonic','パナソニック'],['oral-b','oralb','オーラルb','braun','ブラウン'],['philips','フィリップス'],
+    ['refa','リファ'],['salonia','サロニア'],['dyson','ダイソン'],['shark','シャーク'],['hitachi','日立'],['toshiba','東芝'],
+    ['irobot','アイロボット','roomba','ルンバ'],['switchbot','スイッチボット'],['roborock','ロボロック'],
+    ['ecovacs','エコバックス','deebot'],['eufy','ユーフィー'],['daikin','ダイキン'],['zojirushi','象印'],['tiger','タイガー']
+  ];
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const normalize = (value) => String(value || '').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
@@ -33,9 +41,12 @@
     const compact = normalize(title);
     return ACCESSORY_TERMS.some((term) => compact.includes(normalize(term)));
   };
-  const expectedBrand = (query) => {
+  const expectedBrandAliases = (query) => {
     const compact = normalize(query);
-    return BRAND_TOKENS.find((brand) => compact.includes(normalize(brand))) || '';
+    const aliases = BRAND_ALIAS_GROUPS.find((group) => group.some((brand) => compact.includes(normalize(brand))));
+    if (aliases) return aliases;
+    const direct = BRAND_TOKENS.find((brand) => compact.includes(normalize(brand)));
+    return direct ? [direct] : [];
   };
   const meaningfulTokens = (value) => tokenize(value).filter((token) => {
     const clean = token.replace(/^\d+(gb|mah|w|mm)$/i, '$1').toLowerCase();
@@ -50,10 +61,12 @@
     const t = normalize(title);
     if (q && t.includes(q)) return true;
 
-    const brand = expectedBrand(query);
-    if (brand && !t.includes(normalize(brand))) return false;
+    const brandAliases = expectedBrandAliases(query);
+    if (brandAliases.length && !brandAliases.some((brand) => t.includes(normalize(brand)))) return false;
 
     const tokens = meaningfulTokens(query);
+    const modelTokens = tokens.filter((token) => /\d/.test(token) && normalize(token).length >= 2);
+    if (modelTokens.length && !modelTokens.every((token) => t.includes(normalize(token)))) return false;
     if (!tokens.length) return true;
     const matched = tokens.filter((token) => t.includes(normalize(token)));
     const distinctive = tokens.filter((token) => /\d/.test(token) || token.length >= 4);
@@ -93,6 +106,9 @@
       .api-detail-media{margin:8px 0 20px;width:150px;height:150px}
       .api-affiliate-note{font-size:10px;color:#7f8da0;line-height:1.55;margin:8px 0 0}
       .api-credit{margin-top:8px;font-size:10px}.api-credit a{color:inherit}
+      .api-market-price{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin:8px 0 14px;font-size:11px;color:#6f7f92}
+      .api-market-price strong{font-size:17px;color:#173b6a}.api-market-price small{font-size:10px;color:#8492a5}
+      .api-market-price-inline{font-weight:800!important;color:#0f6cf9!important}
       @media(max-width:680px){.api-product-thumb{width:70px;height:70px;border-radius:15px}.catalog-api-media{width:68px;height:68px;margin-right:9px}.api-detail-media{width:120px;height:120px}}
     `;
     document.head.appendChild(style);
@@ -174,6 +190,52 @@
     return link;
   };
 
+  const marketPrice = (result) => {
+    const value = Number(result?.price);
+    return result?.provider === 'rakuten' && Number.isFinite(value) && value > 0 ? value : null;
+  };
+
+  const marketPriceText = (result) => {
+    const value = marketPrice(result);
+    return value ? `¥${Math.round(value).toLocaleString('ja-JP')}` : '';
+  };
+
+  const addMarketPrice = (scope, result, mode = 'detail') => {
+    const value = marketPrice(result);
+    if (!scope || !value || scope.querySelector?.('[data-live-market-price="1"]')) return;
+    if (mode === 'catalog') {
+      const specs = scope.querySelector?.('.specs');
+      if (!specs) return;
+      const chip = document.createElement('span');
+      chip.className = 'api-market-price-inline';
+      chip.dataset.liveMarketPrice = '1';
+      chip.textContent = `楽天参考 ${marketPriceText(result)}`;
+      chip.title = '楽天市場API取得時の参考価格。販売店・セール等で変動します。';
+      specs.appendChild(chip);
+      return;
+    }
+    const row = document.createElement('div');
+    row.className = 'api-market-price';
+    row.dataset.liveMarketPrice = '1';
+    row.innerHTML = `<span>楽天市場参考価格</span><strong>${marketPriceText(result)}</strong><small>取得時・販売店やセールで変動</small>`;
+    const anchor = scope.querySelector?.('.product-visual, .api-detail-media, h1');
+    if (anchor) anchor.insertAdjacentElement('afterend', row);
+  };
+
+  const replaceVisualSafely = (visual, result, name) => {
+    if (!visual || !result?.imageUrl) return;
+    const fallback = visual.innerHTML;
+    const link = imageLink(result, name);
+    const img = link.querySelector('img');
+    img?.addEventListener('error', () => {
+      visual.classList.remove('api-media-ready');
+      visual.innerHTML = fallback;
+    }, { once: true });
+    visual.textContent = '';
+    visual.classList.add('api-media-ready');
+    visual.appendChild(link);
+  };
+
   const applyRakutenAffiliateLink = (scope, result, name) => {
     if (!scope || result?.provider !== 'rakuten' || !result?.productUrl) return;
     const button = scope.querySelector?.('.market-btn.rakuten');
@@ -194,10 +256,9 @@
     const result = await lookup(name);
     if (!result) return;
     applyRakutenAffiliateLink(card, result, name);
+    addMarketPrice(card, result, 'catalog');
     if (!result.imageUrl) return;
-    visual.textContent = '';
-    visual.classList.add('api-media-ready');
-    visual.appendChild(imageLink(result, name));
+    replaceVisualSafely(visual, result, name);
   };
 
   const enhanceCatalogCard = async (card) => {
@@ -209,8 +270,11 @@
     const result = await lookup(name);
     if (!result) return;
     applyRakutenAffiliateLink(card, result, name);
+    addMarketPrice(card, result, 'catalog');
     if (!result.imageUrl) return;
     const media = imageLink(result, name, 'catalog-api-media');
+    const img = media.querySelector('img');
+    img?.addEventListener('error', () => media.remove(), { once: true });
     const brand = content.querySelector('.brand');
     if (brand) brand.insertAdjacentElement('afterend', media);
     else content.prepend(media);
@@ -227,14 +291,16 @@
     const result = await lookup(name);
     if (!result) return;
     applyRakutenAffiliateLink(main, result, name);
+    addMarketPrice(main, result, 'detail');
     if (!result.imageUrl) return;
     const existing = main.querySelector('.product-visual');
     if (existing) {
-      existing.textContent = '';
-      existing.classList.add('api-media-ready');
-      existing.appendChild(imageLink(result, name));
+      replaceVisualSafely(existing, result, name);
     } else {
-      heading.insertAdjacentElement('afterend', imageLink(result, name, 'api-detail-media'));
+      const media = imageLink(result, name, 'api-detail-media');
+      const img = media.querySelector('img');
+      img?.addEventListener('error', () => media.remove(), { once: true });
+      heading.insertAdjacentElement('afterend', media);
     }
   };
 

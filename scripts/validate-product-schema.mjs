@@ -24,10 +24,25 @@ const validOffer = (offer) => {
 let productNodes = 0;
 let eligibleProductNodes = 0;
 let jsonBlocks = 0;
+let visibleOfferPriceChecks = 0;
 
-const inspectNode = (node, rel) => {
+const offerPrices = (offer) => {
+  if (Array.isArray(offer)) return offer.flatMap(offerPrices);
+  if (!offer || typeof offer !== 'object') return [];
+  return [offer.price, offer.lowPrice, offer.highPrice].filter((value) => value !== undefined && value !== null && String(value).trim());
+};
+
+const visibleTextForPrice = (html) => html
+  .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
+  .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
+  .replace(/<[^>]+>/g, ' ')
+  .replace(/&nbsp;|&#160;/gi, ' ')
+  .replace(/,/g, '')
+  .replace(/\s+/g, '');
+
+const inspectNode = (node, rel, html) => {
   if (Array.isArray(node)) {
-    node.forEach((item) => inspectNode(item, rel));
+    node.forEach((item) => inspectNode(item, rel, html));
     return;
   }
   if (!node || typeof node !== 'object') return;
@@ -42,10 +57,22 @@ const inspectNode = (node, rel) => {
       errors.push(`${rel}: Product Offer is missing a valid price/priceCurrency (${node.name || 'unnamed Product'}).`);
     } else {
       eligibleProductNodes += 1;
+      if (hasOffer && rel.includes('/products/')) {
+        const visible = visibleTextForPrice(html);
+        for (const price of offerPrices(node.offers)) {
+          const normalized = String(price).replace(/[^0-9.]/g, '').replace(/\.0+$/, '');
+          if (!normalized) continue;
+          visibleOfferPriceChecks += 1;
+          const integer = normalized.split('.')[0];
+          if (!visible.includes(integer)) {
+            errors.push(`${rel}: Product Offer price ${price} is not visible in the page content (${node.name || 'unnamed Product'}).`);
+          }
+        }
+      }
     }
   }
 
-  for (const value of Object.values(node)) inspectNode(value, rel);
+  for (const value of Object.values(node)) inspectNode(value, rel, html);
 };
 
 if (!fs.existsSync(targetDir)) throw new Error(`Target directory not found: ${targetDir}`);
@@ -56,14 +83,14 @@ for (const file of walk(targetDir)) {
   for (const match of html.matchAll(/<script\s+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
     jsonBlocks += 1;
     try {
-      inspectNode(JSON.parse(match[1].trim()), rel);
+      inspectNode(JSON.parse(match[1].trim()), rel, html);
     } catch (error) {
       errors.push(`${rel}: invalid JSON-LD (${error.message}).`);
     }
   }
 }
 
-console.log(`Product schema validation: ${jsonBlocks} JSON-LD blocks, ${productNodes} Product nodes, ${eligibleProductNodes} eligible Product nodes (${targetName}).`);
+console.log(`Product schema validation: ${jsonBlocks} JSON-LD blocks, ${productNodes} Product nodes, ${eligibleProductNodes} eligible Product nodes, ${visibleOfferPriceChecks} visible Offer price checks (${targetName}).`);
 if (errors.length) {
   console.error(`Product schema validation failed with ${errors.length} error(s):`);
   errors.slice(0, 60).forEach((error) => console.error(`- ${error}`));

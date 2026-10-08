@@ -13,6 +13,14 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const cleanQuery = (value) => String(value || '').trim().slice(0, 120);
 const SITE_ORIGIN = 'https://minna-hikaku.vercel.app';
 const KNOWN_BRANDS = new Set(["apple","samsung","google","huawei","xiaomi","redmi","garmin","lenovo","anker","cio","ugreen","belkin","sony","jbl","bose","technics","nothing","earfun","beats","soundcore","pixel","galaxy","microsoft","dell","hp","asus","acer","msi","lg","panasonic","dynabook","fujitsu","vaio","benq","eizo","iodata","japannext","philips","gigabyte","tp-link","tplink","buffalo","nec","aterm","netgear","eero","elecom","oral-b","oralb","braun","refa","salonia","dyson","shark","hitachi","toshiba","irobot","roomba","switchbot","roborock","ecovacs","eufy","daikin","tiger","zojirushi"]);
+const BRAND_ALIAS_GROUPS = [
+  ['apple','アップル'],['samsung','サムスン','galaxy','ギャラクシー'],['google','グーグル','pixel','ピクセル'],
+  ['sony','ソニー','xperia','エクスペリア'],['sharp','シャープ','aquos'],['motorola','モトローラ'],['xiaomi','シャオミ','redmi','poco'],
+  ['panasonic','パナソニック'],['oral-b','oralb','オーラルb','braun','ブラウン'],['philips','フィリップス'],
+  ['refa','リファ'],['salonia','サロニア'],['dyson','ダイソン'],['shark','シャーク'],['hitachi','日立'],['toshiba','東芝'],
+  ['irobot','アイロボット','roomba','ルンバ'],['switchbot','スイッチボット'],['roborock','ロボロック'],
+  ['ecovacs','エコバックス','deebot'],['eufy','ユーフィー'],['daikin','ダイキン'],['zojirushi','象印'],['tiger','タイガー']
+];
 const ACCESSORY_TERMS = [
   '保護フィルム','液晶保護','保護シート','保護ガラス','強化ガラス','ガラスフィルム','カメラフィルム','レンズ保護',
   'ケース用','充電ケース用','収納ケース','保護ケース','ケースカバー','シリコンケース','クリアケース','レザーケース',
@@ -20,7 +28,7 @@ const ACCESSORY_TERMS = [
   'イヤーピース','イヤーチップ','交換用イヤー','ストラップ','ホルダー','バンパー','保護カバー',
   '保護プロテクター','専用ポーチ','交換パーツ','ダストプラグ','防塵シール','デコレーション',
   'screen protector','protective film','tempered glass','case cover','silicone case','protective case',
-  'replacement tips','ear tips','skin sticker','carrying case','dust plug','替えブラシ','交換ブラシ','ブラシヘッド','ドライヤーホルダー','掃除機スタンド','交換フィルター','交換バッテリー','ロボット掃除機用モップ','モップパッド','紙パック','ダストバッグ','空気清浄機フィルター','加湿フィルター','炊飯器内釜','内ぶた','しゃもじ'
+  'replacement tips','ear tips','skin sticker','carrying case','dust plug','替えブラシ','交換ブラシ','ブラシヘッド','ドライヤーホルダー','掃除機スタンド','交換フィルター','交換バッテリー','ロボット掃除機用モップ','モップパッド','紙パック','ダストバッグ','空気清浄機フィルター','加湿フィルター','炊飯器内釜','内ぶた','しゃもじ','交換モップ','交換用モップ','サイドブラシ','メインブラシ','ローラーブラシ','ブラシローラー','フィルターセット','ダストボックス','集じん袋','集塵袋','ノズル','アタッチメント','脱臭フィルター','集じんフィルター','蒸気キャップ','パッキン','電源アダプター','ACアダプター','専用充電器','replacement filter','side brush','main brush','roller brush','mop cloth','dust bag','replacement mop','power adapter'
 ];
 const SEARCH_OVERRIDES = {
   jbllivebeam3: {
@@ -67,9 +75,22 @@ const buildModelKeyword = (value) => {
   return (keyword || buildProductKeyword(value)).slice(0, 128);
 };
 
-const expectedBrand = (query) => {
+const expectedBrandAliases = (query) => {
+  const compact = normalizeComparable(query);
+  const aliases = BRAND_ALIAS_GROUPS.find((group) => group.some((brand) => compact.includes(normalizeComparable(brand))));
+  if (aliases) return aliases;
   const first = cleanTokens(query)[0]?.toLowerCase() || '';
-  return KNOWN_BRANDS.has(first) ? first : '';
+  return KNOWN_BRANDS.has(first) ? [first] : [];
+};
+
+const requiredModelTokens = (query) => cleanTokens(query)
+  .map(normalizeComparable)
+  .filter((token) => /\d/.test(token) && token.length >= 2);
+
+const modelIsCompatible = (text, query) => {
+  const haystack = normalizeComparable(text);
+  const tokens = requiredModelTokens(query);
+  return !tokens.length || tokens.every((token) => haystack.includes(token));
 };
 
 const getSearchOverride = (query) => SEARCH_OVERRIDES[normalizeComparable(query)] || null;
@@ -86,11 +107,10 @@ const matchesRequiredTerms = (text, terms = []) => {
 };
 
 const brandIsCompatible = (item, query) => {
-  const brand = expectedBrand(query);
-  if (!brand) return true;
-  const itemBrand = normalizeComparable(item?.brandName || '');
-  if (!itemBrand) return true;
-  return itemBrand.includes(normalizeComparable(brand));
+  const aliases = expectedBrandAliases(query);
+  if (!aliases.length) return true;
+  const text = normalizeComparable(`${item?.brandName || ''} ${item?.productName || ''} ${item?.itemName || ''}`);
+  return aliases.some((brand) => text.includes(normalizeComparable(brand)));
 };
 
 const rakutenHeaders = {
@@ -192,13 +212,12 @@ const scoreText = (text, query) => {
 const scoreProduct = (item, query) => {
   const title = `${item.productName || ''} ${item.productNo || ''} ${item.brandName || ''}`;
   let score = scoreText(title, query);
-  const brand = expectedBrand(query);
-  if (brand) {
+  const aliases = expectedBrandAliases(query);
+  if (aliases.length) {
     const itemBrand = normalizeComparable(item.brandName || '');
     const itemTitle = normalizeComparable(item.productName || '');
-    const targetBrand = normalizeComparable(brand);
-    if (itemBrand && itemBrand.includes(targetBrand)) score += 180;
-    else if (itemTitle.startsWith(targetBrand)) score += 80;
+    if (aliases.some((brand) => itemBrand.includes(normalizeComparable(brand)))) score += 180;
+    else if (aliases.some((brand) => itemTitle.includes(normalizeComparable(brand)))) score += 80;
   }
   return score;
 };
@@ -206,8 +225,8 @@ const scoreProduct = (item, query) => {
 const scoreItem = (item, query) => {
   const title = item.itemName || '';
   let score = scoreText(title, query);
-  const brand = expectedBrand(query);
-  if (brand && normalizeComparable(title).includes(normalizeComparable(brand))) score += 50;
+  const aliases = expectedBrandAliases(query);
+  if (aliases.some((brand) => normalizeComparable(title).includes(normalizeComparable(brand)))) score += 50;
   return score;
 };
 
@@ -256,6 +275,7 @@ async function searchRakutenProduct(query, applicationId, accessKey, affiliateId
       const text = `${item.productName || ''} ${item.productNo || ''} ${item.brandName || ''}`;
       if (isAccessory(text)) return false;
       if (!brandIsCompatible(item, query)) return false;
+      if (!modelIsCompatible(text, query)) return false;
       return true;
     })
     .map((item) => ({ item, score: productCode ? 999 : scoreProduct(item, query) }))
@@ -276,6 +296,7 @@ async function searchRakutenProduct(query, applicationId, accessKey, affiliateId
     searchedKeyword: productCode || keyword,
     matchScore: best.score,
     productCode: item.productCode || productCode || null,
+    fetchedAt: new Date().toISOString(),
   };
 }
 
@@ -318,6 +339,8 @@ async function searchRakutenItem(query, applicationId, accessKey, affiliateId, o
       if (!item || !rakutenItemImage(item)) return false;
       const title = item.itemName || '';
       if (isAccessory(title)) return false;
+      if (!brandIsCompatible({ itemName: title }, query)) return false;
+      if (!modelIsCompatible(title, query)) return false;
       if (!matchesRequiredTerms(title, options.requiredTerms || [])) return false;
       return true;
     })
@@ -338,6 +361,7 @@ async function searchRakutenItem(query, applicationId, accessKey, affiliateId, o
     price: item.itemPrice ?? null,
     searchedKeyword: keyword,
     matchScore: best.score,
+    fetchedAt: new Date().toISOString(),
   };
 }
 
