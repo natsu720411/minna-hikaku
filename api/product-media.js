@@ -12,12 +12,7 @@ const json = (res, status, body) => {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const cleanQuery = (value) => String(value || '').trim().slice(0, 120);
 const SITE_ORIGIN = 'https://minna-hikaku.vercel.app';
-const KNOWN_BRANDS = new Set([
-  'apple','sony','samsung','google','jbl','bose','technics','anker','huawei','beats','nothing','earfun',
-  'xiaomi','poco','motorola','sharp','cio','belkin','elecom','buffalo','garmin','lenovo','ugreen',
-  'microsoft','dell','hp','asus','acer','msi','lg','panasonic','dynabook','fujitsu','vaio','benq','eizo',
-  'iodata','i-o','japannext','philips','gigabyte','tp-link','tplink','nec','aterm','netgear','eero'
-]);
+const KNOWN_BRANDS = new Set(["apple","samsung","google","huawei","xiaomi","redmi","garmin","lenovo","anker","cio","ugreen","belkin","sony","jbl","bose","technics","nothing","earfun","beats","soundcore","pixel","galaxy","microsoft","dell","hp","asus","acer","msi","lg","panasonic","dynabook","fujitsu","vaio","benq","eizo","iodata","japannext","philips","gigabyte","tp-link","tplink","buffalo","nec","aterm","netgear","eero","elecom","oral-b","oralb","braun","refa","salonia","dyson","shark","hitachi","toshiba","irobot","roomba","switchbot","roborock","ecovacs","eufy","daikin","tiger","zojirushi"]);
 const ACCESSORY_TERMS = [
   '保護フィルム','液晶保護','保護シート','保護ガラス','強化ガラス','ガラスフィルム','カメラフィルム','レンズ保護',
   'ケース用','充電ケース用','収納ケース','保護ケース','ケースカバー','シリコンケース','クリアケース','レザーケース',
@@ -25,7 +20,7 @@ const ACCESSORY_TERMS = [
   'イヤーピース','イヤーチップ','交換用イヤー','ストラップ','ホルダー','バンパー','保護カバー',
   '保護プロテクター','専用ポーチ','交換パーツ','ダストプラグ','防塵シール','デコレーション',
   'screen protector','protective film','tempered glass','case cover','silicone case','protective case',
-  'replacement tips','ear tips','skin sticker','carrying case','dust plug'
+  'replacement tips','ear tips','skin sticker','carrying case','dust plug','替えブラシ','交換ブラシ','ブラシヘッド','ドライヤーホルダー','掃除機スタンド','交換フィルター','交換バッテリー','ロボット掃除機用モップ','モップパッド','紙パック','ダストバッグ','空気清浄機フィルター','加湿フィルター','炊飯器内釜','内ぶた','しゃもじ'
 ];
 const SEARCH_OVERRIDES = {
   jbllivebeam3: {

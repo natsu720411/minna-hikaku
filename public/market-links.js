@@ -170,9 +170,18 @@
     { href:'/earphones/', icon:'🎧', title:'ワイヤレスイヤホン', count:'30機種', desc:'音質・ノイキャン・価格・電池持ち', category:'earphones', badge:'診断あり' },
     { href:'/mobile-batteries/', icon:'🔋', title:'モバイルバッテリー', count:'30製品', desc:'容量・出力・軽さ・Qi2・ケーブル', category:'mobile_batteries' },
     { href:'/smartphones/', icon:'📱', title:'スマートフォン', count:'30機種', desc:'カメラ・性能・バッテリー・価格', category:'smartphones' },
-    { href:'/smartwatches/', icon:'⌚', title:'スマートウォッチ', count:'20モデル', desc:'健康管理・スポーツ・電池・軽さ', category:'smartwatches', badge:'NEW' },
-    { href:'/tablets/', icon:'📚', title:'タブレット', count:'20モデル', desc:'性能・画面・ペン・持ち運び', category:'tablets', badge:'NEW' },
-    { href:'/chargers/', icon:'🔌', title:'USB充電器', count:'20製品', desc:'最大出力・ポート数・小型・PC対応', category:'chargers', badge:'NEW' },
+    { href:'/smartwatches/', icon:'⌚', title:'スマートウォッチ', count:'20モデル', desc:'健康管理・スポーツ・電池・軽さ', category:'smartwatches' },
+    { href:'/tablets/', icon:'📚', title:'タブレット', count:'20モデル', desc:'性能・画面・ペン・持ち運び', category:'tablets' },
+    { href:'/chargers/', icon:'🔌', title:'USB充電器', count:'20製品', desc:'最大出力・ポート数・小型・PC対応', category:'chargers' },
+    { href:'/laptops/', icon:'💻', title:'ノートPC', count:'20モデル', desc:'性能・軽さ・電池・画面・端子', category:'laptops' },
+    { href:'/monitors/', icon:'🖥️', title:'PCモニター', count:'20製品', desc:'4K・ゲーム・色・USB-C', category:'monitors' },
+    { href:'/routers/', icon:'📶', title:'Wi-Fiルーター', count:'20製品', desc:'Wi-Fi 7・速度・範囲・メッシュ', category:'routers' },
+    { href:'/electric-toothbrushes/', icon:'🪥', title:'電動歯ブラシ', count:'20製品', desc:'駆動方式・圧センサー・アプリ・電池', category:'electric_toothbrushes' },
+    { href:'/hair-dryers/', icon:'💨', title:'ヘアドライヤー', count:'20製品', desc:'速乾・髪ケア・軽さ・温度制御', category:'hair_dryers' },
+    { href:'/cordless-vacuums/', icon:'🧹', title:'コードレス掃除機', count:'20製品', desc:'吸引・軽さ・運転時間・ゴミ捨て', category:'cordless_vacuums' },
+    { href:'/robot-vacuums/', icon:'🤖', title:'ロボット掃除機', count:'20製品', desc:'吸引・水拭き・自動化・障害物回避', category:'robot_vacuums', badge:'NEW' },
+    { href:'/air-purifiers/', icon:'🌬️', title:'空気清浄機', count:'20製品', desc:'清浄力・花粉・加湿・静音', category:'air_purifiers', badge:'NEW' },
+    { href:'/rice-cookers/', icon:'🍚', title:'炊飯器', count:'20製品', desc:'炊き上がり・食感・保温・お手入れ', category:'rice_cookers', badge:'NEW' },
   ];
 
   const categoryStyle = () => {
@@ -211,7 +220,7 @@
     if (section.dataset.categoryShowcase === '1') return;
     section.dataset.categoryShowcase = '1';
     const cards = categoryCards.map((item) => `<a class="category-showcase-card" href="${item.href}" data-track="category_click" data-category="${item.category}">${item.badge ? `<span class="category-showcase-badge">${item.badge}</span>` : ''}<span class="category-showcase-icon">${item.icon}</span><span class="category-showcase-main"><span class="category-showcase-title"><b>${item.title}</b><span class="category-showcase-count">${item.count}</span></span><span class="category-showcase-desc">${item.desc}</span></span><span class="category-showcase-arrow">→</span></a>`).join('');
-    section.innerHTML = `<div class="home-guide-box"><p class="eyebrow">CATEGORIES</p><div class="category-showcase-head"><div><h2>6カテゴリから比較する</h2></div><p>価格だけでなく、使い方や重視ポイントを変えながら自分に合う候補を探せます。</p></div><div class="category-showcase-grid">${cards}</div></div>`;
+    section.innerHTML = `<div class="home-guide-box"><p class="eyebrow">CATEGORIES</p><div class="category-showcase-head"><div><h2>15カテゴリから比較する</h2></div><p>価格だけでなく、使い方や重視ポイントを変えながら自分に合う候補を探せます。</p></div><div class="category-showcase-grid">${cards}</div></div>`;
     const nav = document.querySelector('.site-header nav');
     if (nav && !nav.querySelector('[href="#categories"]')) {
       const link = document.createElement('a');

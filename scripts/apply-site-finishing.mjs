@@ -14,7 +14,7 @@ const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((entr
   return entry.isFile() && entry.name.endsWith('.html') ? [full] : [];
 });
 
-const ogMarkup = `\n  <meta property="og:image" content="${OGP}">\n  <meta property="og:image:width" content="1200">\n  <meta property="og:image:height" content="630">\n  <meta property="og:image:alt" content="みんなの比較表｜6カテゴリ・150商品を条件別比較">\n  <meta name="twitter:image" content="${OGP}">`;
+const ogMarkup = `\n  <meta property="og:image" content="${OGP}">\n  <meta property="og:image:width" content="1200">\n  <meta property="og:image:height" content="630">\n  <meta property="og:image:alt" content="みんなの比較表｜15カテゴリ・330商品を条件別比較">\n  <meta name="twitter:image" content="${OGP}">`;
 
 const patchHtml = (html, { runtime = false } = {}) => {
   if (html.includes('<meta name="twitter:card" content="summary"')) html = html.replace('<meta name="twitter:card" content="summary"', '<meta name="twitter:card" content="summary_large_image"');

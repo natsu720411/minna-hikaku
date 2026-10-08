@@ -78,6 +78,14 @@ for (const file of htmlFiles) {
 for (const required of ['privacy/index.html','404.html','og-image.svg']) {
   if (!fs.existsSync(path.join(targetDir, required))) errors.push(`Missing required finishing asset: ${required}`);
 }
+const homepage = fs.readFileSync(path.join(targetDir, 'index.html'), 'utf8');
+for (const stale of ['6カテゴリ','9カテゴリ','12カテゴリ','150商品','210商品','270商品']) {
+  if (homepage.includes(stale)) errors.push(`Homepage contains stale site count: ${stale}`);
+}
+if (!homepage.includes('15カテゴリ・330商品')) errors.push('Homepage is missing current 15カテゴリ・330商品 copy.');
+const directory = fs.readFileSync(path.join(targetDir, 'compare', 'index.html'), 'utf8');
+if (!directory.includes('15カテゴリ・330商品')) errors.push('/compare/ is missing current site totals.');
+
 const sitemap = fs.readFileSync(path.join(targetDir, 'sitemap.xml'), 'utf8');
 if (!sitemap.includes('<loc>https://minna-hikaku.vercel.app/privacy/</loc>')) errors.push('sitemap.xml is missing /privacy/.');
 

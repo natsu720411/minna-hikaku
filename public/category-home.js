@@ -3,60 +3,59 @@
     ['/smartwatches/','⌚ スマートウォッチ20モデル','smartwatches'],
     ['/tablets/','📚 タブレット20モデル','tablets'],
     ['/chargers/','🔌 USB充電器20製品','chargers'],
+    ['/laptops/','💻 ノートPC20モデル','laptops'],
+    ['/monitors/','🖥️ PCモニター20製品','monitors'],
+    ['/routers/','📶 Wi-Fiルーター20製品','routers'],
+    ['/electric-toothbrushes/','🪥 電動歯ブラシ20製品','electric-toothbrushes'],
+    ['/hair-dryers/','💨 ヘアドライヤー20製品','hair-dryers'],
+    ['/cordless-vacuums/','🧹 コードレス掃除機20製品','cordless-vacuums'],
+    ['/robot-vacuums/','🤖 ロボット掃除機20製品','robot-vacuums'],
+    ['/air-purifiers/','🌬️ 空気清浄機20製品','air-purifiers'],
+    ['/rice-cookers/','🍚 炊飯器20製品','rice-cookers'],
   ];
 
   const guideSections = [
-    {
-      key:'smartwatches', eyebrow:'SMARTWATCH GUIDES', title:'目的別スマートウォッチガイド',
-      description:'使うスマホ、バッテリー、スポーツなど目的から候補を絞れます。',
-      links:[
-        ['/smartwatches/iphone/','🍎 iPhone向け'],
-        ['/smartwatches/android/','🤖 Android向け'],
-        ['/smartwatches/battery/','🔋 バッテリー重視'],
-        ['/smartwatches/sports/','🏃 スポーツ向け'],
-        ['/smartwatches/','📚 20モデルを比較'],
-      ],
-    },
-    {
-      key:'tablets', eyebrow:'TABLET GUIDES', title:'目的別タブレットガイド',
-      description:'勉強、お絵描き、持ち運び、ゲームなど使い方から比較できます。',
-      links:[
-        ['/tablets/student/','🎓 大学生・勉強向け'],
-        ['/tablets/drawing/','✏️ ペン・お絵描き向け'],
-        ['/tablets/lightweight/','🪶 軽量モデル'],
-        ['/tablets/gaming/','🎮 ゲーム向け'],
-        ['/tablets/','📚 20モデルを比較'],
-      ],
-    },
-    {
-      key:'chargers', eyebrow:'CHARGER GUIDES', title:'目的別USB充電器ガイド',
-      description:'iPhone、ノートPC、持ち運び、複数台充電など用途から選べます。',
-      links:[
-        ['/chargers/iphone/','🍎 iPhone向け'],
-        ['/chargers/laptop/','💻 ノートPC向け'],
-        ['/chargers/compact/','🧳 小型・軽量'],
-        ['/chargers/multiport/','🔌 複数ポート'],
-        ['/chargers/','📚 20製品を比較'],
-      ],
-    },
+    {key:'smartwatches',eyebrow:'SMARTWATCH GUIDES',title:'目的別スマートウォッチガイド',description:'スマホ連携、バッテリー、スポーツなどから選べます。',links:[['/smartwatches/iphone/','🍎 iPhone向け'],['/smartwatches/android/','🤖 Android向け'],['/smartwatches/battery/','🔋 バッテリー重視'],['/smartwatches/sports/','🏃 スポーツ向け'],['/smartwatches/','⌚ 20モデルを比較']]},
+    {key:'tablets',eyebrow:'TABLET GUIDES',title:'目的別タブレットガイド',description:'勉強、お絵描き、持ち運び、ゲームなどから選べます。',links:[['/tablets/student/','🎓 大学生・勉強向け'],['/tablets/drawing/','✏️ ペン・お絵描き'],['/tablets/lightweight/','🪶 軽量'],['/tablets/gaming/','🎮 ゲーム向け'],['/tablets/','📚 20モデルを比較']]},
+    {key:'chargers',eyebrow:'CHARGER GUIDES',title:'目的別USB充電器ガイド',description:'iPhone、ノートPC、持ち運び、複数台充電などから選べます。',links:[['/chargers/iphone/','🍎 iPhone向け'],['/chargers/laptop/','💻 ノートPC向け'],['/chargers/compact/','🧳 小型・軽量'],['/chargers/multiport/','🔌 複数ポート'],['/chargers/','🔌 20製品を比較']]},
+    {key:'laptops',eyebrow:'LAPTOP GUIDES',title:'目的別ノートPCガイド',description:'大学生、軽さ、電池持ち、制作などから選べます。',links:[['/laptops/student/','🎓 大学生向け'],['/laptops/lightweight/','🪶 軽量'],['/laptops/battery/','🔋 バッテリー'],['/laptops/creator/','🎨 クリエイター'],['/laptops/','💻 20モデルを比較']]},
+    {key:'monitors',eyebrow:'MONITOR GUIDES',title:'目的別PCモニターガイド',description:'ゲーム、仕事、4K、USB-Cなどから選べます。',links:[['/monitors/gaming/','🎮 ゲーム'],['/monitors/work/','💼 仕事'],['/monitors/4k/','🔍 4K'],['/monitors/usb-c/','🔌 USB-C'],['/monitors/','🖥️ 20製品を比較']]},
+    {key:'routers',eyebrow:'WIFI GUIDES',title:'目的別Wi-Fiルーターガイド',description:'マンション、戸建て、ゲーム、メッシュなどから選べます。',links:[['/routers/apartment/','🏢 マンション'],['/routers/house/','🏠 戸建て'],['/routers/gaming/','🎮 ゲーム'],['/routers/mesh/','🕸️ メッシュ'],['/routers/','📶 20製品を比較']]},
+    {key:'electric-toothbrushes',eyebrow:'ORAL CARE GUIDES',title:'目的別電動歯ブラシガイド',description:'初めて、歯ぐきケア、アプリ、持ち運びなどから選べます。',links:[['/electric-toothbrushes/beginner/','🔰 初めて向け'],['/electric-toothbrushes/gums/','🦷 歯ぐきケア'],['/electric-toothbrushes/app/','📱 アプリ対応'],['/electric-toothbrushes/travel/','🧳 持ち運び'],['/electric-toothbrushes/','🪥 20製品を比較']]},
+    {key:'hair-dryers',eyebrow:'HAIR DRYER GUIDES',title:'目的別ヘアドライヤーガイド',description:'速乾、髪ケア、軽さ、旅行などから選べます。',links:[['/hair-dryers/fast-drying/','⚡ 速乾'],['/hair-dryers/hair-care/','✨ ヘアケア'],['/hair-dryers/lightweight/','🪶 軽量'],['/hair-dryers/travel/','🧳 旅行・海外'],['/hair-dryers/','💨 20製品を比較']]},
+    {key:'cordless-vacuums',eyebrow:'VACUUM GUIDES',title:'目的別コードレス掃除機ガイド',description:'軽さ、ペット、自動ゴミ収集などから選べます。',links:[['/cordless-vacuums/lightweight/','🪶 軽量'],['/cordless-vacuums/pet/','🐶 ペット'],['/cordless-vacuums/auto-empty/','🗑️ 自動ゴミ収集'],['/cordless-vacuums/one-person/','🏠 一人暮らし'],['/cordless-vacuums/','🧹 20製品を比較']]},
+    {key:'robot-vacuums',eyebrow:'ROBOT VACUUM GUIDES',title:'目的別ロボット掃除機ガイド',description:'自動ゴミ収集、水拭き、ペット、障害物回避などから選べます。',links:[['/robot-vacuums/auto-empty/','🗑️ 自動ゴミ収集'],['/robot-vacuums/mop/','💧 水拭き'],['/robot-vacuums/pet/','🐶 ペット'],['/robot-vacuums/obstacle/','👀 障害物回避'],['/robot-vacuums/','🤖 20製品を比較']]},
+    {key:'air-purifiers',eyebrow:'AIR PURIFIER GUIDES',title:'目的別空気清浄機ガイド',description:'花粉、加湿、寝室、ペットなどから選べます。',links:[['/air-purifiers/pollen/','🌸 花粉'],['/air-purifiers/humidifier/','💧 加湿付き'],['/air-purifiers/bedroom/','🌙 寝室'],['/air-purifiers/pet/','🐶 ペット'],['/air-purifiers/','🌬️ 20製品を比較']]},
+    {key:'rice-cookers',eyebrow:'RICE COOKER GUIDES',title:'目的別炊飯器ガイド',description:'3合、5.5合、圧力IH、高級モデルなどから選べます。',links:[['/rice-cookers/3go/','🍙 3合前後'],['/rice-cookers/55go/','🍚 5.5合'],['/rice-cookers/pressure-ih/','🔥 圧力IH'],['/rice-cookers/premium/','👑 高級モデル'],['/rice-cookers/','🍚 20製品を比較']]},
   ];
 
   const directComparisons = [
-    ['/smartwatches/compare/apple-watch-series-11-42-vs-pixel-watch-4-41/','⌚ Apple Watch Series 11 vs Pixel Watch 4','スマートウォッチ'],
-    ['/smartwatches/compare/garmin-venu-4-41-vs-huawei-watch-fit-4-pro/','⌚ Garmin Venu 4 vs HUAWEI WATCH FIT 4 Pro','スマートウォッチ'],
-    ['/tablets/compare/ipad-pro-m5-11-vs-galaxy-tab-s11/','📚 iPad Pro 11 vs Galaxy Tab S11','タブレット'],
-    ['/tablets/compare/xiaomi-pad-7-vs-huawei-matepad-115/','📚 Xiaomi Pad 7 vs HUAWEI MatePad 11.5','タブレット'],
-    ['/chargers/compare/anker-nano-70-3port-vs-cio-trio-67/','🔌 Anker Nano 70W vs CIO 67W','USB充電器'],
-    ['/chargers/compare/ugreen-nexode-pro-65-vs-belkin-boostcharge-pro-65-dual/','🔌 UGREEN 65W vs Belkin 65W','USB充電器'],
+    ["/smartwatches/compare/apple-watch-series-11-42-vs-pixel-watch-4-41/","⌚ Apple Watch Series 11 vs Pixel Watch 4","スマートウォッチ"],
+    ["/laptops/compare/macbook-air-13-m4-vs-surface-laptop-13/","💻 MacBook Air vs Surface Laptop","ノートPC"],
+    ["/electric-toothbrushes/compare/panasonic-ew-dt88-vs-oralb-io9/","🪥 ドルツ EW-DT88 vs Oral-B iO9","電動歯ブラシ"],
+    ["/hair-dryers/compare/panasonic-eh-nc80-vs-refa-bx/","💨 nanocare ULTIMATE vs ReFa BX","ヘアドライヤー"],
+    ["/cordless-vacuums/compare/panasonic-mc-nx810km-vs-shark-neo2-plus-lc551j/","🧹 Panasonic NX810KM vs Shark NEO II+","コードレス掃除機"],
+    ["/robot-vacuums/compare/roomba-max-775-combo-vs-deebot-t90-omni/","🤖 Roomba Max 775 vs DEEBOT T90","ロボット掃除機"],
+    ["/air-purifiers/compare/sharp-ki-wx100-vs-panasonic-f-vxw90/","🌬️ SHARP KI-WX100 vs Panasonic F-VXW90","空気清浄機"],
+    ["/rice-cookers/compare/zojirushi-nx-ab10-vs-tiger-jrt-a100/","🍚 炎舞炊き NX-AB10 vs TIGER JRT-A100","炊飯器"],
   ];
 
   const comparisonHubs = [
-    ['/earphones/compare/','🎧 イヤホン12組'],
+    ['/earphones/compare/','🎧 ワイヤレスイヤホン12組'],
     ['/mobile-batteries/compare/','🔋 モバイルバッテリー12組'],
-    ['/smartphones/compare/','📱 スマホ12組'],
+    ['/smartphones/compare/','📱 スマートフォン12組'],
     ['/smartwatches/compare/','⌚ スマートウォッチ12組'],
     ['/tablets/compare/','📚 タブレット12組'],
     ['/chargers/compare/','🔌 USB充電器12組'],
+    ['/laptops/compare/','💻 ノートPC12組'],
+    ['/monitors/compare/','🖥️ PCモニター12組'],
+    ['/routers/compare/','📶 Wi-Fiルーター12組'],
+    ['/electric-toothbrushes/compare/','🪥 電動歯ブラシ12組'],
+    ['/hair-dryers/compare/','💨 ヘアドライヤー12組'],
+    ['/cordless-vacuums/compare/','🧹 コードレス掃除機12組'],
+    ['/robot-vacuums/compare/','🤖 ロボット掃除機12組'],
+    ['/air-purifiers/compare/','🌬️ 空気清浄機12組'],
+    ['/rice-cookers/compare/','🍚 炊飯器12組'],
   ];
 
   const addStyles = () => {
@@ -64,7 +63,7 @@
     const style = document.createElement('style');
     style.id = 'home-discovery-style';
     style.textContent = `
-      .site-header .logo::after{content:'6カテゴリ比較'!important}
+      .site-header .logo::after{content:'15カテゴリ比較'!important}
       .home-hero-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:2px}
       .home-hero-actions .primary-btn{margin:0}
       .home-category-link{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border:1px solid #d8e3f0;border-radius:14px;background:#fff;color:#31506f;text-decoration:none;font-size:13px;font-weight:900;transition:.18s ease}
@@ -99,11 +98,11 @@
     if (!copy) return false;
 
     const badge = copy.querySelector('.update-badge');
-    if (badge) badge.textContent = '2026年10月4日更新・6カテゴリの公式仕様を確認';
+    if (badge) badge.textContent = '2026年10月9日更新・15カテゴリのメーカー公式情報を優先';
     const eyebrow = copy.querySelector('.eyebrow');
     if (eyebrow) eyebrow.textContent = 'PRODUCT COMPARISON';
     const heroText = copy.querySelector('.hero-text');
-    if (heroText) heroText.textContent = 'イヤホン・モバイルバッテリー・スマートフォン・スマートウォッチ・タブレット・USB充電器を、価格や使い方など重視ポイントから比較できます。';
+    if (heroText) heroText.textContent = 'ガジェット・PC・生活家電まで15カテゴリ・330商品を、価格や使い方など重視ポイントから比較できます。';
 
     const primary = copy.querySelector('.primary-btn');
     if (primary) primary.childNodes[0].nodeValue = 'イヤホンを3問で比較 ';
@@ -115,14 +114,14 @@
       const categories = document.createElement('a');
       categories.className = 'home-category-link';
       categories.href = '#categories';
-      categories.textContent = '6カテゴリを見る →';
+      categories.textContent = '15カテゴリを見る →';
       actions.appendChild(categories);
     }
 
     const trust = copy.querySelector('.trust-row');
     if (trust) {
       const spans = [...trust.querySelectorAll('span')];
-      if (spans[1]) spans[1].textContent = '✓ 6カテゴリ・150商品';
+      if (spans[1]) spans[1].textContent = '✓ 15カテゴリ・330商品';
       if (spans[2]) spans[2].textContent = '✓ 条件別ランキング';
     }
     const miniLabel = hero.querySelector('.mini-label');
@@ -135,7 +134,7 @@
     const grid = section?.querySelector('.home-guide-grid');
     if (!grid) return false;
     const p = section.querySelector('.home-guide-box > p:not(.eyebrow)');
-    if (p) p.textContent = '6カテゴリ・150商品を、予算や重視ポイントを変えながら比較できます。';
+    if (p) p.textContent = '15カテゴリ・330商品を、予算や重視ポイントを変えながら比較できます。';
     categoryAdditions.forEach(([href,label,category]) => {
       let a = grid.querySelector(`a[href="${href}"]`);
       if (!a) {

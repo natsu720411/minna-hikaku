@@ -4,12 +4,7 @@
   const $ = (s) => document.querySelector(s);
   const esc = (v='') => String(v).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const yen = (v) => Number.isFinite(v) ? `¥${v.toLocaleString('ja-JP')}` : '公式で確認';
-  const detailIds = {
-    smartwatches: new Set(['apple-watch-series-11-42','apple-watch-ultra-3','pixel-watch-4-41','huawei-watch-fit-4-pro','garmin-venu-4-41']),
-    tablets: new Set(['ipad-a16','ipad-mini-a17-pro','ipad-pro-m5-11','galaxy-tab-s11','xiaomi-pad-7']),
-    chargers: new Set(['anker-nano-45-display','anker-nano-70-3port','anker-prime-100','cio-novaport-trio-67','ugreen-nexode-pro-65']),
-  };
-  const hasDetail = (p) => detailIds[cfg.categoryKey]?.has(p.id) || false;
+  const hasDetail = () => ['smartwatches','tablets','chargers','laptops','monitors','routers','electric-toothbrushes','hair-dryers','cordless-vacuums','robot-vacuums','air-purifiers','rice-cookers'].includes(cfg.categoryKey);
   const detailUrl = (p) => `/${cfg.categoryKey}/products/${encodeURIComponent(p.id)}/`;
   const state = { budget:null, priority:cfg.defaultPriority || cfg.priorities[0].key, query:'', brand:'all', sort:'match', selected:[] };
   const budgetControls = $('#budgetControls');
@@ -65,7 +60,7 @@
     }
     list.innerHTML = items.map((p,i) => {
       const detail = hasDetail(p) ? `<a class="detail-link detail-mini" href="${esc(detailUrl(p))}">詳しく見る →</a>` : '';
-      return `<article class="rank-card" data-id="${esc(p.id)}"><div class="rank-index"><span>${i+1}</span><small>位</small></div><div class="rank-main"><div class="brand-row"><span class="brand">${esc(p.brand)}</span><span class="verified-badge">✓ 公式仕様確認</span></div><h3>${hasDetail(p)?`<a class="product-title-link" href="${esc(detailUrl(p))}">${esc(p.name)}</a>`:esc(p.name)}</h3><div class="tag-row">${tags(p)}</div><p class="reason">${esc(reason(p))}</p><div class="rank-links">${detail}<a class="source-link" href="${esc(p.source)}" target="_blank" rel="noopener noreferrer">メーカー公式で仕様を見る ↗</a></div></div><div class="match-box"><strong>${p.match}</strong><span>/100</span><small>条件との相性</small></div><div class="rank-actions"><button type="button" class="compare-btn${state.selected.includes(p.id)?' selected':''}" data-id="${esc(p.id)}">${state.selected.includes(p.id)?'✓ 比較中':'+ 比較する'}</button><div class="price">${yen(p.price)}<small>${Number.isFinite(p.price)?'公式掲載価格':'価格は公式で確認'}</small></div></div></article>`;
+      return `<article class="rank-card" data-id="${esc(p.id)}"><div class="rank-index"><span>${i+1}</span><small>位</small></div><div class="rank-main"><div class="brand-row"><span class="brand">${esc(p.brand)}</span><span class="verified-badge">✓ 公式情報を参照</span></div><h3>${hasDetail(p)?`<a class="product-title-link" href="${esc(detailUrl(p))}">${esc(p.name)}</a>`:esc(p.name)}</h3><div class="tag-row">${tags(p)}</div><p class="reason">${esc(reason(p))}</p><div class="rank-links">${detail}<a class="source-link" href="${esc(p.source)}" target="_blank" rel="noopener noreferrer">メーカー公式で仕様を見る ↗</a></div></div><div class="match-box"><strong>${p.match}</strong><span>/100</span><small>条件との相性</small></div><div class="rank-actions"><button type="button" class="compare-btn${state.selected.includes(p.id)?' selected':''}" data-id="${esc(p.id)}">${state.selected.includes(p.id)?'✓ 比較中':'+ 比較する'}</button><div class="price">${yen(p.price)}<small>${Number.isFinite(p.price)?'公式掲載価格':'価格は公式で確認'}</small></div></div></article>`;
     }).join('');
     list.querySelectorAll('.compare-btn').forEach((btn) => btn.addEventListener('click', () => toggle(btn.dataset.id)));
   };

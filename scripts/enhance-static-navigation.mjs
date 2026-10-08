@@ -16,6 +16,15 @@ const categories = [
   { key: 'smartwatches', href: '/smartwatches/', icon: '⌚', label: 'スマートウォッチ', count: '20モデル' },
   { key: 'tablets', href: '/tablets/', icon: '📚', label: 'タブレット', count: '20モデル' },
   { key: 'chargers', href: '/chargers/', icon: '🔌', label: 'USB充電器', count: '20製品' },
+  { key: 'laptops', href: '/laptops/', icon: '💻', label: 'ノートPC', count: '20モデル' },
+  { key: 'monitors', href: '/monitors/', icon: '🖥️', label: 'PCモニター', count: '20製品' },
+  { key: 'routers', href: '/routers/', icon: '📶', label: 'Wi-Fiルーター', count: '20製品' },
+  { key: 'electric-toothbrushes', href: '/electric-toothbrushes/', icon: '🪥', label: '電動歯ブラシ', count: '20製品' },
+  { key: 'hair-dryers', href: '/hair-dryers/', icon: '💨', label: 'ヘアドライヤー', count: '20製品' },
+  { key: 'cordless-vacuums', href: '/cordless-vacuums/', icon: '🧹', label: 'コードレス掃除機', count: '20製品' },
+  { key: 'robot-vacuums', href: '/robot-vacuums/', icon: '🤖', label: 'ロボット掃除機', count: '20製品' },
+  { key: 'air-purifiers', href: '/air-purifiers/', icon: '🌬️', label: '空気清浄機', count: '20製品' },
+  { key: 'rice-cookers', href: '/rice-cookers/', icon: '🍚', label: '炊飯器', count: '20製品' },
 ];
 
 const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -49,7 +58,7 @@ const navMarkup = (current) => {
     const suffix = item.key === current ? '（現在のカテゴリ）' : '';
     return `<a href="${item.href}" data-track="category_click" data-category="${item.key}">${item.icon} ${item.label}<small>${item.count}${suffix}</small></a>`;
   }).join('');
-  return `<section class="site-category-nav" data-site-category-nav="1" aria-label="ほかの商品カテゴリ"><h2>ほかのカテゴリも比較</h2><p>6カテゴリ・150商品を、予算や重視ポイントを変えながら比較できます。</p><div class="site-category-nav-grid">${links}<a class="site-category-nav-all" href="/compare/">6カテゴリの比較・直接比較一覧をまとめて見る →</a></div></section>`;
+  return `<section class="site-category-nav" data-site-category-nav="1" aria-label="ほかの商品カテゴリ"><h2>ほかのカテゴリも比較</h2><p>15カテゴリ・330商品を、予算や重視ポイントを変えながら比較できます。</p><div class="site-category-nav-grid">${links}<a class="site-category-nav-all" href="/compare/">15カテゴリの比較・直接比較一覧をまとめて見る →</a></div></section>`;
 };
 
 const trustMarkup = () => `<section class="site-trust-box" data-site-trust="1" aria-label="掲載情報の確認方針"><h2>掲載情報の確認方針</h2><div class="site-trust-grid"><div><b>最終生成・確認日</b><span>${TODAY}</span></div><div><b>仕様の出典</b><span>メーカー公式情報を優先</span></div><div><b>ランキング</b><span>広告掲載の有無と分離</span></div></div><div class="site-trust-links"><a href="/methodology/">比較方法・スコアの考え方 →</a><a href="/affiliate-disclosure/">広告・アフィリエイト方針 →</a></div></section>`;
@@ -77,7 +86,7 @@ const pairDifferenceMarkup = (html) => {
 
 const patchRoot = (html) => {
   html = html
-    .replace('みんなの比較表｜イヤホン・スマホ・スマートウォッチ・タブレット・USB充電器を比較 2026', 'みんなの比較表｜イヤホン・モバイルバッテリー・スマホ・スマートウォッチ・タブレット・USB充電器を比較 2026')
+    .replace('みんなの比較表｜イヤホン・スマホ・スマートウォッチ・タブレット・USB充電器を比較 2026', 'みんなの比較表｜15カテゴリ・330商品を条件別比較 2026')
     .replace('⌚ スマートウォッチ主要8モデル', '⌚ スマートウォッチ20モデル')
     .replace('📚 タブレット主要8モデル', '📚 タブレット20モデル')
     .replace('🔌 USB充電器主要8製品', '🔌 USB充電器20製品');
@@ -88,7 +97,7 @@ const patchRoot = (html) => {
   }
 
   if (!html.includes('aria-label="カテゴリ別の直接比較一覧"')) {
-    const block = `\n      <h2>カテゴリ別の直接比較一覧</h2>\n      <nav class="initial-links" aria-label="カテゴリ別の直接比較一覧"><a href="/compare/">📊 6カテゴリの比較一覧</a><a href="/earphones/compare/">🎧 イヤホン12組</a><a href="/mobile-batteries/compare/">🔋 モバイルバッテリー12組</a><a href="/smartphones/compare/">📱 スマホ12組</a><a href="/smartwatches/compare/">⌚ スマートウォッチ12組</a><a href="/tablets/compare/">📚 タブレット12組</a><a href="/chargers/compare/">🔌 USB充電器12組</a></nav>\n`;
+    const block = `\n      <h2>カテゴリ別の直接比較一覧</h2>\n      <nav class="initial-links" aria-label="カテゴリ別の直接比較一覧"><a href="/compare/">📊 15カテゴリの比較一覧</a><a href="/earphones/compare/">🎧 イヤホン12組</a><a href="/mobile-batteries/compare/">🔋 モバイルバッテリー12組</a><a href="/smartphones/compare/">📱 スマホ12組</a><a href="/smartwatches/compare/">⌚ スマートウォッチ12組</a><a href="/tablets/compare/">📚 タブレット12組</a><a href="/chargers/compare/">🔌 USB充電器12組</a></nav>\n`;
     html = html.replace('\n      <h2>比較方針</h2>', `${block}\n      <h2>比較方針</h2>`);
   }
   return html;

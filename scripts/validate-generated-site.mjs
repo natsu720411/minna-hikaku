@@ -1,80 +1,86 @@
 import fs from 'node:fs';
 import path from 'node:path';
-
-const root = process.cwd();
-const targetName = process.argv.find((arg) => arg.startsWith('--target='))?.split('=')[1] || 'dist';
-const targetDir = path.resolve(root, targetName);
-const errors = [];
-const read = (rel) => {
-  const file = path.join(targetDir, rel);
-  if (!fs.existsSync(file)) { errors.push(`Missing: ${rel}`); return ''; }
-  return fs.readFileSync(file, 'utf8');
-};
-
-const critical = [
-  'index.html', 'compare/index.html',
-  'earphones/index.html', 'mobile-batteries/index.html', 'smartphones/index.html',
-  'smartwatches/index.html', 'tablets/index.html', 'chargers/index.html',
-  'earphones/compare/index.html', 'mobile-batteries/compare/index.html', 'smartphones/compare/index.html',
-  'smartwatches/compare/index.html', 'tablets/compare/index.html', 'chargers/compare/index.html',
-  'sitemap.xml', 'sitemap-products.xml', 'sitemap-comparisons.xml', 'robots.txt',
+const root=process.cwd();
+const targetName=process.argv.find(a=>a.startsWith('--target='))?.split('=')[1]||'dist';
+const targetDir=path.resolve(root,targetName);
+const errors=[];
+const read=(rel)=>{const file=path.join(targetDir,rel);if(!fs.existsSync(file)){errors.push(`Missing: ${rel}`);return '';}return fs.readFileSync(file,'utf8');};
+const critical=[
+  "index.html",
+  "compare/index.html",
+  "earphones/index.html",
+  "mobile-batteries/index.html",
+  "smartphones/index.html",
+  "smartwatches/index.html",
+  "tablets/index.html",
+  "chargers/index.html",
+  "laptops/index.html",
+  "monitors/index.html",
+  "routers/index.html",
+  "electric-toothbrushes/index.html",
+  "hair-dryers/index.html",
+  "cordless-vacuums/index.html",
+  "robot-vacuums/index.html",
+  "air-purifiers/index.html",
+  "rice-cookers/index.html",
+  "earphones/compare/index.html",
+  "mobile-batteries/compare/index.html",
+  "smartphones/compare/index.html",
+  "smartwatches/compare/index.html",
+  "tablets/compare/index.html",
+  "chargers/compare/index.html",
+  "laptops/compare/index.html",
+  "monitors/compare/index.html",
+  "routers/compare/index.html",
+  "electric-toothbrushes/compare/index.html",
+  "hair-dryers/compare/index.html",
+  "cordless-vacuums/compare/index.html",
+  "robot-vacuums/compare/index.html",
+  "air-purifiers/compare/index.html",
+  "rice-cookers/compare/index.html",
+  "sitemap.xml",
+  "sitemap-products.xml",
+  "sitemap-comparisons.xml",
+  "robots.txt"
 ];
 critical.forEach(read);
-
-const rootHtml = read('index.html');
-if (rootHtml.includes('主要8')) errors.push('Homepage still contains outdated 「主要8」 copy.');
-if (!rootHtml.includes('モバイルバッテリー・スマホ')) errors.push('Homepage title is missing mobile-battery coverage.');
-if (!rootHtml.includes('aria-label="カテゴリ別の直接比較一覧"')) errors.push('Homepage static shell is missing comparison-hub links.');
-
-const compareHtml = read('compare/index.html');
-for (const segment of ['earphones','mobile-batteries','smartphones','smartwatches','tablets','chargers']) {
-  if (!compareHtml.includes(`/${segment}/`)) errors.push(`/compare/ is missing ${segment} navigation.`);
-}
-if (!compareHtml.includes('rel="canonical" href="https://minna-hikaku.vercel.app/compare/"')) errors.push('/compare/ canonical is missing.');
-
-const comparisons = read('sitemap-comparisons.xml');
-const comparisonLocs = [...comparisons.matchAll(/<loc>/g)].length;
-if (comparisonLocs < 78) errors.push(`Expected at least 78 comparison sitemap URLs, found ${comparisonLocs}.`);
-
-const products = read('sitemap-products.xml');
-const productLocs = [...products.matchAll(/<loc>/g)].length;
-if (productLocs < 60) errors.push(`Expected at least 60 product sitemap URLs, found ${productLocs}.`);
-
-const sitemap = read('sitemap.xml');
-if (!sitemap.includes('<loc>https://minna-hikaku.vercel.app/compare/</loc>')) errors.push('sitemap.xml is missing /compare/.');
-
-const robots = read('robots.txt');
-for (const name of ['sitemap.xml','sitemap-guides.xml','sitemap-categories.xml','sitemap-products.xml','sitemap-comparisons.xml']) {
-  if (!robots.includes(name)) errors.push(`robots.txt is missing ${name}.`);
-}
-
-const samplePairPages = [
-  'earphones/compare/airpods-pro-3-vs-wf-1000xm6/index.html',
-  'mobile-batteries/compare/anker-nano-10000-45w-vs-xiaomi-33w-10000/index.html',
-  'smartphones/compare/iphone-17-vs-pixel-10/index.html',
-  'smartwatches/compare/apple-watch-series-11-42-vs-pixel-watch-4-41/index.html',
-  'tablets/compare/ipad-pro-m5-11-vs-galaxy-tab-s11/index.html',
-  'chargers/compare/anker-nano-70-3port-vs-cio-trio-67/index.html',
-];
-for (const rel of samplePairPages) {
-  const html = read(rel);
-  if (html && !html.includes('data-pair-differences="1"')) errors.push(`${rel} is missing the pair-difference summary.`);
-  if (html && !html.includes('data-site-trust="1"')) errors.push(`${rel} is missing the trust/source box.`);
-}
-
-const sampleProductPages = [
-  'smartwatches/products/apple-watch-series-11-42/index.html',
-  'tablets/products/ipad-a16/index.html',
-  'chargers/products/anker-nano-70-3port/index.html',
-];
-for (const rel of sampleProductPages) {
-  const html = read(rel);
-  if (html && !html.includes('data-site-trust="1"')) errors.push(`${rel} is missing the trust/source box.`);
-}
-
-if (errors.length) {
-  console.error('Generated-site validation failed:');
-  errors.forEach((error) => console.error(`- ${error}`));
-  process.exit(1);
-}
-console.log(`Generated-site validation passed: ${comparisonLocs} comparison URLs, ${productLocs} product URLs, richer comparison/trust checks passed.`);
+const rootHtml=read('index.html');
+for(const stale of ['6カテゴリ','9カテゴリ','12カテゴリ','150商品','210商品','270商品']) if(rootHtml.includes(stale)) errors.push(`Homepage still contains stale count: ${stale}`);
+if(!rootHtml.includes('15カテゴリ・330商品')) errors.push('Homepage is missing 15カテゴリ・330商品 copy.');
+if(!rootHtml.includes('"numberOfItems":15')) errors.push('Homepage JSON-LD is missing numberOfItems:15.');
+for(const key of ["earphones","mobile-batteries","smartphones","smartwatches","tablets","chargers","laptops","monitors","routers","electric-toothbrushes","hair-dryers","cordless-vacuums","robot-vacuums","air-purifiers","rice-cookers"]) if(!rootHtml.includes(`/${key}/`)) errors.push(`Homepage is missing /${key}/ link.`);
+const compareHtml=read('compare/index.html');
+for(const key of ["earphones","mobile-batteries","smartphones","smartwatches","tablets","chargers","laptops","monitors","routers","electric-toothbrushes","hair-dryers","cordless-vacuums","robot-vacuums","air-purifiers","rice-cookers"]) if(!compareHtml.includes(`/${key}/`)) errors.push(`/compare/ is missing ${key} navigation.`);
+if(!compareHtml.includes('15カテゴリ・330商品')) errors.push('/compare/ is missing current totals.');
+if(!compareHtml.includes('rel="canonical" href="https://minna-hikaku.vercel.app/compare/"')) errors.push('/compare/ canonical is missing.');
+const comparisons=read('sitemap-comparisons.xml');
+const comparisonLocs=[...comparisons.matchAll(/<loc>/g)].length;
+if(comparisonLocs<195) errors.push(`Expected at least 195 comparison sitemap URLs, found ${comparisonLocs}.`);
+const products=read('sitemap-products.xml');
+const productLocs=[...products.matchAll(/<loc>/g)].length;
+if(productLocs<240) errors.push(`Expected at least 240 product sitemap URLs, found ${productLocs}.`);
+const sitemap=read('sitemap.xml');
+if(!sitemap.includes('<loc>https://minna-hikaku.vercel.app/compare/</loc>')) errors.push('sitemap.xml is missing /compare/.');
+const robots=read('robots.txt');
+for(const name of ['sitemap.xml','sitemap-guides.xml','sitemap-categories.xml','sitemap-products.xml','sitemap-comparisons.xml']) if(!robots.includes(name)) errors.push(`robots.txt is missing ${name}.`);
+for(const rel of [
+  "earphones/compare/airpods-pro-3-vs-wf-1000xm6/index.html",
+  "smartwatches/compare/apple-watch-series-11-42-vs-pixel-watch-4-41/index.html",
+  "laptops/compare/macbook-air-13-m4-vs-surface-laptop-13/index.html",
+  "electric-toothbrushes/compare/panasonic-ew-dt88-vs-oralb-io9/index.html",
+  "hair-dryers/compare/panasonic-eh-nc80-vs-refa-bx/index.html",
+  "cordless-vacuums/compare/panasonic-mc-nx810km-vs-shark-neo2-plus-lc551j/index.html",
+  "robot-vacuums/compare/roomba-max-775-combo-vs-deebot-t90-omni/index.html",
+  "air-purifiers/compare/sharp-ki-wx100-vs-panasonic-f-vxw90/index.html",
+  "rice-cookers/compare/zojirushi-nx-ab10-vs-tiger-jrt-a100/index.html"
+]){const html=read(rel);if(html&&!html.includes('data-pair-differences="1"'))errors.push(`${rel} is missing pair-difference summary.`);if(html&&!html.includes('data-site-trust="1"'))errors.push(`${rel} is missing trust box.`);}
+for(const rel of [
+  "smartwatches/products/apple-watch-series-11-42/index.html",
+  "laptops/products/macbook-air-13-m4/index.html",
+  "electric-toothbrushes/products/panasonic-ew-dt88/index.html",
+  "robot-vacuums/products/roomba-max-775-combo/index.html",
+  "air-purifiers/products/sharp-ki-wx100/index.html",
+  "rice-cookers/products/zojirushi-nx-ab10/index.html"
+]){const html=read(rel);if(html&&!html.includes('data-site-trust="1"'))errors.push(`${rel} is missing trust box.`);if(html&&!html.includes('data-site-category-nav="1"'))errors.push(`${rel} is missing category navigation.`);}
+if(errors.length){console.error('Generated-site validation failed:');errors.forEach(e=>console.error(`- ${e}`));process.exit(1);}
+console.log(`Generated-site validation passed: ${comparisonLocs} comparison URLs, ${productLocs} product URLs, 15-category checks passed.`);
