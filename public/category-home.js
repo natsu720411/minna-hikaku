@@ -15,7 +15,7 @@
   ];
 
   const guideSections = [
-    {key:'smartwatches',eyebrow:'SMARTWATCH GUIDES',title:'目的別スマートウォッチガイド',description:'スマホ連携、バッテリー、スポーツなどから選べます。',links:[['/smartwatches/iphone/','🍎 iPhone向け'],['/smartwatches/android/','🤖 Android向け'],['/smartwatches/battery/','🔋 バッテリー重視'],['/smartwatches/sports/','🏃 スポーツ向け'],['/smartwatches/','⌚ 20モデルを比較']]},
+    {key:'smartwatches',eyebrow:'SMARTWATCH GUIDES',title:'目的別スマートウォッチガイド',description:'スマホ連携、バッテリー、スポーツなどから選べます。',links:[['/smartwatches/iphone/','🍎 iPhone向け'],['/smartwatches/android/','🤖 Android向け'],['/smartwatches/battery/','🔋 バッテリー重視'],['/smartwatches/sports/','🏃 スポーツ向け'],['/smartwatches/swimming-cellular/','🏊 水泳・セルラー'],['/smartwatches/','⌚ 20モデルを比較']]},
     {key:'tablets',eyebrow:'TABLET GUIDES',title:'目的別タブレットガイド',description:'勉強、お絵描き、持ち運び、ゲームなどから選べます。',links:[['/tablets/student/','🎓 大学生・勉強向け'],['/tablets/drawing/','✏️ ペン・お絵描き'],['/tablets/lightweight/','🪶 軽量'],['/tablets/gaming/','🎮 ゲーム向け'],['/tablets/','📚 20モデルを比較']]},
     {key:'chargers',eyebrow:'CHARGER GUIDES',title:'目的別USB充電器ガイド',description:'iPhone、ノートPC、持ち運び、複数台充電などから選べます。',links:[['/chargers/iphone/','🍎 iPhone向け'],['/chargers/laptop/','💻 ノートPC向け'],['/chargers/compact/','🧳 小型・軽量'],['/chargers/multiport/','🔌 複数ポート'],['/chargers/','🔌 20製品を比較']]},
     {key:'laptops',eyebrow:'LAPTOP GUIDES',title:'目的別ノートPCガイド',description:'大学生、軽さ、電池持ち、制作などから選べます。',links:[['/laptops/student/','🎓 大学生向け'],['/laptops/lightweight/','🪶 軽量'],['/laptops/battery/','🔋 バッテリー'],['/laptops/creator/','🎨 クリエイター'],['/laptops/','💻 20モデルを比較']]},
@@ -30,6 +30,8 @@
   ];
 
   const directComparisons = [
+    ["/earphones/compare/soundcore-liberty-5-vs-earfun-air-pro-4/","🎧 Liberty 5 vs EarFun Air Pro 4","ワイヤレスイヤホン"],
+    ["/smartphones/compare/galaxy-s26-ultra-vs-pixel-10-pro-xl/","📱 Galaxy S26 Ultra vs Pixel 10 Pro XL","スマートフォン"],
     ["/smartwatches/compare/apple-watch-series-11-42-vs-pixel-watch-4-41/","⌚ Apple Watch Series 11 vs Pixel Watch 4","スマートウォッチ"],
     ["/laptops/compare/macbook-air-13-m4-vs-surface-laptop-13/","💻 MacBook Air vs Surface Laptop","ノートPC"],
     ["/electric-toothbrushes/compare/panasonic-ew-dt88-vs-oralb-io9/","🪥 ドルツ EW-DT88 vs Oral-B iO9","電動歯ブラシ"],
@@ -41,9 +43,9 @@
   ];
 
   const comparisonHubs = [
-    ['/earphones/compare/','🎧 ワイヤレスイヤホン12組'],
+    ['/earphones/compare/','🎧 ワイヤレスイヤホン13組'],
     ['/mobile-batteries/compare/','🔋 モバイルバッテリー12組'],
-    ['/smartphones/compare/','📱 スマートフォン12組'],
+    ['/smartphones/compare/','📱 スマートフォン13組'],
     ['/smartwatches/compare/','⌚ スマートウォッチ12組'],
     ['/tablets/compare/','📚 タブレット12組'],
     ['/chargers/compare/','🔌 USB充電器12組'],

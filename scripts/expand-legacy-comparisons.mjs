@@ -12,6 +12,7 @@ const TARGET_PAIRS = 12;
 
 const metas = {
   earphones: {
+    targetPairs: 13,
     label: 'ワイヤレスイヤホン',
     countLabel: '30機種',
     focus: '価格・バッテリー・防水・音質・ノイズキャンセリング・装着感・コスパ',
@@ -27,6 +28,7 @@ const metas = {
       ['pixel-buds-pro-2','galaxy-buds4-pro','pixel-buds-pro-2-vs-galaxy-buds4-pro'],
       ['technics-eah-az100','wf-1000xm6','technics-eah-az100-vs-wf-1000xm6'],
       ['wf-1000xm6','soundcore-liberty-5','wf-1000xm6-vs-liberty-5'],
+      ['soundcore-liberty-5','earfun-air-pro-4','soundcore-liberty-5-vs-earfun-air-pro-4'],
     ],
   },
   'mobile-batteries': {
@@ -49,6 +51,7 @@ const metas = {
     ],
   },
   smartphones: {
+    targetPairs: 13,
     label: 'スマートフォン',
     countLabel: '30機種',
     focus: '価格・カメラ・処理性能・バッテリー・重量・AI機能・ディスプレイ・コスパ',
@@ -62,6 +65,7 @@ const metas = {
       ['iphone-17','pixel-10'],
       ['pixel-10','galaxy-s26'],
       ['xiaomi-15t','poco-x8-pro'],
+      ['galaxy-s26-ultra','pixel-10-pro-xl','galaxy-s26-ultra-vs-pixel-10-pro-xl'],
     ],
   },
 };
@@ -120,6 +124,7 @@ const scoreDistance = (a,b) => {
 };
 
 const selectPairs = (products, meta) => {
+  const targetPairs = meta.targetPairs || TARGET_PAIRS;
   const byId = new Map(products.map((p) => [p.id,p]));
   const selected = [];
   const used = new Set();
@@ -152,14 +157,14 @@ const selectPairs = (products, meta) => {
 
   for (const maxAppearances of [2,3,4]) {
     for (const {a,b} of candidates) {
-      if (selected.length >= TARGET_PAIRS) break;
+      if (selected.length >= targetPairs) break;
       if (used.has(pairKey(a.id,b.id))) continue;
       if ((appearances.get(a.id)||0) >= maxAppearances || (appearances.get(b.id)||0) >= maxAppearances) continue;
       add(a,b);
     }
-    if (selected.length >= TARGET_PAIRS) break;
+    if (selected.length >= targetPairs) break;
   }
-  return selected.slice(0,TARGET_PAIRS);
+  return selected.slice(0,targetPairs);
 };
 
 const hasDetail = (key,id) => fs.existsSync(path.join(targetDir,key,'products',id,'index.html'));
@@ -205,19 +210,20 @@ const renderHub = (key,meta,pairs) => {
     '@context':'https://schema.org','@type':'ItemList',name:`${meta.label}の2製品比較一覧`,numberOfItems:pairs.length,
     itemListElement:pairs.map(([a,b,slug],i)=>({'@type':'ListItem',position:i+1,name:`${a.name} vs ${b.name}`,url:`${ORIGIN}${compareUrl(key,slug)}`})),
   }).replace(/</g,'\\u003c');
-  return `<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(meta.label)}の2製品比較一覧 2026｜みんなの比較表</title><meta name="description" content="${escapeHtml(meta.label)}の気になる2製品を、価格と主要仕様で直接比較できるページを12組まとめています。"><meta name="robots" content="index,follow"><link rel="canonical" href="${canonical}"><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/guides.css"><link rel="stylesheet" href="/site-ui.css"><style>.compare-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0 30px}.compare-list-card{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:18px;border:1px solid #dfe7f1;border-radius:17px;background:#fff;color:inherit;text-decoration:none}.compare-list-card>b{font-size:13px;line-height:1.45}.compare-list-card>span{font-size:10px;font-weight:900;color:#0f6cf9}.compare-list-card>small{grid-column:1/-1;color:#74849a;margin-top:4px}.compare-list-card:hover{border-color:#a8c9fb;box-shadow:0 10px 24px rgba(30,61,102,.08)}@media(max-width:700px){.compare-list{grid-template-columns:1fr}}</style><script type="application/ld+json">${jsonLd}</script></head><body><header class="guide-header"><div class="guide-header-inner"><a class="guide-logo" href="/"><span>✓</span><span>みんなの比較表</span></a><nav class="guide-nav"><a href="/${key}/">${escapeHtml(meta.countLabel)}を比較</a></nav></div></header><main class="guide-main"><div class="breadcrumbs"><a href="/">トップ</a> › <a href="/${key}/">${escapeHtml(meta.label)}</a> › 2製品比較一覧</div><span class="update-pill">2026年10月更新</span><h1>${escapeHtml(meta.label)}の2製品比較一覧</h1><p class="lead">候補が2つまで絞れている人向けに、主要仕様を同じ表で直接確認できる比較ページを12組まとめています。</p><div class="compare-list">${cards}</div><div class="cta"><h2>条件から候補を探し直す</h2><p>${escapeHtml(meta.focus)}を重視ポイントにして、${escapeHtml(meta.countLabel)}から探せます。</p><a href="/${key}/">${escapeHtml(meta.label)}比較へ →</a></div></main><footer class="guide-footer"><div class="guide-footer-inner"><a href="/">みんなの比較表</a> ｜ <a href="/methodology/">比較方法</a></div></footer></body></html>`;
+  return `<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(meta.label)}の2製品比較一覧 2026｜みんなの比較表</title><meta name="description" content="${escapeHtml(meta.label)}の気になる2製品を、価格と主要仕様で直接比較できるページを${pairs.length}組まとめています。"><meta name="robots" content="index,follow"><link rel="canonical" href="${canonical}"><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/guides.css"><link rel="stylesheet" href="/site-ui.css"><style>.compare-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0 30px}.compare-list-card{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:18px;border:1px solid #dfe7f1;border-radius:17px;background:#fff;color:inherit;text-decoration:none}.compare-list-card>b{font-size:13px;line-height:1.45}.compare-list-card>span{font-size:10px;font-weight:900;color:#0f6cf9}.compare-list-card>small{grid-column:1/-1;color:#74849a;margin-top:4px}.compare-list-card:hover{border-color:#a8c9fb;box-shadow:0 10px 24px rgba(30,61,102,.08)}@media(max-width:700px){.compare-list{grid-template-columns:1fr}}</style><script type="application/ld+json">${jsonLd}</script></head><body><header class="guide-header"><div class="guide-header-inner"><a class="guide-logo" href="/"><span>✓</span><span>みんなの比較表</span></a><nav class="guide-nav"><a href="/${key}/">${escapeHtml(meta.countLabel)}を比較</a></nav></div></header><main class="guide-main"><div class="breadcrumbs"><a href="/">トップ</a> › <a href="/${key}/">${escapeHtml(meta.label)}</a> › 2製品比較一覧</div><span class="update-pill">2026年10月更新</span><h1>${escapeHtml(meta.label)}の2製品比較一覧</h1><p class="lead">候補が2つまで絞れている人向けに、主要仕様を同じ表で直接確認できる比較ページを${pairs.length}組まとめています。</p><div class="compare-list">${cards}</div><div class="cta"><h2>条件から候補を探し直す</h2><p>${escapeHtml(meta.focus)}を重視ポイントにして、${escapeHtml(meta.countLabel)}から探せます。</p><a href="/${key}/">${escapeHtml(meta.label)}比較へ →</a></div></main><footer class="guide-footer"><div class="guide-footer-inner"><a href="/">みんなの比較表</a> ｜ <a href="/methodology/">比較方法</a></div></footer></body></html>`;
 };
 
 const replaceCategoryBlock = (key,meta,pairs) => {
+  const pairCount = pairs.length;
   const file = path.join(targetDir,key,'index.html');
   if (!fs.existsSync(file)) return;
   let html = fs.readFileSync(file,'utf8');
   const cards = pairs.slice(0,6).map(([a,b,slug]) => `<a class="${key === 'earphones' ? '' : 'discovery-card'}" href="${compareUrl(key,slug)}">${key === 'earphones' ? `${escapeHtml(a.name)} vs ${escapeHtml(b.name)}` : `<b>${escapeHtml(a.name)} vs ${escapeHtml(b.name)}</b><small>主要仕様を横並びで比較</small>`}</a>`).join('');
   if (key === 'earphones') {
-    const replacement = `<h2>2製品を直接比べる</h2><div class="related">${cards}<a href="${hubUrl(key)}">📊 12組の直接比較をすべて見る</a></div>`;
+    const replacement = `<h2>2製品を直接比べる</h2><div class="related">${cards}<a href="${hubUrl(key)}">📊 ${pairCount}組の直接比較をすべて見る</a></div>`;
     html = html.replace(/<h2>2製品を直接比べる<\/h2><div class="related">[\s\S]*?<\/div>(?=<div class="cta">)/, replacement);
   } else {
-    const replacement = `<section class="discovery-block"><h2>2製品を直接比較</h2><p class="generic-note">候補が2つまで絞れたら、価格と主要仕様を同じ表で確認できます。</p><div class="discovery-grid">${cards}</div><p><a class="official" href="${hubUrl(key)}">12組の直接比較をすべて見る →</a></p></section>`;
+    const replacement = `<section class="discovery-block"><h2>2製品を直接比較</h2><p class="generic-note">候補が2つまで絞れたら、価格と主要仕様を同じ表で確認できます。</p><div class="discovery-grid">${cards}</div><p><a class="official" href="${hubUrl(key)}">${pairCount}組の直接比較をすべて見る →</a></p></section>`;
     html = html.replace(/<section class="discovery-block"><h2>2(?:製品|機種)を直接比較<\/h2>[\s\S]*?<\/section>/, replacement);
   }
   fs.writeFileSync(file,html);

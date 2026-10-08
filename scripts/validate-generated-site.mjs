@@ -12,6 +12,9 @@ const critical=[
   "mobile-batteries/index.html",
   "smartphones/index.html",
   "smartwatches/index.html",
+  "smartwatches/swimming-cellular/index.html",
+  "earphones/compare/soundcore-liberty-5-vs-earfun-air-pro-4/index.html",
+  "smartphones/compare/galaxy-s26-ultra-vs-pixel-10-pro-xl/index.html",
   "tablets/index.html",
   "chargers/index.html",
   "laptops/index.html",
@@ -49,6 +52,16 @@ for(const stale of ['6カテゴリ','9カテゴリ','12カテゴリ','150商品'
 if(!rootHtml.includes('15カテゴリ・330商品')) errors.push('Homepage is missing 15カテゴリ・330商品 copy.');
 if(!rootHtml.includes('"numberOfItems":15')) errors.push('Homepage JSON-LD is missing numberOfItems:15.');
 for(const key of ["earphones","mobile-batteries","smartphones","smartwatches","tablets","chargers","laptops","monitors","routers","electric-toothbrushes","hair-dryers","cordless-vacuums","robot-vacuums","air-purifiers","rice-cookers"]) if(!rootHtml.includes(`/${key}/`)) errors.push(`Homepage is missing /${key}/ link.`);
+const sportsEarphones=read('earphones/sports/index.html');
+if(!sportsEarphones.includes('ジム')) errors.push('Sports earphones page is missing gym search-intent copy.');
+const ancComparison=read('earphones/compare/airpods-pro-3-vs-wf-1000xm6/index.html');
+if(!ancComparison.includes('ノイズキャンセリング')) errors.push('AirPods Pro 3 vs WF-1000XM6 page is missing ANC search-intent copy.');
+const iphoneWatch=read('smartwatches/iphone/index.html');
+if(!iphoneWatch.includes('メール・メッセージ')) errors.push('iPhone smartwatch guide is missing mail/message intent.');
+const swimmingWatch=read('smartwatches/swimming-cellular/index.html');
+if(!swimmingWatch.includes('セルラー')||!swimmingWatch.includes('水泳')) errors.push('Swimming/cellular smartwatch guide is incomplete.');
+const guideSitemap=read('sitemap-guides.xml');
+if(!guideSitemap.includes('https://minna-hikaku.vercel.app/smartwatches/swimming-cellular/')) errors.push('Guide sitemap is missing swimming/cellular smartwatch guide.');
 const compareHtml=read('compare/index.html');
 for(const key of ["earphones","mobile-batteries","smartphones","smartwatches","tablets","chargers","laptops","monitors","routers","electric-toothbrushes","hair-dryers","cordless-vacuums","robot-vacuums","air-purifiers","rice-cookers"]) if(!compareHtml.includes(`/${key}/`)) errors.push(`/compare/ is missing ${key} navigation.`);
 if(!compareHtml.includes('15カテゴリ・330商品')) errors.push('/compare/ is missing current totals.');
