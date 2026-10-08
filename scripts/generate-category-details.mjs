@@ -231,8 +231,9 @@ if (!fs.existsSync(comparisonPath)) throw new Error(`Missing ${comparisonPath}`)
 let comparisonJs = fs.readFileSync(comparisonPath, 'utf8');
 const before = comparisonJs;
 comparisonJs = comparisonJs.replace(/  const detailIds = \{[\s\S]*?  const hasDetail = \(p\) => detailIds\[cfg\.categoryKey\]\?\.has\(p\.id\) \|\| false;\n/, "  const hasDetail = () => ['smartwatches','tablets','chargers'].includes(cfg.categoryKey);\n");
-if (comparisonJs === before && !comparisonJs.includes("const hasDetail = () => ['smartwatches','tablets','chargers'].includes(cfg.categoryKey)")) {
-  throw new Error('Could not enable detail links for all category products');
+const existingHasDetail = /const hasDetail = \(\) => \[[^\]]*\]\.includes\(cfg\.categoryKey\);/.test(comparisonJs);
+if (comparisonJs === before && !existingHasDetail) {
+  throw new Error('Could not enable detail links for category products');
 }
 fs.writeFileSync(comparisonPath, comparisonJs);
 
