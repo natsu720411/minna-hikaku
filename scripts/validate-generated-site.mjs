@@ -58,6 +58,7 @@ const generatedHtml=walkHtml(targetDir);
 const relParts=(file)=>path.relative(targetDir,file).replaceAll('\\\\','/').split('/');
 const productPages=generatedHtml.filter((file)=>{const parts=relParts(file);return parts.length===4&&parts[1]==='products'&&parts[3]==='index.html';});
 const comparisonPages=generatedHtml.filter((file)=>{const parts=relParts(file);return parts[1]==='compare'&&parts.at(-1)==='index.html'&&(parts.length===3||parts.length===4);});
+if(productPages.length<330) errors.push(`Expected at least 330 product detail pages, found ${productPages.length}.`);
 const toUrl=(file)=>'https://minna-hikaku.vercel.app/'+path.relative(targetDir,file).replaceAll('\\\\','/').replace(/index\.html$/,'');
 const comparisons=read('sitemap-comparisons.xml');
 const comparisonLocs=[...comparisons.matchAll(/<loc>/g)].length;

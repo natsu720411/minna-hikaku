@@ -6,6 +6,7 @@ const run = (file, target, extra = []) => {
 };
 
 run('scripts/generate-category-details.mjs', 'public');
+run('scripts/generate-legacy-product-details.mjs', 'public');
 run('scripts/expand-category-comparisons.mjs', 'public');
 run('scripts/expand-legacy-comparisons.mjs', 'public');
 run('scripts/generate-expansion-categories.mjs', 'public', ['--root']);
