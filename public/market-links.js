@@ -116,7 +116,7 @@
     const main = document.querySelector('.guide-main');
     const heading = main?.querySelector('h1');
     if (!main || !heading || main.querySelector('.compare-shop-box')) return;
-    const raw = heading.textContent.replace(/を比較.*$/,'').trim();
+    const raw = (heading.innerText || heading.textContent).replace(/を比較.*$/,'').replace(/\s+/g,' ').trim();
     let names = raw.split(/\s+vs\s+/i).map((v) => v.trim()).filter(Boolean);
     if (names.length < 2 && raw.includes('と')) names = raw.split('と').map((v) => v.trim()).filter(Boolean);
     if (names.length < 2) return;

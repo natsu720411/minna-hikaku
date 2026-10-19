@@ -86,11 +86,12 @@
   };
   const brands = [...new Set(cfg.products.map((p) => p.brand))].sort((a,b)=>a.localeCompare(b,'ja'));
   brandFilter.innerHTML = '<option value="all">すべてのメーカー</option>' + brands.map((b) => `<option value="${esc(b)}">${esc(b)}</option>`).join('');
-  sortSelect.innerHTML = '<option value="match">相性順</option><option value="price-asc">価格が安い順</option><option value="price-desc">価格が高い順</option>' + (cfg.sorts||[]).map((s) => `<option value="${esc(s.value)}">${esc(s.label)}</option>`).join('') + '<option value="name">商品名順</option>';
+  const priceOptions = cfg.products.some((p) => Number.isFinite(p.price)) ? '<option value="price-asc">価格が安い順</option><option value="price-desc">価格が高い順</option>' : '';
+  sortSelect.innerHTML = '<option value="match">相性順</option>' + priceOptions + (cfg.sorts||[]).map((s) => `<option value="${esc(s.value)}">${esc(s.label)}</option>`).join('') + '<option value="name">商品名順</option>';
   searchInput.addEventListener('input', () => { state.query=searchInput.value; renderList(); });
   brandFilter.addEventListener('change', () => { state.brand=brandFilter.value; renderList(); });
   sortSelect.addEventListener('change', () => { state.sort=sortSelect.value; renderList(); });
-  $('#clearTools')?.addEventListener('click', () => { state.query='';state.brand='all';state.sort='match';searchInput.value='';brandFilter.value='all';sortSelect.value='match';renderList(); });
+  $('#clearTools')?.addEventListener('click', () => { state.query='';state.brand='all';state.sort='match';state.budget=null;state.priority=cfg.defaultPriority || cfg.priorities[0].key;searchInput.value='';brandFilter.value='all';sortSelect.value='match';renderControls();renderList(); });
   $('#clearCompare')?.addEventListener('click', () => { state.selected=[];renderList();renderCompare(); });
   renderControls(); renderList(); renderCompare();
 })();

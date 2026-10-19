@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "generate:details": "node scripts/prebuild-sitemaps.mjs && node scripts/enhance-static-navigation.mjs --target=public && node scripts/apply-site-finishing.mjs --target=public --root && node scripts/repair-product-schema.mjs --target=public && node scripts/validate-product-schema.mjs --target=public",
-    "build": "node scripts/prebuild-sitemaps.mjs && vite build && node scripts/enhance-static-navigation.mjs --target=dist && node scripts/apply-site-finishing.mjs --target=dist && node scripts/repair-product-schema.mjs --target=dist && node scripts/validate-product-schema.mjs --target=dist && node scripts/validate-generated-site.mjs --target=dist && node scripts/site-quality-audit.mjs --target=dist",
+    "build": "node scripts/prebuild-sitemaps.mjs && vite build && node scripts/enhance-static-navigation.mjs --target=dist && node scripts/apply-site-finishing.mjs --target=dist && node scripts/repair-product-schema.mjs --target=dist && node scripts/validate-product-schema.mjs --target=dist && node scripts/validate-generated-site.mjs --target=dist && node scripts/site-quality-audit.mjs --target=dist && node scripts/validate-added-categories.mjs --target=dist",
     "audit": "node scripts/site-quality-audit.mjs --target=dist && node scripts/validate-product-schema.mjs --target=dist",
     "audit:external": "node scripts/check-external-links.mjs --target=dist --strict",
     "preview": "vite preview"
