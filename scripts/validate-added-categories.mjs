@@ -69,4 +69,17 @@ const serverMedia = fs.readFileSync(path.resolve('api/product-media.js'),'utf8')
 if (!serverMedia.includes('ankerzolopowerbank10000') || !serverMedia.includes("requiredTerms: ['30W']")) fail('Anker Zolo 10000mAh/30W image lookup must remain exact');
 const linkStyles = read('category-comparison.css');
 if (!linkStyles.includes('.rank-links .detail-link') || !linkStyles.includes('.rank-links .source-link')) fail('Missing separated product/detail links');
+
+const windsorChecks = [
+  ['earphones/compare/soundcore-liberty-5-vs-earfun-air-pro-4/index.html','earfun-vs-liberty','差額5,000円'],
+  ['smartphones/compare/iphone-17-pro-vs-xperia-1-viii/index.html','iphone-xperia','/smartphones/compare/xperia-1-viii-vs-iphone-17-pro/'],
+  ['smartwatches/iphone/index.html','watch-iphone','/smartwatches/fast-charging-ios/'],
+  ['smartwatches/battery/index.html','watch-battery','/smartwatches/iphone/'],
+  ['earphones/index.html','earphone-discovery','/earphones/compare/soundcore-liberty-5-vs-earfun-air-pro-4/'],
+];
+for(const [file,marker,expected] of windsorChecks){
+  const html = read(file);
+  if(!html.includes('data-windsor-focus="'+marker+'"')) fail('Windsor/GSC landing-page patch missing: '+file);
+  if(!html.includes(expected)) fail('Windsor/GSC content or navigation missing: '+file);
+}
 console.log('20-category smoke checks passed: 20 categories, 430 site products, 100 new-category details, comparison pages, source links, sitemaps and navigation.');

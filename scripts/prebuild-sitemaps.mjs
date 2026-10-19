@@ -12,6 +12,7 @@ run('scripts/expand-legacy-comparisons.mjs', 'public');
 run('scripts/generate-expansion-categories.mjs', 'public', ['--root']);
 run('scripts/apply-gsc-growth-pages.mjs', 'public');
 run('scripts/add-five-categories.mjs', 'public');
+run('scripts/apply-windsor-gsc-optimizations.mjs', 'public');
 run('scripts/normalize-sitemaps.mjs', 'public');
 run('scripts/enhance-price-transparency.mjs', 'public');
 run('scripts/enhance-product-seo.mjs', 'public');
