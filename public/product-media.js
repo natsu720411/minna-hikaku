@@ -24,8 +24,9 @@
     'wifi','wi-fi','gps','bluetooth','モデル','製品','充電器','charger','watch','ウォッチ','tablet','タブレット','ipad','galaxy','google','apple','samsung','huawei','xiaomi','garmin','lenovo','anker','cio','ugreen','belkin',
     'gb','mah','usb','type','ports','port','インチ','inch','laptop','notebook','ノートpc','ノートパソコン','monitor','display','モニター','ディスプレイ','router','ルーター'
   ]);
-  const BRAND_TOKENS = ["apple","samsung","google","huawei","xiaomi","redmi","garmin","lenovo","anker","cio","ugreen","belkin","sony","jbl","bose","technics","nothing","earfun","beats","soundcore","pixel","galaxy","microsoft","dell","hp","asus","acer","msi","lg","panasonic","dynabook","fujitsu","vaio","benq","eizo","iodata","japannext","philips","gigabyte","tp-link","tplink","buffalo","nec","aterm","netgear","eero","elecom","oral-b","oralb","braun","refa","salonia","dyson","shark","hitachi","toshiba","irobot","roomba","switchbot","roborock","ecovacs","eufy","daikin","tiger","zojirushi"];
+  const BRAND_TOKENS = ["apple","samsung","google","huawei","xiaomi","redmi","garmin","lenovo","anker","cio","ugreen","belkin","sony","jbl","bose","technics","nothing","earfun","beats","soundcore","pixel","galaxy","microsoft","dell","hp","asus","acer","msi","lg","panasonic","dynabook","fujitsu","vaio","benq","eizo","iodata","japannext","philips","gigabyte","tp-link","tplink","buffalo","nec","aterm","netgear","eero","elecom","oral-b","oralb","braun","refa","salonia","dyson","shark","hitachi","toshiba","irobot","roomba","switchbot","roborock","ecovacs","eufy","daikin","tiger","zojirushi","logicool","logitech","buffalo","sandisk","sharp"];
   const BRAND_ALIAS_GROUPS = [
+  ['logicool','logitech','ロジクール'],['buffalo','バッファロー'],['sandisk','サンディスク'],
     ['apple','アップル'],['samsung','サムスン','galaxy','ギャラクシー'],['google','グーグル','pixel','ピクセル'],
     ['sony','ソニー','xperia','エクスペリア'],['sharp','シャープ','aquos'],['motorola','モトローラ'],['xiaomi','シャオミ','redmi','poco'],
     ['panasonic','パナソニック'],['oral-b','oralb','オーラルb','braun','ブラウン'],['philips','フィリップス'],

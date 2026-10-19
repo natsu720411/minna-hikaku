@@ -35,6 +35,7 @@ for (const key of keys) {
     const detail = read(rel);
     const url = origin + '/' + key + '/products/' + p.id + '/';
     if (!detail.includes(p.name) || !detail.includes(p.source.replaceAll('&','&amp;'))) fail(rel + ' does not match product data');
+    if (!detail.includes('catalog-detail-visual')) fail(rel + ' lacks image fallback');
     if (!productSitemap.includes('<loc>' + url + '</loc>')) fail(rel + ' is missing from sitemap');
     totalNewProducts++;
   }
@@ -52,4 +53,7 @@ const media = read('market-links.js');
 if (!media.includes('heading.innerText || heading.textContent')) fail('Compare-page link rendering regression');
 const comparisonJs = read('category-comparison.js');
 if (!comparisonJs.includes('const priceOptions = cfg.products.some')) fail('No-price sort control regression');
+if (!comparisonJs.includes('catalog-product-visual') || !comparisonJs.includes('const imageIcons')) fail('Comparison cards lack product photo slots');
+const productMedia = read('product-media.js');
+if (!productMedia.includes('enhanceCompareGallery') || !productMedia.includes('api-compare-gallery')) fail('Two-product image layout is missing');
 console.log('20-category smoke checks passed: 20 categories, 430 site products, 100 new-category details, comparison pages, source links, sitemaps and navigation.');

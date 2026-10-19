@@ -121,6 +121,9 @@ import path from 'node:path';
     s=s.replace("'rice-cookers'].includes(cfg.categoryKey)","'rice-cookers','mice','keyboards','external-ssds','microwaves','dehumidifiers'].includes(cfg.categoryKey)");
     return s;
   });
+  // The expansion generator resets its hard-coded brand tokens; restore the new catalog brands afterward.
+  patch(path.join(out,"product-media.js"),s=>s.replace("'tiger','zojirushi'];","'tiger','zojirushi','logicool','logitech','buffalo','sandisk','sharp'];"));
+  patch(path.join(root,"api","product-media.js"),s=>s.replace("'tiger','zojirushi'","'tiger','zojirushi','logicool','logitech','buffalo','sandisk','sharp'"));
   patch(path.join(root,"scripts","enhance-static-navigation.mjs"),s=>{
     s=s.replaceAll("15カテゴリ・330商品","20カテゴリ・430商品").replaceAll("15カテゴリ","20カテゴリ");
     const start=s.indexOf("const categories = ["),end=s.indexOf("\n];",start);if(start<0||end<0)throw new Error("nav categories missing");
