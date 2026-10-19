@@ -44,6 +44,12 @@ const SEARCH_OVERRIDES = {
     fallbackKeyword: 'Soundcore Liberty 5',
     requiredTerms: ['完全ワイヤレス', 'ワイヤレスイヤホン', 'イヤホン'],
   },
+  ankerzolopowerbank10000: {
+    // Manufacturer A1688: 10000mAh / 30W, not the 22.5W or 20000mAh variant.
+    keyword: 'Anker Zolo 10000mAh 30W',
+    fallbackKeyword: 'Zolo 10000mAh 30W',
+    requiredTerms: ['30W'],
+  },
 };
 
 const normalizeComparable = (value) => String(value || '')
