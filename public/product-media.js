@@ -105,12 +105,24 @@
       .product-visual.api-media-ready a,.product-visual.api-media-ready img{display:block;width:100%;height:100%}
       .product-visual.api-media-ready img{object-fit:contain;background:#fff}
       .api-detail-media{margin:8px 0 20px;width:150px;height:150px}
+      .catalog-detail-visual{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:185px;height:160px;margin:14px 0 20px;border:1px solid #e1e9f4;border-radius:18px;background:#f6f9fe;color:#8291a6}
+      .catalog-detail-visual .catalog-fallback-icon{font-size:56px;line-height:1.2}
+      .catalog-detail-visual small{font-size:11px}
+      .catalog-detail-visual.api-media-ready .api-product-thumb{width:100%;height:100%;border:0;box-shadow:none;border-radius:0}
+      .api-compare-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:20px 0 26px}
+      .api-compare-photo{display:flex;align-items:center;justify-content:center;width:100%;height:140px;overflow:hidden;border:1px solid #e1e9f4;background:#fff;border-radius:16px}
+      .api-compare-photo .api-product-thumb{width:100%;height:100%;border:0;border-radius:0;box-shadow:none}
+      .api-compare-photo .api-product-thumb img{object-fit:contain}
+      .api-compare-photo .api-placeholder{font-size:13px;color:#8695a8}
+      .api-compare-gallery .api-compare-tile{min-width:0;border:1px solid #e5eaf3;background:#f9fbfe;border-radius:20px;padding:12px}
+      .api-compare-gallery .api-compare-tile p{font-size:12px;font-weight:800;line-height:1.5;margin:9px 0 1px;color:#33465f;overflow-wrap:anywhere}
+      .api-compare-gallery .api-compare-note{grid-column:1/-1;margin:0;font-size:10px;color:#8594a7}
       .api-affiliate-note{font-size:10px;color:#7f8da0;line-height:1.55;margin:8px 0 0}
       .api-credit{margin-top:8px;font-size:10px}.api-credit a{color:inherit}
       .api-market-price{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin:8px 0 14px;font-size:11px;color:#6f7f92}
       .api-market-price strong{font-size:17px;color:#173b6a}.api-market-price small{font-size:10px;color:#8492a5}
       .api-market-price-inline{font-weight:800!important;color:#0f6cf9!important}
-      @media(max-width:680px){.api-product-thumb{width:70px;height:70px;border-radius:15px}.catalog-api-media{width:68px;height:68px;margin-right:9px}.api-detail-media{width:120px;height:120px}}
+      @media(max-width:680px){.api-product-thumb{width:70px;height:70px;border-radius:15px}.catalog-api-media{width:68px;height:68px;margin-right:9px}.api-detail-media{width:120px;height:120px}.catalog-detail-visual{width:150px;height:140px}.api-compare-photo{height:104px}.api-compare-gallery{gap:9px}.api-compare-gallery .api-compare-tile{padding:9px}}
     `;
     document.head.appendChild(style);
   };
@@ -305,6 +317,48 @@
     }
   };
 
+  const enhanceCompareGallery = () => {
+    const parts = location.pathname.split('/').filter(Boolean);
+    if (parts.length !== 3 || parts[1] !== 'compare') return;
+    const main = document.querySelector('.guide-main');
+    const heading = main?.querySelector('h1');
+    if (!main || !heading || main.querySelector('[data-compare-product-gallery]')) return;
+    const headings = [...(main.querySelector('table thead tr')?.querySelectorAll('th') || [])];
+    if (headings.length !== 3) return;
+    const names = headings.slice(1).map((h) => h.textContent.trim());
+    if (names.some((name) => !name)) return;
+
+    const gallery = document.createElement('div');
+    gallery.className = 'api-compare-gallery';
+    gallery.dataset.compareProductGallery = '1';
+    for (const name of names) {
+      const tile = document.createElement('div');
+      tile.className = 'api-compare-tile';
+      const visual = document.createElement('div');
+      visual.className = 'api-compare-photo';
+      const placeholder = document.createElement('span');
+      placeholder.className = 'api-placeholder';
+      placeholder.textContent = '商品画像未取得';
+      visual.appendChild(placeholder);
+      const label = document.createElement('p');
+      label.textContent = name;
+      tile.append(visual, label);
+      gallery.appendChild(tile);
+
+      lookup(name).then((result) => {
+        if (!result?.imageUrl || !visual.isConnected) return;
+        const link = imageLink(result, name);
+        link.querySelector('img')?.addEventListener('error', () => visual.replaceChildren(placeholder), {once:true});
+        visual.replaceChildren(link);
+      });
+    }
+    const note = document.createElement('p');
+    note.className = 'api-compare-note';
+    note.textContent = '取得できた商品画像のみ表示します。画像を押すと販売元のページへ移動します。';
+    gallery.appendChild(note);
+    (main.querySelector('.lead') || heading).insertAdjacentElement('afterend', gallery);
+  };
+
   const observeCards = () => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -326,6 +380,7 @@
   const start = () => {
     addStyles();
     enhanceDetailPage();
+    enhanceCompareGallery();
     observeCards();
   };
 
