@@ -30,7 +30,7 @@ write(phonePath,shell(
   `<div class="breadcrumbs"><a href="/">トップ</a> › <a href="/smartphones/">スマートフォン</a> › <a href="/smartphones/compare/">直接比較</a> › Xperia 1 VIII vs iPhone 17 Pro</div>
   <span class="update-pill">2026年10月更新</span>
   <h1>Xperia 1 VIIIと<br>iPhone 17 Proを比較</h1>
-  <p class="lead">Google検索で実際に表示が増えている2機種を、メーカー公式情報を基準に比較します。価格だけでなく、サイズ・重量・保存容量・充電・カメラの使い方まで見て選びます。</p>
+  <p class="lead">2機種をメーカー公式情報を基準に比較します。価格だけでなく、サイズ・重量・保存容量・充電・カメラの使い方まで見て選びます。</p>
   <div class="summary-box"><h2>先に結論</h2><ul><li><b>Xperia 1 VIII：</b>microSD、5000mAh、6.5型、Androidの自由度を重視する人向け</li><li><b>iPhone 17 Pro：</b>6.3型、A19 Pro、Apple製品との連携、高速充電を重視する人向け</li><li>256GBのメーカー直販価格は、確認時点でXperia 1 VIIIが235,400円、iPhone 17 Pro SIMフリーが194,800円です。</li></ul></div>
   <h2>スペック・価格比較</h2>
   <div class="table-scroll"><table><thead><tr><th>項目</th><th>Xperia 1 VIII</th><th>iPhone 17 Pro</th></tr></thead><tbody>
@@ -60,7 +60,7 @@ write(watchPath,shell(
   `<div class="breadcrumbs"><a href="/">トップ</a> › <a href="/smartwatches/">スマートウォッチ</a> › <a href="/smartwatches/iphone/">iPhone向け</a> › 急速充電</div>
   <span class="update-pill">2026年10月更新</span>
   <h1>充電が速いiPhone対応<br>スマートウォッチ比較</h1>
-  <p class="lead">「充電が速いiOS対応スマートウォッチはどれ？」という検索向けに、Appleが同じ基準で公開している高速充電データを比較します。</p>
+  <p class="lead">iPhoneで使う時計を充電速度で選びたい人へ。Appleの公式データで、0〜80%の充電時間と短時間充電で使える時間を比較します。</p>
   <div class="summary-box"><h2>結論</h2><ul><li><b>0%→80%の速さ：</b>Apple Watch Series 12が約30分で最短</li><li><b>15分だけ充電：</b>Series 12は最大12時間、Ultra 3は最大12時間、SE 3は最大8時間の通常使用</li><li>充電時間はアダプタ、温度、残量、設定などで変わります。</li></ul></div>
   <h2>高速充電を比較</h2><div class="table-scroll"><table><thead><tr><th>モデル</th><th>0→80%</th><th>15分充電</th><th>通常使用</th></tr></thead><tbody>
   <tr><td>Apple Watch Series 12</td><td>約30分</td><td>最大12時間</td><td>最大24時間</td></tr>
@@ -80,35 +80,46 @@ write(watchPath,shell(
 const robotPath='robot-vacuums/manufacturers/index.html';
 write(robotPath,shell(
   'ロボット掃除機の主要メーカー比較 2026｜スペック・価格一覧',
-  'ロボット掃除機の主要メーカーを一覧比較。iRobot、Roborock、ECOVACS、SwitchBotの代表モデル、吸引・水拭き・自動化・価格を2026年10月の公式情報で整理。',
+  'ロボット掃除機の主要メーカーを一覧比較。iRobot、Roborock、ECOVACS、SwitchBot、Eufyの代表モデル、吸引・水拭き・自動化・価格を2026年10月の公式情報で整理。',
   `${ORIGIN}/robot-vacuums/manufacturers/`,
   `<div class="breadcrumbs"><a href="/">トップ</a> › <a href="/robot-vacuums/">ロボット掃除機</a> › 主要メーカー比較</div>
   <span class="update-pill">2026年10月更新</span>
   <h1>ロボット掃除機の主要メーカー<br>スペック・価格一覧</h1>
-  <p class="lead">メーカーごとの違いを先に把握したい人向けに、iRobot、Roborock、ECOVACS、SwitchBotの代表モデルと特徴を並べます。</p>
-  <div class="table-scroll"><table><thead><tr><th>メーカー</th><th>代表モデル</th><th>主な特徴</th><th>公式価格の目安</th></tr></thead><tbody>
-  <tr><td>iRobot</td><td>Roomba Max 775 Combo</td><td>AI障害物回避 / LiDAR / ローラーモップ / AutoWash</td><td>179,800円（公式表示・取得時）</td></tr>
-  <tr><td>Roborock</td><td>Saros 20</td><td>36,000Pa / StarSight 2.0 / 100℃温水モップ洗浄</td><td>販売店で確認</td></tr>
-  <tr><td>ECOVACS</td><td>DEEBOT T90 MAX OMNI</td><td>ローラーモップ / 自動給水・洗浄・乾燥 / 最大295分</td><td>99,800円（公式表示・取得時）</td></tr>
-  <tr><td>SwitchBot</td><td>K10+ Pro</td><td>直径24.8cmの小型 / 自動ゴミ収集 / レーダーナビ</td><td>64,800円（公式表示・取得時）</td></tr>
+  <p class="lead">メーカーごとの違いを先に把握したい人向けに、iRobot、Roborock、ECOVACS、SwitchBot、Eufyの代表モデルと特徴を並べます。</p>
+
+  <p>同じメーカーでもモデルによって機能は異なります。各社の代表機種を比較しています。</p>
+  <h2>5メーカーの吸引・水拭き・ステーション・価格を比較</h2>
+  <div class="table-scroll"><table><thead><tr><th>メーカー / モデル</th><th>最大吸引力（公表値）</th><th>水拭き方式</th><th>自動ゴミ収集</th><th>モップ洗浄・乾燥</th><th>障害物回避</th><th>価格目安（税込）</th></tr></thead><tbody>
+  <tr><th><a href="https://store.irobot-jp.com/item/X285060.html" target="_blank" rel="noopener noreferrer">iRobot / Roomba Max 775 Combo ↗</a></th><td>従来比4倍（公式の比較条件）</td><td>ローラーモップ</td><td>対応</td><td>温水洗浄・温風乾燥</td><td>AI + LiDAR</td><td>通常価格199,800円（割引変動）</td></tr>
+  <tr><th><a href="https://jp.roborock.com/pages/roborock-saros-20" target="_blank" rel="noopener noreferrer">Roborock / Saros 20 ↗</a></th><td>36,000Pa</td><td>デュアル回転モップ</td><td>対応</td><td>最大100℃温水洗浄・55℃温風乾燥</td><td>StarSight 2.0</td><td>販売店で確認</td></tr>
+  <tr><th><a href="https://www.ecovacs.com/jp/shop/deebot-robotic-vacuum-cleaner/deebot-t90-max-omni-black" target="_blank" rel="noopener noreferrer">ECOVACS / DEEBOT T90 MAX OMNI ↗</a></th><td>30,000Pa</td><td>ローラーモップ</td><td>対応</td><td>自動洗浄・45℃温風乾燥</td><td>dToF LiDAR / TrueDetect 3D</td><td>99,800円（確認時の公式表示）</td></tr>
+  <tr><th><a href="https://www.switchbot.jp/products/switchbot-robot-vacuum-cleaner-k10-pro" target="_blank" rel="noopener noreferrer">SwitchBot / K10+ Pro ↗</a></th><td>3,000Pa</td><td>使い捨て床拭きシート</td><td>対応</td><td>自動洗浄・乾燥なし</td><td>PSDセンサー + レーダー</td><td>64,800円（公式割引前）</td></tr>
+  <tr><th><a href="https://www.ankerjapan.com/products/t2353" target="_blank" rel="noopener noreferrer">Eufy（Anker） / Omni E25 ↗</a></th><td>20,000Pa</td><td>HydroJetローラーモップ</td><td>対応</td><td>自動洗浄・温風乾燥</td><td>AI.See + レーザーナビ</td><td>149,900円（確認時の公式表示）</td></tr>
   </tbody></table></div>
+  <p class="note">吸引力のPaや「従来比」は各社の試験条件が違うため、数字の大小だけで実際の清掃能力は決まりません。価格は2026年10月確認時の公式表示または通常価格の目安で、セール・在庫・販売先によって変わります。</p>
   <h2>メーカーごとの選び方</h2><div class="criteria-grid">
   <div class="criteria-card"><b>iRobot</b><p>Roombaブランド、障害物回避、全自動ステーションを重視する人向け。吸引力は世代間の相対表現もあるためPaだけで比較しないのがポイントです。</p></div>
   <div class="criteria-card"><b>Roborock</b><p>吸引力、障害物回避、段差対応、ドック自動化を細かく比較したい人向け。現行Saros 20は36,000Paを掲げています。</p></div>
   <div class="criteria-card"><b>ECOVACS</b><p>水拭きとOMNIステーションの自動化を重視しやすいメーカー。T90 MAX OMNIはローラーモップ方式です。</p></div>
   <div class="criteria-card"><b>SwitchBot</b><p>小型モデルやスマートホーム連携を重視する人向け。K10+ Proは直径24.8cmのコンパクトさが特徴です。</p></div>
+  <div class="criteria-card"><b>Eufy（Anker）</b><p>ローラーモップと自動化を重視するならOmni E25。最大20,000Pa、ゴミ収集、モップ洗浄・温風乾燥に対応します。</p></div>
   </div>
   <h2>価格を見るときの注意</h2><p>ロボット掃除機はセール、セット内容、ステーション有無で価格差が大きいため、この一覧は公式サイトの確認時点の表示価格です。購入時は必ず各販売ページで再確認してください。</p>
-  <div class="related"><a href="/robot-vacuums/">20製品を条件別比較</a><a href="/robot-vacuums/auto-empty/">自動ゴミ収集で選ぶ</a><a href="/robot-vacuums/mop/">水拭きで選ぶ</a><a href="https://irobot-jp.com/product/index.html" target="_blank" rel="noopener noreferrer">iRobot公式 ↗</a><a href="https://www.roborock.jp/" target="_blank" rel="noopener noreferrer">Roborock公式 ↗</a><a href="https://www.ecovacs.com/jp/shop/deebot-robotic-vacuum-cleaner/deebot-t90-max-omni-black" target="_blank" rel="noopener noreferrer">ECOVACS公式 ↗</a><a href="https://www.switchbot.jp/products/switchbot-robot-vacuum-cleaner-k10-pro" target="_blank" rel="noopener noreferrer">SwitchBot公式 ↗</a></div>`
+  <div class="related"><a href="/robot-vacuums/">20製品を条件別比較</a><a href="/robot-vacuums/auto-empty/">自動ゴミ収集で選ぶ</a><a href="/robot-vacuums/mop/">水拭きで選ぶ</a><a href="https://irobot-jp.com/product/index.html" target="_blank" rel="noopener noreferrer">iRobot公式 ↗</a><a href="https://jp.roborock.com/pages/roborock-saros-20" target="_blank" rel="noopener noreferrer">Saros 20公式 ↗</a><a href="https://www.ecovacs.com/jp/shop/deebot-robotic-vacuum-cleaner/deebot-t90-max-omni-black" target="_blank" rel="noopener noreferrer">ECOVACS公式 ↗</a><a href="https://www.switchbot.jp/products/switchbot-robot-vacuum-cleaner-k10-pro" target="_blank" rel="noopener noreferrer">SwitchBot公式 ↗</a><a href="https://www.ankerjapan.com/products/t2353" target="_blank" rel="noopener noreferrer">Eufy公式 ↗</a></div>`
 ));
 
 // Improve gym earphones CTR and answer intent immediately.
 patch('earphones/sports/index.html',(html)=>{
   html=html.replace(/<title>[\s\S]*?<\/title>/i,'<title>ジム向けワイヤレスイヤホンおすすめ比較 2026｜汗・外れにくさ・ANC</title>');
-  html=html.replace(/<meta name="description" content="[^"]*">/i,'<meta name="description" content="ジム・スポーツジム向けワイヤレスイヤホンを比較。汗への強さ、外れにくさ、ANC、外音取り込みで選び、Sport X20・Powerbeats Pro 2・AeroFit 2 Proなどの向きを整理。">');
+  html=html.replace(/<meta name="description" content="[^"]*">/i,'<meta name="description" content="ジム用ワイヤレスイヤホンおすすめ候補を比較。Sport X20・Powerbeats Pro 2・AeroFit 2 Pro・Liberty 5の防水、外れにくさ、ANC、外音取り込みを一覧でチェック。">');
   if(!html.includes('data-gsc-gym-summary="1"')){
     html=html.replace(/(<p class="lead">[\s\S]*?<\/p>)/i,`$1<div class="summary-box" data-gsc-gym-summary="1"><h2>ジム用ならこの3タイプから</h2><ul><li><b>外れにくさ重視：</b>イヤーフック系（Soundcore Sport X20 / Powerbeats Pro 2）</li><li><b>周囲も聞きたい：</b>オープンイヤー系（Soundcore AeroFit 2 Pro）</li><li><b>集中したい：</b>ANC搭載のカナル型を、防水・フィットと一緒に比較</li></ul></div>`);
   }
+  if(!html.includes('data-gsc-gym-table="1"')){
+    const table='<h2>ジム向けイヤホン4機種の比較表</h2><div class="table-scroll" data-gsc-gym-table="1"><table><thead><tr><th>モデル</th><th>イヤホン本体の耐汗・防水</th><th>装着</th><th>ANC</th><th>周囲の音</th><th>公式情報</th></tr></thead><tbody><tr><th>Soundcore Sport X20</th><td>IP68</td><td>伸縮イヤーフック</td><td>あり</td><td>外音取り込み</td><td><a href="https://www.ankerjapan.com/products/a3968" target="_blank" rel="noopener noreferrer">Anker公式 ↗</a></td></tr><tr><th>Powerbeats Pro 2</th><td>IPX4</td><td>イヤーフック</td><td>あり</td><td>外部音取り込み</td><td><a href="https://www.beatsbydre.com/jp/earbuds/powerbeats-pro-2" target="_blank" rel="noopener noreferrer">Beats公式 ↗</a></td></tr><tr><th>Soundcore AeroFit 2 Pro</th><td>IP55</td><td>フック型・オープン/インナー切替</td><td>インナーイヤー時にノイズ低減</td><td>オープンイヤーで聞きやすい</td><td><a href="https://www.ankerjapan.com/products/a3875" target="_blank" rel="noopener noreferrer">Anker公式 ↗</a></td></tr><tr><th>Soundcore Liberty 5</th><td>IP55</td><td>カナル型</td><td>あり</td><td>外音取り込み</td><td><a href="https://www.ankerjapan.com/products/a3957" target="_blank" rel="noopener noreferrer">Anker公式 ↗</a></td></tr></tbody></table></div><p class="note">等級はメーカーの表記です。IPX4のように防塵等級が示されないモデルもあります。耐水性能は永続的ではなく、水泳に使えるという意味ではありません。</p>';
+    html=html.replace('<h2>スポーツ向けの注目候補</h2>',table+'<h2>スポーツ向けの注目候補</h2>');
+  }
+  html=html.replace('汗・雨 → IP55以上を目安に確認','汗・雨 → 防水等級とメーカーの耐汗条件を確認');
   return html;
 });
 
@@ -121,7 +132,7 @@ patch('smartwatches/iphone/index.html',(html)=>{
 });
 patch('robot-vacuums/index.html',(html)=>{
   if(!html.includes('/robot-vacuums/manufacturers/')){
-    html=html.replace('</main>',`<section class="discovery-block" data-gsc-manufacturer-link="1"><h2>主要メーカーから比較</h2><p class="generic-note">iRobot・Roborock・ECOVACS・SwitchBotの代表モデル、スペック、価格目安を一覧で確認できます。</p><div class="discovery-grid"><a class="discovery-card" href="/robot-vacuums/manufacturers/"><b>🏭 ロボット掃除機の主要メーカー比較</b><small>スペック・価格を一覧で見る</small></a></div></section></main>`);
+    html=html.replace('</main>',`<section class="discovery-block" data-gsc-manufacturer-link="1"><h2>主要メーカーから比較</h2><p class="generic-note">iRobot・Roborock・ECOVACS・SwitchBot・Eufyの代表モデル、スペック、価格目安を一覧で確認できます。</p><div class="discovery-grid"><a class="discovery-card" href="/robot-vacuums/manufacturers/"><b>🏭 ロボット掃除機の主要メーカー比較</b><small>スペック・価格を一覧で見る</small></a></div></section></main>`);
   }
   return html;
 });

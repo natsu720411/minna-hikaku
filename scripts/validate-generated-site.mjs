@@ -70,6 +70,8 @@ if(!robotManufacturers.includes('Roborock')||!robotManufacturers.includes('ECOVA
 const xperiaCompare=read('smartphones/compare/xperia-1-viii-vs-iphone-17-pro/index.html');
 if(!xperiaCompare.includes('Xperia 1 VIII')||!xperiaCompare.includes('iPhone 17 Pro')) errors.push('Xperia vs iPhone 17 Pro comparison is incomplete.');
 if(!sportsEarphones.includes('ジム用ならこの3タイプから')) errors.push('Gym earphones page is missing CTR-focused quick answer.');
+if(!sportsEarphones.includes('data-gsc-gym-table="1"')||!sportsEarphones.includes('Powerbeats Pro 2')) errors.push('Gym comparison table missing.');
+if(!robotManufacturers.includes('Eufy（Anker）')||!robotManufacturers.includes('20,000Pa')) errors.push('Five-maker robot specification table missing.');
 const guideSitemap=read('sitemap-guides.xml');
 if(!guideSitemap.includes('https://minna-hikaku.vercel.app/smartwatches/swimming-cellular/')) errors.push('Guide sitemap is missing swimming/cellular smartwatch guide.');
 if(!guideSitemap.includes('https://minna-hikaku.vercel.app/smartwatches/fast-charging-ios/')) errors.push('Guide sitemap is missing fast-charging smartwatch guide.');
