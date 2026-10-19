@@ -56,4 +56,13 @@ if (!comparisonJs.includes('const priceOptions = cfg.products.some')) fail('No-p
 if (!comparisonJs.includes('catalog-product-visual') || !comparisonJs.includes('const imageIcons')) fail('Comparison cards lack product photo slots');
 const productMedia = read('product-media.js');
 if (!productMedia.includes('enhanceCompareGallery') || !productMedia.includes('api-compare-gallery')) fail('Two-product image layout is missing');
+for (const key of ['mobile-batteries','smartphones']) {
+  const html = read(key + '/index.html');
+  if (!html.includes('legacy-product-visual')) fail(key + ' catalog has no product image slots');
+}
+const earphonesHub = read('earphones/index.html');
+if (!earphonesHub.includes('/earphones/products/')) fail('Earphone product guide list is missing');
+if (!productMedia.includes('enhanceEarphoneHub()') || !productMedia.includes('legacyVisual = card.querySelector')) fail('Legacy and earphone image integration missing');
+const linkStyles = read('category-comparison.css');
+if (!linkStyles.includes('.rank-links .detail-link') || !linkStyles.includes('.rank-links .source-link')) fail('Missing separated product/detail links');
 console.log('20-category smoke checks passed: 20 categories, 430 site products, 100 new-category details, comparison pages, source links, sitemaps and navigation.');

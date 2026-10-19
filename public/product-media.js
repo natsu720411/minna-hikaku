@@ -94,6 +94,16 @@
     const style = document.createElement('style');
     style.id = 'affiliate-product-media-style';
     style.textContent = `
+
+      .earphone-product-gallery{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px!important;margin:16px 0 26px!important}
+      .earphone-product-gallery .earphone-product-tile{min-width:0;display:flex;align-items:center;gap:12px;border:1px solid #dfe7f1;border-radius:16px;padding:10px;background:#fff}
+      .earphone-product-gallery .earphone-product-photo{display:flex;align-items:center;justify-content:center;flex:0 0 74px;height:74px;background:#f3f7fd;border-radius:12px;overflow:hidden}
+      .earphone-product-gallery .earphone-product-photo .api-product-thumb{width:100%;height:100%;border:0;border-radius:0;box-shadow:none}
+      .earphone-product-gallery .earphone-product-photo img{object-fit:contain}
+      .earphone-product-gallery .earphone-photo-fallback{font-size:29px}
+      .earphone-product-gallery .earphone-product-title{min-width:0;flex:1;display:block!important;overflow-wrap:anywhere;font-size:12px!important;line-height:1.5;color:#24486e;font-weight:800;text-decoration:none}
+      @media(max-width:900px){.earphone-product-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
+      @media(max-width:590px){.earphone-product-gallery{grid-template-columns:1fr!important}.earphone-product-gallery .earphone-product-photo{flex-basis:68px;height:68px}}
       .api-product-thumb{display:flex;align-items:center;justify-content:center;width:86px;height:86px;border:1px solid #e1e8f1;border-radius:18px;background:#fff;overflow:hidden;text-decoration:none;box-shadow:0 6px 18px rgba(30,61,102,.05)}
       .api-product-thumb img{display:block;width:100%;height:100%;object-fit:contain;background:#fff}
       .api-product-thumb[data-provider="amazon"]::after,.api-product-thumb[data-provider="rakuten"]::after{content:attr(data-label);position:absolute;clip:rect(0 0 0 0);clip-path:inset(50%);width:1px;height:1px;overflow:hidden;white-space:nowrap}
@@ -285,6 +295,8 @@
     applyRakutenAffiliateLink(card, result, name);
     addMarketPrice(card, result, 'catalog');
     if (!result.imageUrl) return;
+    const legacyVisual = card.querySelector('.legacy-product-visual');
+    if (legacyVisual) { replaceVisualSafely(legacyVisual, result, name); return; }
     const media = imageLink(result, name, 'catalog-api-media');
     const img = media.querySelector('img');
     img?.addEventListener('error', () => media.remove(), { once: true });
@@ -359,6 +371,51 @@
     (main.querySelector('.lead') || heading).insertAdjacentElement('afterend', gallery);
   };
 
+
+  const enhanceEarphoneHub = () => {
+    if (!['/earphones/','/earphones'].includes(location.pathname)) return;
+    const links = [...document.querySelectorAll('.guide-main .related a[href^="/earphones/products/"]')];
+    if (links.length < 10) return;
+    const parent = links[0].parentElement;
+    if (!parent || parent.dataset.productGalleryReady) return;
+    parent.dataset.productGalleryReady = '1';
+    parent.classList.add('earphone-product-gallery');
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        observer.unobserve(entry.target);
+        const name = entry.target.dataset.productName;
+        const holder = entry.target.querySelector('.earphone-product-photo');
+        if (!name || !holder) continue;
+        lookup(name).then((result) => {
+          if (!result?.imageUrl || !holder.isConnected) return;
+          const previous = holder.firstElementChild;
+          const photo = imageLink(result,name);
+          photo.querySelector('img')?.addEventListener('error',()=>holder.replaceChildren(previous),{once:true});
+          holder.replaceChildren(photo);
+        });
+      }
+    },{rootMargin:'140px 0px'});
+    links.forEach((link) => {
+      const raw = link.textContent.trim();
+      const name = raw.split(/\s+/).slice(1).join(' ') || raw;
+      const tile = document.createElement('article');
+      tile.className = 'earphone-product-tile';
+      tile.dataset.productName = name;
+      const photo = document.createElement('div');
+      photo.className = 'earphone-product-photo';
+      const icon = document.createElement('span');
+      icon.className = 'earphone-photo-fallback';
+      icon.textContent = '🎧';
+      icon.setAttribute('aria-label','商品画像未取得');
+      photo.append(icon);
+      link.classList.add('earphone-product-title');
+      tile.append(photo,link);
+      parent.append(tile);
+      observer.observe(tile);
+    });
+  };
+
   const observeCards = () => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -381,6 +438,7 @@
     addStyles();
     enhanceDetailPage();
     enhanceCompareGallery();
+    enhanceEarphoneHub();
     observeCards();
   };
 
