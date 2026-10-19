@@ -18,7 +18,7 @@ const source = {
   dellLaptop:'https://www.dell.com/ja-jp/shop/dell-laptops-and-2-in-1-pcs/scr/laptops', hp:'https://jp.ext.hp.com/notebooks/personal/',
   lenovo:'https://www.lenovo.com/jp/ja/c/laptops/', asusLaptop:'https://www.asus.com/jp/laptops/for-home/all-series/',
   acerLaptop:'https://www.acer.com/jp-ja/laptops', msiLaptop:'https://jp.msi.com/Laptops', lgGram:'https://www.lg.com/jp/pc/gram/',
-  panasonic:'https://panasonic.jp/cns/pc/', dynabook:'https://dynabook.com/direct/pc.html', fmv:'https://www.fmworld.net/fmv/', vaio:'https://vaio.com/products/sx14-r/',
+  panasonic:'https://panasonic.jp/cns/pc/', dynabook:'https://dynabook.com/direct/note-pc.html', fmv:'https://www.fmworld.net/fmv/', vaio:'https://store.vaio.com/shop/pages/sx14r1.aspx',
   dellMonitor:'https://www.dell.com/ja-jp/shop/monitors-monitor-accessories/ar/4009', lgMonitor:'https://www.lg.com/jp/monitors',
   benq:'https://www.benq.com/ja-jp/monitor.html', asusMonitor:'https://www.asus.com/jp/displays-desktops/monitors/all-series/',
   samsungMonitor:'https://www.samsung.com/jp/monitors/', eizo:'https://www.eizo.co.jp/products/lcd/', iodataMonitor:'https://www.iodata.jp/product/lcd/',
