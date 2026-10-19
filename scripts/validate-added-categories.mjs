@@ -63,6 +63,7 @@ for (const key of ['mobile-batteries','smartphones']) {
 const earphonesHub = read('earphones/index.html');
 if (!earphonesHub.includes('/earphones/products/')) fail('Earphone product guide list is missing');
 if (!productMedia.includes('enhanceEarphoneHub()') || !productMedia.includes('legacyVisual = card.querySelector')) fail('Legacy and earphone image integration missing');
+if (!productMedia.includes('loadCachedLookup') || !productMedia.includes("first?.provider !== 'amazon'")) fail('Image cache or safe provider fallback is missing');
 const linkStyles = read('category-comparison.css');
 if (!linkStyles.includes('.rank-links .detail-link') || !linkStyles.includes('.rank-links .source-link')) fail('Missing separated product/detail links');
 console.log('20-category smoke checks passed: 20 categories, 430 site products, 100 new-category details, comparison pages, source links, sitemaps and navigation.');

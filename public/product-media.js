@@ -7,7 +7,28 @@
   let queueTail = Promise.resolve();
   let lastApiRequestAt = 0;
   const MIN_API_INTERVAL_MS = 1200;
-  const MEDIA_API_VERSION = '20261009-2';
+  const MEDIA_API_VERSION = '20261020-1';
+  const SESSION_CACHE_PREFIX = 'minna-media:';
+  const SESSION_CACHE_TTL = 30 * 60 * 1000;
+  const loadCachedLookup = (key) => {
+    try {
+      const raw = sessionStorage.getItem(SESSION_CACHE_PREFIX + key);
+      if (!raw) return null;
+      const stored = JSON.parse(raw);
+      if (!stored || Date.now() >= stored.expires || !isLikelyProductMatch(stored.result, key)) {
+        sessionStorage.removeItem(SESSION_CACHE_PREFIX + key);
+        return null;
+      }
+      return stored.result;
+    } catch (_) { return null; }
+  };
+  const saveCachedLookup = (key, result) => {
+    try {
+      if (result?.imageUrl && isLikelyProductMatch(result, key)) {
+        sessionStorage.setItem(SESSION_CACHE_PREFIX + key, JSON.stringify({result,expires:Date.now()+SESSION_CACHE_TTL}));
+      }
+    } catch (_) {}
+  };
 
   const ACCESSORY_TERMS = [
     '保護フィルム','液晶保護','保護シート','保護ガラス','強化ガラス','ガラスフィルム','カメラフィルム','レンズ保護',
@@ -155,15 +176,19 @@
     if (!key) return null;
     if (cache.has(key)) return cache.get(key);
     if (pending.has(key)) return pending.get(key);
+    const stored = loadCachedLookup(key);
+    if (stored) { cache.set(key, stored); return stored; }
 
     const request = enqueueApiRequest(async () => {
+      // Auto already checks both providers. Retry Rakuten only for an unsafe Amazon hit.
       const first = await fetchLookup(key, 'auto');
       if (first && isLikelyProductMatch(first, key)) return first;
+      if (first?.provider !== 'amazon') return null;
       const rakuten = await fetchLookup(key, 'rakuten');
-      if (rakuten && isLikelyProductMatch(rakuten, key)) return rakuten;
-      return null;
+      return rakuten && isLikelyProductMatch(rakuten, key) ? rakuten : null;
     }).then((result) => {
       cache.set(key, result);
+      if (result) saveCachedLookup(key, result);
       return result;
     }).catch(() => null).finally(() => pending.delete(key));
 

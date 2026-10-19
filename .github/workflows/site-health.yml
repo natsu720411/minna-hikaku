@@ -22,5 +22,8 @@ jobs:
           node-version: '22'
       - run: npm install --no-audit --no-fund
       - run: npm run build
+      - run: node scripts/audit-live-product-images.mjs
+        if: github.event_name == 'push'
+        continue-on-error: true
       - run: npm run audit:external
         if: github.event_name != 'push'
