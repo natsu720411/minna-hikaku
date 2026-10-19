@@ -46,8 +46,8 @@ const SEARCH_OVERRIDES = {
   },
   ankerzolopowerbank10000: {
     // Manufacturer A1688: 10000mAh / 30W, not the 22.5W or 20000mAh variant.
-    keyword: 'Anker Zolo 10000mAh 30W',
-    fallbackKeyword: 'Zolo 10000mAh 30W',
+    keyword: 'Zolo 10000mAh',
+    fallbackKeyword: 'A1688',
     requiredTerms: ['30W'],
   },
 };
