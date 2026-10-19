@@ -15,6 +15,9 @@ const critical=[
   "smartwatches/swimming-cellular/index.html",
   "earphones/compare/soundcore-liberty-5-vs-earfun-air-pro-4/index.html",
   "smartphones/compare/galaxy-s26-ultra-vs-pixel-10-pro-xl/index.html",
+  "smartphones/compare/xperia-1-viii-vs-iphone-17-pro/index.html",
+  "smartwatches/fast-charging-ios/index.html",
+  "robot-vacuums/manufacturers/index.html",
   "tablets/index.html",
   "chargers/index.html",
   "laptops/index.html",
@@ -60,8 +63,17 @@ const iphoneWatch=read('smartwatches/iphone/index.html');
 if(!iphoneWatch.includes('メール・メッセージ')) errors.push('iPhone smartwatch guide is missing mail/message intent.');
 const swimmingWatch=read('smartwatches/swimming-cellular/index.html');
 if(!swimmingWatch.includes('セルラー')||!swimmingWatch.includes('水泳')) errors.push('Swimming/cellular smartwatch guide is incomplete.');
+const fastWatch=read('smartwatches/fast-charging-ios/index.html');
+if(!fastWatch.includes('約30分')||!fastWatch.includes('Series 12')) errors.push('Fast-charging iPhone smartwatch guide is incomplete.');
+const robotManufacturers=read('robot-vacuums/manufacturers/index.html');
+if(!robotManufacturers.includes('Roborock')||!robotManufacturers.includes('ECOVACS')||!robotManufacturers.includes('SwitchBot')) errors.push('Robot vacuum manufacturer guide is incomplete.');
+const xperiaCompare=read('smartphones/compare/xperia-1-viii-vs-iphone-17-pro/index.html');
+if(!xperiaCompare.includes('Xperia 1 VIII')||!xperiaCompare.includes('iPhone 17 Pro')) errors.push('Xperia vs iPhone 17 Pro comparison is incomplete.');
+if(!sportsEarphones.includes('ジム用ならこの3タイプから')) errors.push('Gym earphones page is missing CTR-focused quick answer.');
 const guideSitemap=read('sitemap-guides.xml');
 if(!guideSitemap.includes('https://minna-hikaku.vercel.app/smartwatches/swimming-cellular/')) errors.push('Guide sitemap is missing swimming/cellular smartwatch guide.');
+if(!guideSitemap.includes('https://minna-hikaku.vercel.app/smartwatches/fast-charging-ios/')) errors.push('Guide sitemap is missing fast-charging smartwatch guide.');
+if(!guideSitemap.includes('https://minna-hikaku.vercel.app/robot-vacuums/manufacturers/')) errors.push('Guide sitemap is missing robot vacuum manufacturer guide.');
 const compareHtml=read('compare/index.html');
 for(const key of ["earphones","mobile-batteries","smartphones","smartwatches","tablets","chargers","laptops","monitors","routers","electric-toothbrushes","hair-dryers","cordless-vacuums","robot-vacuums","air-purifiers","rice-cookers"]) if(!compareHtml.includes(`/${key}/`)) errors.push(`/compare/ is missing ${key} navigation.`);
 if(!compareHtml.includes('15カテゴリ・330商品')) errors.push('/compare/ is missing current totals.');
