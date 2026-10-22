@@ -1,0 +1,73 @@
+/* Unified comparison usability layer. Does not replace the original page layouts. */
+.ux-launcher{position:fixed;top:76px;right:12px;z-index:4500;display:flex;gap:6px;padding:5px;border:1px solid #dce6f4;border-radius:999px;background:rgba(255,255,255,.97);box-shadow:0 5px 26px rgba(25,48,79,.13);max-width:calc(100vw - 20px)}
+.ux-launcher button{border:0;background:transparent;border-radius:999px;padding:8px 12px;min-height:38px;color:#15467b;font-size:12px;font-weight:850;cursor:pointer}
+.ux-launcher button:hover,.ux-launcher button:focus-visible{background:#edf5ff}
+.ux-launcher #ux-search-launch{background:#0f6cf9;color:#fff}
+.ux-fav-count{padding:2px 6px;border-radius:999px;background:#eaf2ff;color:#0a64ca;font-size:10px}
+.ux-modal[hidden],.ux-compare-dock[hidden]{display:none!important}
+.ux-modal{position:fixed;inset:0;z-index:11000;background:rgba(10,25,45,.65);display:flex;align-items:center;justify-content:center;padding:14px}
+body.ux-modal-open{overflow:hidden}
+.ux-modal-panel{width:min(760px,100%);max-height:min(92vh,900px);background:#fff;border-radius:21px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 80px rgba(0,0,0,.22);font-family:inherit;color:#223d5d}
+.ux-modal-head{padding:19px 22px 7px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:19px}
+.ux-modal-close{border:0;background:#eff4fa;border-radius:12px;width:40px;height:40px;font-size:25px;cursor:pointer}
+.ux-tabs{display:flex;padding:6px 22px 0;gap:8px}
+.ux-tabs button{border:0;border-bottom:3px solid transparent;padding:12px;background:transparent;color:#687a91;font-weight:750;cursor:pointer}
+.ux-tabs button[aria-selected=true]{border-bottom-color:#0f6cf9;color:#0b63d2}
+.ux-search-filters{display:grid;grid-template-columns:2fr 1fr;gap:8px;padding:16px 22px 4px}
+.ux-search-filters[hidden]{display:none}
+.ux-search-filters input,.ux-search-filters select{min-width:0;min-height:44px;border-radius:10px;border:1px solid #d6e2ef;padding:10px;font-size:14px;background:#fff;color:#2a415d}
+.ux-search-count{font-size:12px;margin:8px 22px;color:#526d89}
+.ux-results{overflow-y:auto;padding:0 22px 14px;min-height:100px;max-height:57vh;overscroll-behavior:contain}
+.ux-result{display:flex;align-items:center;gap:14px;padding:12px 3px;border-bottom:1px solid #ecf0f5}
+.ux-result>div{flex:1;min-width:0}
+.ux-result small{display:block;color:#697d96;font-size:11px;margin-bottom:4px}
+.ux-result a{display:block;color:#104c9e;text-decoration:none;font-size:14px;font-weight:800;overflow-wrap:anywhere}
+.ux-result a:hover{text-decoration:underline}
+.ux-result button{flex:0 0 40px;width:40px;height:40px;border:1px solid #dce6f4;border-radius:12px;background:#f7faff;color:#0b62d9;font-size:23px;cursor:pointer}
+.ux-modal-note{font-size:11px;color:#6d8198;margin:0;padding:12px 22px;background:#f7f9fc}
+.ux-empty{padding:18px 0;font-size:13px;color:#61758f}
+.ux-toast{position:fixed;z-index:12000;top:142px;right:20px;padding:12px 18px;border-radius:12px;color:#fff;background:#183b68;box-shadow:0 8px 28px #0002;opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .2s,transform .2s}
+.ux-toast.show{opacity:1;transform:none}
+.ux-fav-btn,.ux-share{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:36px;padding:7px 12px;border:1px solid #c9daf0;border-radius:11px;background:#fff;color:#1259a2;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap}
+.ux-fav-btn[aria-pressed=true]{background:#fff5d7;border-color:#f5ce69;color:#8c5d13}
+.ux-fav-btn:hover,.ux-share:hover{border-color:#367ff2;background:#eef5ff}
+.ux-share{margin-left:10px;background:#ecf4ff}
+.ux-detail-fav{display:flex;margin:10px 0 16px}
+.ux-related{margin:34px 0;padding:24px;background:#f6faff;border:1px solid #dae6f6;border-radius:20px}
+.ux-related h2{margin:0 0 8px}
+.ux-related>p{color:#627690;font-size:12px;line-height:1.65}
+.ux-related-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+.ux-related-grid a{display:flex;flex-direction:column;gap:8px;border-radius:12px;padding:12px;background:#fff;border:1px solid #dce7f4;text-decoration:none;color:#194e8d;font-size:13px;overflow-wrap:anywhere}
+.ux-related-grid a small{color:#677f9b}
+#compare .ux-diff-cell,.compare-panel .ux-diff-cell{background:#f0f7ff}
+#compare .ux-different>td:first-child,.compare-panel .ux-different>td:first-child{font-weight:800}
+.ux-diff-label{display:block;margin-top:5px;width:max-content;padding:2px 6px;background:#dcecff;border-radius:6px;font-size:10px;font-weight:750;color:#255b9d}
+.ux-compare-dock{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);width:min(910px,calc(100% - 24px));z-index:4700;background:#fff;display:flex;align-items:center;gap:12px;border:1px solid #b6d2f5;border-radius:19px;box-shadow:0 10px 36px rgba(29,65,121,.23);padding:11px 15px;font-size:12px;color:#163962}
+.ux-compare-dock strong{white-space:nowrap}
+.ux-compare-dock .ux-dock-names{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#627b99}
+.ux-compare-dock button{border:0;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:850;cursor:pointer;white-space:nowrap;min-height:38px}
+.ux-dock-view{background:#0f6cf9;color:#fff}.ux-dock-clear{background:#edf3fa;color:#2a526e}
+body.ux-dock-present{padding-bottom:88px}
+.guide-main .ux-evidence{display:block;margin:12px 0 0;font-size:11px;color:#57718c;line-height:1.6;clear:both}
+.rank-actions .ux-fav-btn,.actions .ux-fav-btn{max-width:100%}
+@media(max-width:700px){
+  .ux-launcher{top:62px;right:6px;gap:2px;padding:3px}
+  .ux-launcher button{font-size:11px;padding:8px 9px;min-height:35px}
+  .ux-modal{align-items:stretch;padding:8px}
+  .ux-modal-panel{max-height:100%;border-radius:16px}
+  .ux-search-filters{grid-template-columns:1fr;padding:10px 15px 4px}
+  .ux-modal-head{padding:14px 15px 5px}
+  .ux-tabs{padding:4px 15px 0}
+  .ux-results{padding:0 15px 10px;max-height:calc(100vh - 295px)}
+  .ux-related{padding:15px}
+  .ux-related-grid{grid-template-columns:1fr}
+  .ux-compare-dock{width:calc(100% - 16px);bottom:6px;gap:7px;padding:8px;border-radius:14px;flex-wrap:wrap}
+  .ux-compare-dock .ux-dock-names{flex-basis:calc(100% - 100px)}
+  .ux-compare-dock button{flex:1}
+  .ux-compare-dock strong{font-size:11px}
+  .ux-share{margin:6px 0 0}
+  #compare .table-scroll,.compare-panel .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #compare table,.compare-panel table{min-width:430px}
+  body.ux-dock-present{padding-bottom:120px}
+}
+@media(prefers-reduced-motion:reduce){.ux-toast{transition:none}}

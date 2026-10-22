@@ -8,7 +8,13 @@
   const imageIcons = {laptops:'💻',monitors:'🖥️',routers:'📶','electric-toothbrushes':'🪥','hair-dryers':'💨','cordless-vacuums':'🧹','robot-vacuums':'🤖','air-purifiers':'🌬️','rice-cookers':'🍚',mice:'🖱️',keyboards:'⌨️','external-ssds':'💾',microwaves:'🍳',dehumidifiers:'💧'};
   const imageIcon = imageIcons[cfg.categoryKey] || '📦';
   const detailUrl = (p) => `/${cfg.categoryKey}/products/${encodeURIComponent(p.id)}/`;
-  const state = { budget:null, priority:cfg.defaultPriority || cfg.priorities[0].key, query:'', brand:'all', sort:'match', selected:[] };
+  const shareParams = new URLSearchParams(location.search);
+  const shareBudget = Number(shareParams.get('budget'));
+  const restoredBudget = shareParams.has('budget') && cfg.budgets.some(b => b.value === shareBudget) ? shareBudget : null;
+  const sharePriority = shareParams.get('priority');
+  const restoredPriority = cfg.priorities.some(p => p.key === sharePriority) ? sharePriority : (cfg.defaultPriority || cfg.priorities[0].key);
+  const restoredSelected = [...new Set((shareParams.get('compare')||'').split(',').filter(id => cfg.products.some(p => p.id === id)))].slice(0,3);
+  const state = { budget:restoredBudget, priority:restoredPriority, query:'', brand:'all', sort:'match', selected:restoredSelected };
   const budgetControls = $('#budgetControls');
   const priorityControls = $('#priorityControls');
   const searchInput = $('#searchInput');
@@ -51,7 +57,14 @@
     return items;
   };
   const tags = (p) => (p.badges || []).slice(0,4).map((x) => `<span>${esc(x)}</span>`).join('');
-  const reason = (p) => `${priorityLabel()}を重視した条件で相性点を算出。${(p.badges||[]).slice(0,2).join('・')}を比較材料にできます。`;
+  const reason = (p) => {
+    const confirmed = (cfg.compareRows||[]).map(r => {
+      const value = p.facts?.[r.key];
+      return value && !/仕様で確認|確認してください|未確認/.test(String(value)) ? r.label+'：'+String(value) : '';
+    }).filter(Boolean).slice(0,2);
+    const tags = (p.badges||[]).slice(0,2).join('・');
+    return `重視条件：${priorityLabel()}。確認できる特徴：${confirmed.length ? confirmed.join('、') : (tags || 'メーカー公式情報で要確認')}。相性点は編集上の参考値であり、実機テストの評価ではありません。`;
+  };
   const renderList = () => {
     const items = filtered();
     conditionText.textContent = `${budgetLabel()}・${priorityLabel()}重視`;

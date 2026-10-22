@@ -82,4 +82,17 @@ for(const [file,marker,expected] of windsorChecks){
   if(!html.includes('data-windsor-focus="'+marker+'"')) fail('Windsor/GSC landing-page patch missing: '+file);
   if(!html.includes(expected)) fail('Windsor/GSC content or navigation missing: '+file);
 }
+const searchIndex = JSON.parse(read('product-catalog.json'));
+if (searchIndex.length !== 430) fail('Global product search must contain 430 products');
+if (new Set(searchIndex.map(p => p.url)).size !== 430) fail('Global search has duplicate URLs');
+if (new Set(searchIndex.map(p => p.category)).size !== 20) fail('Global search must include 20 categories');
+for (const p of searchIndex) if (!p.name || !p.url || !p.category || !p.url.startsWith('/'+p.category+'/products/')) fail('Malformed cross-category search record');
+for (const f of ['index.html','earphones/index.html','smartphones/index.html','smartwatches/index.html','mice/index.html','earphones/products/soundcore-liberty-5/index.html']) {
+  const html = read(f);
+  if (!html.includes('src="/site-experience.js"') || !html.includes('href="/site-experience.css"')) fail('Usability layer missing from '+f);
+}
+const experience = read('site-experience.js');
+for (const feature of ['ux-compare-dock','ux-share','ux-fav-btn','product-catalog.json','ux-diff-cell','ux-related','ux-search-launch'])
+  if (!experience.includes(feature)) fail('Usability function missing: '+feature);
+if (!fs.readFileSync(path.resolve('src/main.jsx'),'utf8').includes('data-ux-priority={primary}')) fail('React ranking share-state missing');
 console.log('20-category smoke checks passed: 20 categories, 430 site products, 100 new-category details, comparison pages, source links, sitemaps and navigation.');

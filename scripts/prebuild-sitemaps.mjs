@@ -16,3 +16,5 @@ run('scripts/apply-windsor-gsc-optimizations.mjs', 'public');
 run('scripts/normalize-sitemaps.mjs', 'public');
 run('scripts/enhance-price-transparency.mjs', 'public');
 run('scripts/enhance-product-seo.mjs', 'public');
+run('scripts/build-product-catalog.mjs', 'public');
+run('scripts/enable-site-experience.mjs', 'public');

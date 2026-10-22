@@ -220,7 +220,7 @@
     if (section.dataset.categoryShowcase === '1') return;
     section.dataset.categoryShowcase = '1';
     const cards = categoryCards.map((item) => `<a class="category-showcase-card" href="${item.href}" data-track="category_click" data-category="${item.category}">${item.badge ? `<span class="category-showcase-badge">${item.badge}</span>` : ''}<span class="category-showcase-icon">${item.icon}</span><span class="category-showcase-main"><span class="category-showcase-title"><b>${item.title}</b><span class="category-showcase-count">${item.count}</span></span><span class="category-showcase-desc">${item.desc}</span></span><span class="category-showcase-arrow">→</span></a>`).join('');
-    section.innerHTML = `<div class="home-guide-box"><p class="eyebrow">CATEGORIES</p><div class="category-showcase-head"><div><h2>15カテゴリから比較する</h2></div><p>価格だけでなく、使い方や重視ポイントを変えながら自分に合う候補を探せます。</p></div><div class="category-showcase-grid">${cards}</div></div>`;
+    section.innerHTML = `<div class="home-guide-box"><p class="eyebrow">CATEGORIES</p><div class="category-showcase-head"><div><h2>20カテゴリから比較する</h2></div><p>価格だけでなく、使い方や重視ポイントを変えながら自分に合う候補を探せます。</p></div><div class="category-showcase-grid">${cards}</div></div>`;
     const nav = document.querySelector('.site-header nav');
     if (nav && !nav.querySelector('[href="#categories"]')) {
       const link = document.createElement('a');

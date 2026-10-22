@@ -29,11 +29,16 @@ const initialWeights = criteria.reduce((acc, item) => ({ ...acc, [item.key]: 1 }
 const productPath = (id) => `/earphones/products/${id}/`;
 
 function App() {
-  const [step, setStep] = useState(0);
-  const [budget, setBudget] = useState(Infinity);
-  const [primary, setPrimary] = useState('value');
+  const sharedParams = new URLSearchParams(window.location.search);
+  const sharedIds = [...new Set((sharedParams.get('compare') || '').split(',').filter(id => earphones.some(p=>p.id===id)))].slice(0,3);
+  const [step, setStep] = useState(sharedIds.length ? 4 : 0);
+  const [budget, setBudget] = useState(() => {
+    const n = Number(sharedParams.get('budget'));
+    return sharedParams.has('budget') && budgets.some(b=>b.value===n) ? n : Infinity;
+  });
+  const [primary, setPrimary] = useState(() => criteria.some(c=>c.key===sharedParams.get('priority')) ? sharedParams.get('priority') : 'value');
   const [weights, setWeights] = useState(initialWeights);
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState(sharedIds);
   const [query, setQuery] = useState('');
   const [brand, setBrand] = useState('all');
   const [sort, setSort] = useState('match');
@@ -160,11 +165,11 @@ function App() {
           {step === 3 && <div className="question-card"><p className="question-number">QUESTION 3</p><h3>ほかの条件も調整する</h3><p className="subcopy">重要度を0〜3で調整できます。迷ったらそのままでOK。</p><div className="weight-list">{criteria.map((c) => <div className="weight-row" key={c.key}><span>{c.icon} {c.label}</span><div className="weight-buttons">{[0,1,2,3].map((value) => <button type="button" key={value} aria-pressed={weights[c.key] === value} className={weights[c.key] === value ? 'active' : ''} onClick={() => setWeights((w) => ({ ...w, [c.key]: value }))}>{['不要','普通','重視','最重視'][value]}</button>)}</div></div>)}</div><div className="quiz-actions"><button type="button" className="ghost-btn" onClick={() => setStep(2)}>戻る</button><button type="button" className="primary-btn" onClick={showResults}>結果を見る →</button></div></div>}
         </section>
 
-        {step === 4 && <section id="results" className="section results-section">
+        {step === 4 && <section id="results" className="section results-section" data-ux-priority={primary} data-ux-budget={budget}>
           <div className="result-intro"><p className="eyebrow">YOUR RANKING</p><h2>あなたは「<span>{primaryLabel}重視</span>」タイプ</h2><p>公式公称スペックと編集スコアを、あなたが選んだ重要度で重み付けしています。相性点は絶対的な製品評価ではありません。</p><div className="result-summary"><span>{ranking.length}/{baseRanking.length}製品を表示</span><span>{budgetLabel}</span><button type="button" onClick={changeConditions}>条件を変更する</button></div></div>
           <div className="catalog-tools" aria-label="ランキングの絞り込みと並べ替え"><input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="商品名・メーカー・特徴で検索" aria-label="イヤホンを検索" /><select value={brand} onChange={(e) => setBrand(e.target.value)} aria-label="メーカーで絞り込み"><option value="all">すべてのメーカー</option>{brands.map((item) => <option key={item} value={item}>{item}</option>)}</select><select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="並べ替え"><option value="match">相性順</option><option value="price-asc">価格が安い順</option><option value="price-desc">価格が高い順</option><option value="name">商品名順</option></select><button type="button" onClick={resetCatalogTools}>絞り込み解除</button><div className="tools-count">検索・メーカー・並べ替えを組み合わせて30機種から候補を絞れます。</div></div>
           <div className="ranking-list">
-            {ranking.length ? ranking.map((item, index) => <article className="rank-card" key={item.id}><div className="rank-index"><span>{index + 1}</span><small>位</small></div><div className="big-product-icon">{item.accent}</div><div className="rank-main"><div className="brand-row"><span className="brand">{item.brand}</span><span className="verified-badge">✓ 公式仕様確認</span></div><h3><a className="product-title-link" href={productPath(item.id)}>{item.name}</a></h3><div className="tag-row">{item.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><p className="reason">{primaryLabel}を重視した条件で高得点。{item.price <= 20000 ? '価格とのバランスも取りやすい候補です。' : '上位機能を重視する人向けの候補です。'}</p><div className="rank-links"><a className="detail-link" href={productPath(item.id)}>詳しく見る →</a><a className="source-link" href={item.sourceUrl} target="_blank" rel="noopener noreferrer">{item.sourceLabel}で仕様を見る ↗</a></div></div><div className="match-box"><strong>{item.match}</strong><span>/ 100</span><small>あなたとの相性</small></div><div className="rank-actions"><button type="button" aria-pressed={selected.includes(item.id)} className={selected.includes(item.id) ? 'compare-btn selected' : 'compare-btn'} onClick={() => toggleCompare(item.id)}>{selected.includes(item.id) ? '✓ 比較中' : '+ 比較する'}</button><div className="price">¥{item.price.toLocaleString()}<small>公式参考価格</small></div></div></article>) : <div className="no-result"><h3>条件に合う商品がありません</h3><p>検索語やメーカー、予算を変更してください。</p><button type="button" className="primary-btn" onClick={resetCatalogTools}>絞り込みを解除</button></div>}
+            {ranking.length ? ranking.map((item, index) => <article className="rank-card" key={item.id}><div className="rank-index"><span>{index + 1}</span><small>位</small></div><div className="big-product-icon">{item.accent}</div><div className="rank-main"><div className="brand-row"><span className="brand">{item.brand}</span><span className="verified-badge">✓ 公式仕様確認</span></div><h3><a className="product-title-link" href={productPath(item.id)}>{item.name}</a></h3><div className="tag-row">{item.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><p className="reason">重視条件：{primaryLabel}。確認できる特徴：{item.tags.slice(0,2).join('・')}。{item.batteryText ? 'バッテリー：' + item.batteryText + '。' : ''}相性点は独自の編集指標です。</p><div className="rank-links"><a className="detail-link" href={productPath(item.id)}>詳しく見る →</a><a className="source-link" href={item.sourceUrl} target="_blank" rel="noopener noreferrer">{item.sourceLabel}で仕様を見る ↗</a></div></div><div className="match-box"><strong>{item.match}</strong><span>/ 100</span><small>あなたとの相性</small></div><div className="rank-actions"><button type="button" aria-pressed={selected.includes(item.id)} className={selected.includes(item.id) ? 'compare-btn selected' : 'compare-btn'} onClick={() => toggleCompare(item.id)}>{selected.includes(item.id) ? '✓ 比較中' : '+ 比較する'}</button><div className="price">¥{item.price.toLocaleString()}<small>公式参考価格</small></div></div></article>) : <div className="no-result"><h3>条件に合う商品がありません</h3><p>検索語やメーカー、予算を変更してください。</p><button type="button" className="primary-btn" onClick={resetCatalogTools}>絞り込みを解除</button></div>}
           </div>
         </section>}
 
