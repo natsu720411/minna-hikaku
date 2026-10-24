@@ -480,7 +480,7 @@ export default async function handler(req, res) {
     if (error?.statusCode === 429 || code.startsWith('rakuten_rate_limited')) {
       return json(res, 429, { ok: false, configured, error: code });
     }
-    const status = code === 'not_configured' || code.endsWith('_not_configured') ? 503 : 502;
+    const status = code === 'not_configured' || code.endsWith('_not_configured') ? 503 : (code === 'rakuten_no_result' || code === 'rakuten_no_safe_result' ? 404 : 502);
     return json(res, status, { ok: false, configured, error: code });
   }
 }

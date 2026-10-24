@@ -124,11 +124,15 @@ if (serverRakuten.includes("url.searchParams.set('imageFlag', '1')"))
   fail('Affiliate-only listings without photos must remain searchable');
 if (!serverRakuten.includes("!safeAffiliateUrl(item.affiliateUrl, affiliateId)"))
   fail('Rakuten no-image matches require a verified affiliate URL');
+if (!serverRakuten.includes("code === 'rakuten_no_result' || code === 'rakuten_no_safe_result'"))
+  fail('No-match errors should not be reported as upstream 502 failures');
 if (!serverRakuten.includes('rakutenAffiliate: Boolean') ||
     !serverRakuten.includes('safeAffiliateUrl') ||
     !serverRakuten.includes('isAffiliate: Boolean(affiliateUrl)'))
   fail('Rakuten API commission attribution missing');
 const mediaFrontend = read('product-media.js');
+if (mediaFrontend.includes("cache.set(key, result);\n      if (result) saveCachedLookup"))
+  fail('Negative Rakuten lookups may be stuck in browser cache');
 if (!mediaFrontend.includes("fetchLookup(key, 'rakuten')") ||
     !mediaFrontend.includes('window.minnaRakutenMediaLookup = lookup') ||
     !mediaFrontend.includes('realAffiliate') ||

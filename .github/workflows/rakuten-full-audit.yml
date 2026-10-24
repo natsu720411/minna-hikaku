@@ -1,0 +1,84 @@
+name: Rakuten 430-product affiliate audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/rakuten-full-audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rakuten-full-audit
+  cancel-in-progress: false
+
+jobs:
+  build-index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-catalogue
+          path: dist/product-catalog.json
+          retention-days: 7
+
+  audit:
+    needs: build-index
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        shard: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          name: product-catalogue
+          path: dist
+      - name: Audit products in this shard
+        run: node scripts/audit-rakuten-catalog.mjs --shard ${{ matrix.shard }} --shards 4 --interval-ms 2600
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rakuten-shard-${{ matrix.shard }}
+          path: rakuten-audit-shard-${{ matrix.shard }}.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  summary:
+    needs: audit
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: rakuten-shard-*
+          path: rakuten-bulk-results
+          merge-multiple: true
+      - run: node scripts/summarize-rakuten-audit.mjs rakuten-bulk-results
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rakuten-430-product-report
+          path: |
+            rakuten-full-audit.json
+            rakuten-full-audit.csv
+            rakuten-full-audit.md
+          if-no-files-found: warn
+          retention-days: 30

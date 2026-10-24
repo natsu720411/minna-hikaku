@@ -185,8 +185,9 @@
       const result = await fetchLookup(key, 'rakuten');
       return result?.provider === 'rakuten' && isLikelyProductMatch(result, key) ? result : null;
     }).then((result) => {
-      cache.set(key, result);
-      if (result) saveCachedLookup(key, result);
+      // Do not persist a negative lookup: temporary rate limits or provider errors
+      // must be retryable on the gateway without refreshing the whole browser.
+      if (result) { cache.set(key, result); saveCachedLookup(key, result); }
       return result;
     }).catch(() => null).finally(() => pending.delete(key));
 
