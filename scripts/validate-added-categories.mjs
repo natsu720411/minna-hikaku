@@ -114,11 +114,16 @@ for (const p of searchIndex) {
 if (preparedDetailPages !== 430) fail('Rakuten coverage must span all 430 product pages');
 const rakutenApi = read('market-links.js');
 if (!rakutenApi.includes("if (link.textContent !== label) link.textContent = label")) fail('Affiliate observer must not trigger an infinite DOM update loop');
-if (!rakutenApi.includes("media.dataset.affiliate === 'rakuten'") ||
-    !rakutenApi.includes("link.dataset.verifiedAffiliate === '1'"))
-  fail('Rakuten affiliate links may be overwritten or falsely attributed');
+if (!rakutenApi.includes("media.dataset.affiliate !== 'rakuten'") ||
+    !rakutenApi.includes("link.dataset.verifiedAffiliate === '1'") ||
+    !rakutenApi.includes("const rakutenUrl = (name) => verifiedRakutenUrl(name) || `/rakuten/?q="))
+  fail('Rakuten links must use verified affiliate destinations or the internal gateway');
 const serverRakuten = fs.readFileSync(path.resolve('api/product-media.js'),'utf8');
 if (!serverRakuten.includes('searchRakutenProductSafely') || !serverRakuten.includes("startsWith('rakuten_product_400')")) fail('Invalid product API keyword should retry item API');
+if (serverRakuten.includes("url.searchParams.set('imageFlag', '1')"))
+  fail('Affiliate-only listings without photos must remain searchable');
+if (!serverRakuten.includes("!safeAffiliateUrl(item.affiliateUrl, affiliateId)"))
+  fail('Rakuten no-image matches require a verified affiliate URL');
 if (!serverRakuten.includes('rakutenAffiliate: Boolean') ||
     !serverRakuten.includes('safeAffiliateUrl') ||
     !serverRakuten.includes('isAffiliate: Boolean(affiliateUrl)'))
@@ -134,6 +139,28 @@ const searchUX = read('site-experience.js');
 if (!searchUX.includes('hydrateSearchImages') ||
     !searchUX.includes('data-rakuten-name'))
   fail('Rakuten photo previews missing from cross-category search');
+// Do not send any of the 430 products to an untracked Rakuten search URL.
+const redirectPage=read('rakuten/index.html');
+const redirectLogic=read('rakuten-gateway.js');
+if(!redirectPage.includes('src="/rakuten-gateway.js"') ||
+   !redirectLogic.includes("url.hostname==='hb.afl.rakuten.co.jp'") ||
+   !redirectLogic.includes("location.replace(affiliate)") ||
+   !redirectLogic.includes("result?.isAffiliate===true"))
+  fail('Affiliate-only gateway must verify a Rakuten-issued tracking URL');
+if(rakutenApi.includes('https://search.rakuten.co.jp/search/mall/'))
+  fail('Untracked Rakuten search fallback is still used for product buttons');
+if(!mediaFrontend.includes('const destination = officialRakutenAffiliate(result)') ||
+   !mediaFrontend.includes('link.href = verified || affiliateGateway(name)'))
+  fail('Affiliate media could open untracked product URLs');
+const searchAffiliateLayer=read('site-experience.js');
+if(!searchAffiliateLayer.includes("u.hostname === 'hb.afl.rakuten.co.jp'") ||
+   !searchAffiliateLayer.includes("url = '/rakuten/?q='"))
+  fail('Global product thumbnails may link to untracked Rakuten product URLs');
+for(const item of searchIndex){
+  const page = read(item.url.slice(1) + 'index.html');
+  if(!page.includes('src="/market-links.js"'))
+    fail('430-product affiliate gateway coverage incomplete: '+item.url);
+}
 const experience = read('site-experience.js');
 for (const feature of ['ux-compare-dock','ux-share','ux-fav-btn','product-catalog.json','ux-diff-cell','ux-related','ux-search-launch'])
   if (!experience.includes(feature)) fail('Usability function missing: '+feature);

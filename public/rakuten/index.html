@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>楽天アフィリエイトリンクを確認｜みんなの比較表</title>
+<meta name="description" content="楽天APIで商品名と型番を照合してから正規の楽天アフィリエイトリンクへ移動します。">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+:root{color-scheme:light}*{box-sizing:border-box}body{margin:0;padding:20px;background:#f3f7fc;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Yu Gothic",sans-serif;color:#213651}
+main{max-width:570px;margin:8vh auto;background:#fff;border-radius:24px;padding:clamp(22px,5vw,42px);box-shadow:0 12px 35px #22395712;border:1px solid #e2eaf5}
+h1{font-size:clamp(21px,4vw,28px);line-height:1.5;margin:0 0 20px}.product{padding:12px 14px;border-radius:12px;background:#f1f6fc;overflow-wrap:anywhere;font-weight:700}
+#rakuten-status{font-weight:800;font-size:17px;line-height:1.5;margin:24px 0 8px}#rakuten-help{color:#5b6d83;font-size:14px;line-height:1.8}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin:25px 0}.actions a,.actions button{border-radius:12px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:11px 15px;text-decoration:none;font-weight:800;font-size:14px;cursor:pointer}
+.actions a{background:#1769d6;color:#fff}.actions button{border:1px solid #abc7eb;background:white;color:#185aa2}.actions button[hidden]{display:none}
+.note{font-size:12px;line-height:1.7;color:#677b91;border-top:1px solid #e6edf5;padding-top:14px}
+</style>
+<script src="/product-media.js" defer></script>
+<script src="/rakuten-gateway.js" defer></script>
+</head>
+<body><main>
+<p style="font-size:12px;font-weight:800;color:#2764aa">PR ・ 楽天アフィリエイト</p>
+<h1>楽天の正規リンクを確認</h1>
+<p class="product" id="rakuten-product"></p>
+<p id="rakuten-status" role="status" aria-live="polite">照合の準備をしています…</p>
+<p id="rakuten-help"></p>
+<div class="actions"><button type="button" id="rakuten-retry" hidden>もう一度確認</button><a href="/">みんなの比較表に戻る</a></div>
+<p class="note">楽天APIで該当商品を確認できた場合のみ、発行済みの正規アフィリエイトURLで移動します。確認できない商品は勝手に別の商品や通常の検索ページには転送しません。</p>
+</main></body></html>

@@ -295,7 +295,8 @@ async function searchRakutenProduct(query, applicationId, accessKey, affiliateId
 
   const ranked = items
     .filter((item) => {
-      if (!item?.mediumImageUrl && !item?.smallImageUrl) return false;
+      // Valid affiliate listings without photos can still offer a tracked purchase link.
+      if (!item?.mediumImageUrl && !item?.smallImageUrl && !safeAffiliateUrl(item?.affiliateUrl, affiliateId)) return false;
       const text = `${item.productName || ''} ${item.productNo || ''} ${item.brandName || ''}`;
       if (isAccessory(text)) return false;
       if (!brandIsCompatible(item, query)) return false;
@@ -343,7 +344,8 @@ async function searchRakutenItem(query, applicationId, accessKey, affiliateId, o
   url.searchParams.set('keyword', keyword);
   url.searchParams.set('hits', '30');
   url.searchParams.set('availability', '0');
-  url.searchParams.set('imageFlag', '1');
+  // Do not filter out listings with no image: their affiliate URL may still work.
+  // Rakuten API returns both image and no-image listings when imageFlag is omitted.
   url.searchParams.set('field', '0');
   url.searchParams.set('format', 'json');
   url.searchParams.set('formatVersion', '2');
@@ -363,7 +365,7 @@ async function searchRakutenItem(query, applicationId, accessKey, affiliateId, o
   const ranked = items
     .map((entry) => entry?.item || entry)
     .filter((item) => {
-      if (!item || !rakutenItemImage(item)) return false;
+      if (!item || (!rakutenItemImage(item) && !safeAffiliateUrl(item.affiliateUrl, affiliateId))) return false;
       const title = item.itemName || '';
       if (isAccessory(title)) return false;
       if (!brandIsCompatible({ itemName: title }, query)) return false;

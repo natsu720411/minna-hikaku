@@ -282,12 +282,13 @@
         const visual=entry.target,name=visual.dataset.rakutenName;
         window.minnaRakutenMediaLookup(name).then(result=>{
           if(!visual.isConnected || !result?.imageUrl || result.provider!=='rakuten')return;
-          const url=result.affiliateUrl||result.productUrl;
-          if(!/^https:\/\//.test(url||''))return;
+          let url = null;
+          try { const u = new URL(result.affiliateUrl || ''); if(result.isAffiliate === true && u.protocol === 'https:' && u.hostname === 'hb.afl.rakuten.co.jp') url = u.toString(); } catch (_) {}
+          if (!url) url = '/rakuten/?q=' + encodeURIComponent(name);
           const a=document.createElement('a');
           a.href=url;
           a.target='_blank';
-          a.rel=result.isAffiliate?'nofollow noopener noreferrer sponsored':'nofollow noopener noreferrer';
+          a.rel=url.startsWith('https://hb.afl.rakuten.co.jp/')?'nofollow noopener noreferrer sponsored':'noopener noreferrer';
           a.title='楽天で'+name+'の商品情報を見る';
           const img=document.createElement('img');
           img.alt=name+'の商品画像';

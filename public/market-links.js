@@ -6,7 +6,8 @@
   // Never apply this listing to other Liberty variants or other products.
   const soundcoreLiberty5AffiliateUrl = 'https://hb.afl.rakuten.co.jp/ichiba/58c41089.9dd88c19.58c4108a.3dd87233/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ftry3%2F4571411228452%2F&link_type=hybrid_url&ut=eyJwYWdlIjoiaXRlbSIsInR5cGUiOiJoeWJyaWRfdXJsIiwic2l6ZSI6IjI0MHgyNDAiLCJuYW0iOjEsIm5hbXAiOiJyaWdodCIsImNvbSI6MSwiYm9yIjoxLCJjb2wiOjEsImJidG4iOjEsImFtcCI6ZmFsc2V9';
   const verifiedRakutenUrl = (name) => /^(?:anker\s+)?soundcore\s+liberty\s+5$/i.test(String(name||'').trim().replace(/\s+/g,' ')) ? soundcoreLiberty5AffiliateUrl : null;
-  const rakutenUrl = (name) => verifiedRakutenUrl(name) || `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(name)}/`;
+  const rakutenUrl = (name) => verifiedRakutenUrl(name) || `/rakuten/?q=${encodeURIComponent(name)}`;
+  const isOfficialAffiliate = (link) => { try { const u = new URL(link); return u.protocol === 'https:' && u.hostname === 'hb.afl.rakuten.co.jp'; } catch (_) { return false; } };
 
   const loadAnalytics = () => {
     if (document.documentElement.dataset.gaMeasurementId === GA_MEASUREMENT_ID) return;
@@ -54,11 +55,12 @@
     a.href = verified || href;
     a.target = '_blank';
     a.rel = cls === 'amazon' || verified ? 'nofollow noopener noreferrer sponsored' : 'nofollow noopener noreferrer';
-    a.textContent = verified ? (label === '楽天' ? '楽天（ブラック・PR）' : '楽天で見る（ブラック・PR）') : label;
+    a.textContent = verified ? (label === '楽天' ? '楽天（ブラック・PR）' : '楽天で見る（ブラック・PR）') : (cls === 'rakuten' ? '楽天のPRリンクを確認' : label);
     if (verified) { a.dataset.verifiedAffiliate = '1'; a.dataset.affiliate = 'rakuten'; a.dataset.affiliateVerified = '1'; }
     a.dataset.track = cls === 'amazon' ? 'amazon_click' : 'rakuten_click';
     a.dataset.product = name || '';
     if (cls === 'amazon') a.dataset.affiliate = 'amazon';
+    if (cls === 'rakuten' && !verified) a.dataset.affiliateStatus = 'pending';
     if (name) a.setAttribute('aria-label', cls === 'amazon' ? `${name}をAmazonで見る（アフィリエイトリンク）` : `${name}を${label}`);
     return a;
   };
@@ -70,15 +72,16 @@
       if (!name || !href || href === '#') return;
       document.querySelectorAll('.market-btn.rakuten[data-product]').forEach((link) => {
         if (link.dataset.product !== name || link.dataset.verifiedAffiliate === '1') return;
-        if (!/^https:\/\//.test(href)) return;
-        const isAffiliate = media.dataset.affiliate === 'rakuten';
+        if (!isOfficialAffiliate(href) || media.dataset.affiliate !== 'rakuten') return;
+        const isAffiliate = true;
         // MutationObserver watches childList. Writing textContent again when the
         // label is unchanged would fire the observer forever and freeze the page.
-        const label = isAffiliate ? '楽天で見る（PR）' : '楽天で探す（通常リンク）';
+        const label = '楽天で見る（PR）';
         if (link.getAttribute('href') !== href) link.setAttribute('href', href);
         if (isAffiliate) {
           if (link.dataset.affiliate !== 'rakuten') link.dataset.affiliate = 'rakuten';
           if (link.dataset.affiliateVerified !== '1') link.dataset.affiliateVerified = '1';
+          if (link.dataset.affiliateStatus !== 'verified') link.dataset.affiliateStatus = 'verified';
         } else {
           if (link.hasAttribute('data-affiliate')) delete link.dataset.affiliate;
           if (link.hasAttribute('data-affiliate-verified')) delete link.dataset.affiliateVerified;

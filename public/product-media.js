@@ -219,18 +219,23 @@
     }
   };
 
+  const officialRakutenAffiliate = (result) => {
+    try {const u = new URL(result?.affiliateUrl || ''); return result?.isAffiliate === true && u.protocol === 'https:' && u.hostname === 'hb.afl.rakuten.co.jp' ? u.toString() : null;} catch (_) {return null;}
+  };
+  const affiliateGateway = (name) => `/rakuten/?q=${encodeURIComponent(name)}`;
   const imageLink = (result, name, extraClass = '') => {
     const link = document.createElement('a');
     link.className = `api-product-thumb ${extraClass}`.trim();
-    link.href = result.affiliateUrl || result.productUrl || '#';
+    const verified = officialRakutenAffiliate(result);
+    link.href = verified || affiliateGateway(name);
     link.target = '_blank';
-    link.rel = result.isAffiliate && result.affiliateUrl ? 'nofollow noopener noreferrer sponsored' : 'nofollow noopener noreferrer';
+    link.rel = verified ? 'nofollow noopener noreferrer sponsored' : 'noopener noreferrer';
     link.dataset.provider = result.provider;
     link.dataset.label = `${result.provider === 'amazon' ? 'Amazon' : '楽天'}の商品画像`;
     link.dataset.track = result.provider === 'amazon' ? 'amazon_click' : 'rakuten_click';
     link.dataset.product = name;
-    if (result.isAffiliate && result.affiliateUrl) link.dataset.affiliate = 'rakuten';
-    link.setAttribute('aria-label', `${name}を${result.provider === 'amazon' ? 'Amazon' : '楽天'}で見る`);
+    if (verified) link.dataset.affiliate = 'rakuten';
+    link.setAttribute('aria-label', verified ? `${name}を楽天のPRリンクで見る` : `${name}の楽天PRリンクを確認する`);
     const img = document.createElement('img');
     img.src = result.imageUrl;
     img.alt = `${name} 商品画像`;
@@ -294,9 +299,18 @@
     const buttons = scope.querySelectorAll?.('.market-btn.rakuten') || [];
     for (const button of buttons) {
       if (button.dataset.verifiedAffiliate === '1') continue;
-      const realAffiliate = Boolean(result.isAffiliate && result.affiliateUrl);
-      const destination = realAffiliate ? result.affiliateUrl : result.productUrl;
-      if (!destination || !/^https:\/\//.test(destination)) continue;
+      const destination = officialRakutenAffiliate(result);
+      const realAffiliate = Boolean(destination);
+      if (!destination) {
+        const internal = affiliateGateway(name);
+        if (button.getAttribute('href') !== internal) button.setAttribute('href',internal);
+        button.textContent = '楽天のPRリンクを確認';
+        delete button.dataset.affiliate;
+        delete button.dataset.affiliateVerified;
+        button.dataset.affiliateStatus = 'unavailable';
+        button.rel = 'noopener noreferrer';
+        continue;
+      }
       button.href = destination;
       button.dataset.track = 'rakuten_click';
       button.dataset.product = name || '';
@@ -306,6 +320,7 @@
         button.title = '楽天アフィリエイトの販売ページ';
         button.textContent = '楽天で見る（PR）';
         button.dataset.affiliateVerified = '1';
+        button.dataset.affiliateStatus = 'verified';
       } else {
         delete button.dataset.affiliate;
         button.rel = 'nofollow noopener noreferrer';

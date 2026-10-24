@@ -44,14 +44,14 @@ for(const [index,p] of candidates.entries()) {
     let validAffiliate=false;
     try{
       const parsed=new URL(r.affiliateUrl||'');
-      validAffiliate=r.isAffiliate===true&&parsed.protocol==='https:'&&parsed.hostname==='hb.afl.rakuten.co.jp';
+      validAffiliate=response.ok&&data.ok===true&&r.provider==='rakuten'&&r.isAffiliate===true&&parsed.protocol==='https:'&&parsed.hostname==='hb.afl.rakuten.co.jp';
     }catch{}
     if(validImage)images++;
-    if(validImage&&validAffiliate)affiliate++;
-    state=validImage?(validAffiliate?'affiliate_ok':'image_only'):'not_found';
-    if(!validImage)notFound++;
-    if(!validImage&&response.status>=500)errors++;
-    if(!validImage) {
+    if(validAffiliate)affiliate++;
+    state=validAffiliate ? (validImage?'affiliate_ok':'affiliate_only') : (validImage?'image_only':'not_found');
+    if(!validAffiliate)notFound++;
+    if(!validAffiliate&&response.status>=500)errors++;
+    if(!validAffiliate) {
       const code=String(data.error||'no_result');
       const redacted = code.match(/^(rakuten_[a-z]+(?:_\d+)?|not_configured|lookup_failed)/)?.[1]||'unavailable';
       console.log('  reason: '+redacted);
