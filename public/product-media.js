@@ -287,7 +287,7 @@
   const applyRakutenAffiliateLink = (scope, result, name) => {
     if (!scope || result?.provider !== 'rakuten' || !result?.productUrl) return;
     const button = scope.querySelector?.('.market-btn.rakuten');
-    if (!button) return;
+    if (!button || button.dataset.verifiedAffiliate === '1') return;
     button.href = result.productUrl;
     button.dataset.track = 'rakuten_click';
     button.dataset.product = name || '';

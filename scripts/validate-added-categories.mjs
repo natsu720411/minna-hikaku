@@ -82,6 +82,15 @@ for(const [file,marker,expected] of windsorChecks){
   if(!html.includes('data-windsor-focus="'+marker+'"')) fail('Windsor/GSC landing-page patch missing: '+file);
   if(!html.includes(expected)) fail('Windsor/GSC content or navigation missing: '+file);
 }
+const affiliateJs = read('market-links.js');
+const fixedAffiliate = 'https://hb.afl.rakuten.co.jp/ichiba/58c41089.9dd88c19.58c4108a.3dd87233/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ftry3%2F4571411228452%2F&link_type=hybrid_url&ut=eyJwYWdlIjoiaXRlbSIsInR5cGUiOiJoeWJyaWRfdXJsIiwic2l6ZSI6IjI0MHgyNDAiLCJuYW0iOjEsIm5hbXAiOiJyaWdodCIsImNvbSI6MSwiYm9yIjoxLCJjb2wiOjEsImJidG4iOjEsImFtcCI6ZmFsc2V9';
+if (!affiliateJs.includes(fixedAffiliate) ||
+    !affiliateJs.includes("verifiedRakutenUrl(name)") ||
+    !affiliateJs.includes("link.dataset.verifiedAffiliate === '1'")) fail('Soundcore Liberty 5 Rakuten direct affiliate URL missing or may be overwritten');
+if (!productMedia.includes("button.dataset.verifiedAffiliate === '1'")) fail('Dynamic Rakuten media must not overwrite the verified product affiliate URL');
+if (!fixedAffiliate.startsWith('https://hb.afl.rakuten.co.jp/ichiba/') ||
+    !fixedAffiliate.includes('4571411228452') ||
+    !fixedAffiliate.includes('link_type=hybrid_url')) fail('Unexpected manually verified product affiliate URL');
 const searchIndex = JSON.parse(read('product-catalog.json'));
 if (searchIndex.length !== 430) fail('Global product search must contain 430 products');
 if (new Set(searchIndex.map(p => p.url)).size !== 430) fail('Global search has duplicate URLs');

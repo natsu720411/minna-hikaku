@@ -2,7 +2,11 @@
   const AMAZON_ASSOCIATE_TAG = 'minnahikaku-22';
   const GA_MEASUREMENT_ID = 'G-CZLLRFVS45';
   const amazonUrl = (name) => `https://www.amazon.co.jp/s?k=${encodeURIComponent(name)}&tag=${encodeURIComponent(AMAZON_ASSOCIATE_TAG)}`;
-  const rakutenUrl = (name) => `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(name)}/`;
+  // User-provided, Rakuten-generated link for A3957N11 (Midnight Black) only.
+  // Never apply this listing to other Liberty variants or other products.
+  const soundcoreLiberty5AffiliateUrl = 'https://hb.afl.rakuten.co.jp/ichiba/58c41089.9dd88c19.58c4108a.3dd87233/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ftry3%2F4571411228452%2F&link_type=hybrid_url&ut=eyJwYWdlIjoiaXRlbSIsInR5cGUiOiJoeWJyaWRfdXJsIiwic2l6ZSI6IjI0MHgyNDAiLCJuYW0iOjEsIm5hbXAiOiJyaWdodCIsImNvbSI6MSwiYm9yIjoxLCJjb2wiOjEsImJidG4iOjEsImFtcCI6ZmFsc2V9';
+  const verifiedRakutenUrl = (name) => /^(?:anker\s+)?soundcore\s+liberty\s+5$/i.test(String(name||'').trim().replace(/\s+/g,' ')) ? soundcoreLiberty5AffiliateUrl : null;
+  const rakutenUrl = (name) => verifiedRakutenUrl(name) || `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(name)}/`;
 
   const loadAnalytics = () => {
     if (document.documentElement.dataset.gaMeasurementId === GA_MEASUREMENT_ID) return;
@@ -46,10 +50,12 @@
   const makeLink = (label, href, cls, name) => {
     const a = document.createElement('a');
     a.className = `market-btn ${cls}`;
-    a.href = href;
+    const verified = cls === 'rakuten' ? verifiedRakutenUrl(name) : null;
+    a.href = verified || href;
     a.target = '_blank';
-    a.rel = cls === 'amazon' ? 'nofollow noopener noreferrer sponsored' : 'nofollow noopener noreferrer';
-    a.textContent = label;
+    a.rel = cls === 'amazon' || verified ? 'nofollow noopener noreferrer sponsored' : 'nofollow noopener noreferrer';
+    a.textContent = verified ? (label === '楽天' ? '楽天（ブラック）' : '楽天で見る（ブラック）') : label;
+    if (verified) { a.dataset.verifiedAffiliate = '1'; a.dataset.affiliate = 'rakuten'; }
     a.dataset.track = cls === 'amazon' ? 'amazon_click' : 'rakuten_click';
     a.dataset.product = name || '';
     if (cls === 'amazon') a.dataset.affiliate = 'amazon';
@@ -63,7 +69,7 @@
       const href = media.getAttribute('href') || '';
       if (!name || !href || href === '#') return;
       document.querySelectorAll('.market-btn.rakuten[data-product]').forEach((link) => {
-        if (link.dataset.product !== name) return;
+        if (link.dataset.product !== name || link.dataset.verifiedAffiliate === '1') return;
         link.href = href;
         link.dataset.affiliate = 'rakuten';
         link.rel = 'nofollow noopener noreferrer sponsored';
