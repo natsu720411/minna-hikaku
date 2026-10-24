@@ -72,13 +72,22 @@
         if (link.dataset.product !== name || link.dataset.verifiedAffiliate === '1') return;
         if (!/^https:\/\//.test(href)) return;
         const isAffiliate = media.dataset.affiliate === 'rakuten';
-        link.href = href;
-        if (isAffiliate) link.dataset.affiliate = 'rakuten';
-        else delete link.dataset.affiliate;
-        link.rel = isAffiliate ? 'nofollow noopener noreferrer sponsored' : 'nofollow noopener noreferrer';
-        link.setAttribute('aria-label', `${name}を楽天で見る${isAffiliate ? '（アフィリエイトリンク）' : ''}`);
-        if (isAffiliate) { link.textContent = '楽天で見る（PR）'; link.dataset.affiliateVerified = '1'; }
-        else { link.textContent = '楽天で探す（通常リンク）'; delete link.dataset.affiliateVerified; }
+        // MutationObserver watches childList. Writing textContent again when the
+        // label is unchanged would fire the observer forever and freeze the page.
+        const label = isAffiliate ? '楽天で見る（PR）' : '楽天で探す（通常リンク）';
+        if (link.getAttribute('href') !== href) link.setAttribute('href', href);
+        if (isAffiliate) {
+          if (link.dataset.affiliate !== 'rakuten') link.dataset.affiliate = 'rakuten';
+          if (link.dataset.affiliateVerified !== '1') link.dataset.affiliateVerified = '1';
+        } else {
+          if (link.hasAttribute('data-affiliate')) delete link.dataset.affiliate;
+          if (link.hasAttribute('data-affiliate-verified')) delete link.dataset.affiliateVerified;
+        }
+        const rel = isAffiliate ? 'nofollow noopener noreferrer sponsored' : 'nofollow noopener noreferrer';
+        if (link.getAttribute('rel') !== rel) link.setAttribute('rel', rel);
+        const aria = `${name}を楽天で見る${isAffiliate ? '（アフィリエイトリンク）' : ''}`;
+        if (link.getAttribute('aria-label') !== aria) link.setAttribute('aria-label', aria);
+        if (link.textContent !== label) link.textContent = label;
       });
     });
   };

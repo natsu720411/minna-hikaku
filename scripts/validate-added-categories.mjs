@@ -113,6 +113,7 @@ for (const p of searchIndex) {
 }
 if (preparedDetailPages !== 430) fail('Rakuten coverage must span all 430 product pages');
 const rakutenApi = read('market-links.js');
+if (!rakutenApi.includes("if (link.textContent !== label) link.textContent = label")) fail('Affiliate observer must not trigger an infinite DOM update loop');
 if (!rakutenApi.includes("media.dataset.affiliate === 'rakuten'") ||
     !rakutenApi.includes("link.dataset.verifiedAffiliate === '1'"))
   fail('Rakuten affiliate links may be overwritten or falsely attributed');
