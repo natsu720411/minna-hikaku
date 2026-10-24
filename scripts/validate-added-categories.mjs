@@ -63,7 +63,7 @@ for (const key of ['mobile-batteries','smartphones']) {
 const earphonesHub = read('earphones/index.html');
 if (!earphonesHub.includes('/earphones/products/')) fail('Earphone product guide list is missing');
 if (!productMedia.includes('enhanceEarphoneHub()') || !productMedia.includes('legacyVisual = card.querySelector')) fail('Legacy and earphone image integration missing');
-if (!productMedia.includes('loadCachedLookup') || !productMedia.includes("first?.provider !== 'amazon'")) fail('Image cache or safe provider fallback is missing');
+if (!productMedia.includes('loadCachedLookup') || !productMedia.includes("fetchLookup(key, 'rakuten')")) fail('Rakuten-only product media lookup or cache is missing');
 if (productMedia.includes("'ケーブル','usbケーブル'") || productMedia.includes("'ケース','カバー'") || productMedia.includes("'バンド','ベルト'")) fail('Legitimate cable-integrated or watch-band products would be blocked as accessories');
 const serverMedia = fs.readFileSync(path.resolve('api/product-media.js'),'utf8');
 if (!serverMedia.includes('ankerzolopowerbank10000') || !serverMedia.includes("requiredTerms: ['30W']")) fail('Anker Zolo 10000mAh/30W image lookup must remain exact');
