@@ -46,9 +46,16 @@ const SEARCH_OVERRIDES = {
   },
   ankerzolopowerbank10000: {
     // Manufacturer A1688: 10000mAh / 30W, not the 22.5W or 20000mAh variant.
-    keyword: 'Zolo 10000mAh',
+    keyword: 'Anker Zolo',
     fallbackKeyword: 'A1688',
-    requiredTerms: ['30W'],
+    requiredTerms: ['30W','A1688'],
+  },
+  logicoolmxkeyss: {
+    // Rakuten keyword search rejects isolated one-letter tokens such as "S".
+    // Require the complete suffix in the returned product title instead.
+    keyword: 'MX Keys',
+    fallbackKeyword: 'Logicool MX Keys',
+    requiredTerms: ['MX Keys S'],
   },
 };
 
@@ -67,7 +74,7 @@ const cleanTokens = (value) => cleanQuery(value)
 
 const buildSearchTokens = (value) => {
   const tokens = cleanTokens(value);
-  return tokens.filter((token) => !/^\d$/.test(token));
+  return tokens.filter((token) => !/^\d$/.test(token) && !/^[a-z]$/i.test(token));
 };
 
 const buildProductKeyword = (value) => {

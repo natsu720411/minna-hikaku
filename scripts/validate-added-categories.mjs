@@ -66,7 +66,8 @@ if (!productMedia.includes('enhanceEarphoneHub()') || !productMedia.includes('le
 if (!productMedia.includes('loadCachedLookup') || !productMedia.includes("fetchLookup(key, 'rakuten')")) fail('Rakuten-only product media lookup or cache is missing');
 if (productMedia.includes("'ケーブル','usbケーブル'") || productMedia.includes("'ケース','カバー'") || productMedia.includes("'バンド','ベルト'")) fail('Legitimate cable-integrated or watch-band products would be blocked as accessories');
 const serverMedia = fs.readFileSync(path.resolve('api/product-media.js'),'utf8');
-if (!serverMedia.includes('ankerzolopowerbank10000') || !serverMedia.includes("requiredTerms: ['30W']")) fail('Anker Zolo 10000mAh/30W image lookup must remain exact');
+if (!serverMedia.includes('ankerzolopowerbank10000') || !serverMedia.includes("requiredTerms: ['30W','A1688']")) fail('Anker Zolo 10000mAh/30W image lookup must remain exact');
+if (!serverMedia.includes('logicoolmxkeyss') || !serverMedia.includes("requiredTerms: ['MX Keys S']")) fail('Keyboard keyword lookup must distinguish MX Keys S');
 const linkStyles = read('category-comparison.css');
 if (!linkStyles.includes('.rank-links .detail-link') || !linkStyles.includes('.rank-links .source-link')) fail('Missing separated product/detail links');
 
