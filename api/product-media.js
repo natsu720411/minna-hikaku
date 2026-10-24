@@ -73,6 +73,8 @@ const SEARCH_OVERRIDES = {
     requiredTerms: ['33W'],
   },
   logicoolmxkeyss: {
+    // Manufacturer's Rakuten official store product: logicool:kx800sgr (MX KEYS S).
+    itemCode: 'logicool:kx800sgr',
     // Rakuten keyword search rejects isolated one-letter tokens such as "S".
     // Require the complete suffix in the returned product title instead.
     keyword: 'MX Keys',

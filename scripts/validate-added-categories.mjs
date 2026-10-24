@@ -120,7 +120,7 @@ if (!rakutenApi.includes("media.dataset.affiliate !== 'rakuten'") ||
   fail('Rakuten links must use verified affiliate destinations or the internal gateway');
 const serverRakuten = fs.readFileSync(path.resolve('api/product-media.js'),'utf8');
 if (!serverRakuten.includes('searchRakutenProductSafely') || !serverRakuten.includes("startsWith('rakuten_product_400')")) fail('Invalid product API keyword should retry item API');
-if (!serverRakuten.includes("itemCode: 'anker:a1688'") || !serverRakuten.includes("itemCode: 'anker:a2331'") || !serverRakuten.includes("url.searchParams.set('itemCode',options.itemCode)")) fail('Rakuten verified Anker item-code lookup not present');
+if (!serverRakuten.includes("itemCode: 'anker:a1688'") || !serverRakuten.includes("itemCode: 'anker:a2331'") || !serverRakuten.includes("itemCode: 'logicool:kx800sgr'") || !serverRakuten.includes("url.searchParams.set('itemCode',options.itemCode)")) fail('Rakuten verified Anker item-code lookup not present');
 if (serverRakuten.includes("url.searchParams.set('imageFlag', '1')"))
   fail('Affiliate-only listings without photos must remain searchable');
 if (!serverRakuten.includes("!safeAffiliateUrl(item.affiliateUrl, affiliateId)"))
