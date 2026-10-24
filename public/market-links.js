@@ -70,10 +70,13 @@
       if (!name || !href || href === '#') return;
       document.querySelectorAll('.market-btn.rakuten[data-product]').forEach((link) => {
         if (link.dataset.product !== name || link.dataset.verifiedAffiliate === '1') return;
+        if (!/^https:\/\//.test(href)) return;
+        const isAffiliate = media.dataset.affiliate === 'rakuten';
         link.href = href;
-        link.dataset.affiliate = 'rakuten';
-        link.rel = 'nofollow noopener noreferrer sponsored';
-        link.setAttribute('aria-label', `${name}を楽天で見る（アフィリエイトリンク）`);
+        if (isAffiliate) link.dataset.affiliate = 'rakuten';
+        else delete link.dataset.affiliate;
+        link.rel = isAffiliate ? 'nofollow noopener noreferrer sponsored' : 'nofollow noopener noreferrer';
+        link.setAttribute('aria-label', `${name}を楽天で見る${isAffiliate ? '（アフィリエイトリンク）' : ''}`);
       });
     });
   };

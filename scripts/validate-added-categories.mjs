@@ -100,6 +100,35 @@ for (const f of ['index.html','earphones/index.html','smartphones/index.html','s
   const html = read(f);
   if (!html.includes('src="/site-experience.js"') || !html.includes('href="/site-experience.css"')) fail('Usability layer missing from '+f);
 }
+// Every indexed product must offer Rakuten image retrieval and a graceful fallback.
+let preparedDetailPages = 0;
+for (const p of searchIndex) {
+  const html = read(p.url.replace(/^\//,'') + 'index.html');
+  if (!html.includes('src="/market-links.js"') ||
+      !html.includes('src="/site-experience.js"')) fail('Rakuten media scripts missing: '+p.url);
+  if (!html.includes('class="product-visual') && !html.includes(' catalog-detail-visual'))
+    fail('Product image fallback not generated: '+p.url);
+  preparedDetailPages++;
+}
+if (preparedDetailPages !== 430) fail('Rakuten coverage must span all 430 product pages');
+const rakutenApi = read('market-links.js');
+if (!rakutenApi.includes("media.dataset.affiliate === 'rakuten'") ||
+    !rakutenApi.includes("link.dataset.verifiedAffiliate === '1'"))
+  fail('Rakuten affiliate links may be overwritten or falsely attributed');
+const serverRakuten = fs.readFileSync(path.resolve('api/product-media.js'),'utf8');
+if (!serverRakuten.includes('rakutenAffiliate: Boolean') ||
+    !serverRakuten.includes('isAffiliate: Boolean(affiliateId && item.affiliateUrl)') ||
+    !serverRakuten.includes('affiliateUrl: affiliateId && item.affiliateUrl'))
+  fail('Rakuten API commission attribution missing');
+const mediaFrontend = read('product-media.js');
+if (!mediaFrontend.includes("fetchLookup(key, 'rakuten')") ||
+    !mediaFrontend.includes('window.minnaRakutenMediaLookup = lookup') ||
+    !mediaFrontend.includes('realAffiliate'))
+  fail('Rakuten-first product media or search thumbnail hooks missing');
+const searchUX = read('site-experience.js');
+if (!searchUX.includes('hydrateSearchImages') ||
+    !searchUX.includes('data-rakuten-name'))
+  fail('Rakuten photo previews missing from cross-category search');
 const experience = read('site-experience.js');
 for (const feature of ['ux-compare-dock','ux-share','ux-fav-btn','product-catalog.json','ux-diff-cell','ux-related','ux-search-launch'])
   if (!experience.includes(feature)) fail('Usability function missing: '+feature);

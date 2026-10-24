@@ -7,7 +7,7 @@
   let queueTail = Promise.resolve();
   let lastApiRequestAt = 0;
   const MIN_API_INTERVAL_MS = 1200;
-  const MEDIA_API_VERSION = '20261020-1';
+  const MEDIA_API_VERSION = '20261024-rakuten-all-v1';
   const SESSION_CACHE_PREFIX = 'minna-media:';
   const SESSION_CACHE_TTL = 30 * 60 * 1000;
   const loadCachedLookup = (key) => {
@@ -15,7 +15,7 @@
       const raw = sessionStorage.getItem(SESSION_CACHE_PREFIX + key);
       if (!raw) return null;
       const stored = JSON.parse(raw);
-      if (!stored || Date.now() >= stored.expires || !isLikelyProductMatch(stored.result, key)) {
+      if (!stored || Date.now() >= stored.expires || stored.result?.provider !== 'rakuten' || !isLikelyProductMatch(stored.result, key)) {
         sessionStorage.removeItem(SESSION_CACHE_PREFIX + key);
         return null;
       }
@@ -24,7 +24,7 @@
   };
   const saveCachedLookup = (key, result) => {
     try {
-      if (result?.imageUrl && isLikelyProductMatch(result, key)) {
+      if (result?.provider === 'rakuten' && result?.imageUrl && isLikelyProductMatch(result, key)) {
         sessionStorage.setItem(SESSION_CACHE_PREFIX + key, JSON.stringify({result,expires:Date.now()+SESSION_CACHE_TTL}));
       }
     } catch (_) {}
@@ -180,12 +180,10 @@
     if (stored) { cache.set(key, stored); return stored; }
 
     const request = enqueueApiRequest(async () => {
-      // Auto already checks both providers. Retry Rakuten only for an unsafe Amazon hit.
-      const first = await fetchLookup(key, 'auto');
-      if (first && isLikelyProductMatch(first, key)) return first;
-      if (first?.provider !== 'amazon') return null;
-      const rakuten = await fetchLookup(key, 'rakuten');
-      return rakuten && isLikelyProductMatch(rakuten, key) ? rakuten : null;
+      // Only show Rakuten API images and return a real Rakuten product URL.
+      // Never reuse a product image if model matching failed.
+      const result = await fetchLookup(key, 'rakuten');
+      return result?.provider === 'rakuten' && isLikelyProductMatch(result, key) ? result : null;
     }).then((result) => {
       cache.set(key, result);
       if (result) saveCachedLookup(key, result);
@@ -217,14 +215,14 @@
   const imageLink = (result, name, extraClass = '') => {
     const link = document.createElement('a');
     link.className = `api-product-thumb ${extraClass}`.trim();
-    link.href = result.productUrl || '#';
+    link.href = result.affiliateUrl || result.productUrl || '#';
     link.target = '_blank';
-    link.rel = result.provider === 'rakuten' ? 'nofollow noopener noreferrer sponsored' : 'nofollow noopener noreferrer';
+    link.rel = result.isAffiliate && result.affiliateUrl ? 'nofollow noopener noreferrer sponsored' : 'nofollow noopener noreferrer';
     link.dataset.provider = result.provider;
     link.dataset.label = `${result.provider === 'amazon' ? 'Amazon' : '楽天'}の商品画像`;
     link.dataset.track = result.provider === 'amazon' ? 'amazon_click' : 'rakuten_click';
     link.dataset.product = name;
-    if (result.provider === 'rakuten') link.dataset.affiliate = 'rakuten';
+    if (result.isAffiliate && result.affiliateUrl) link.dataset.affiliate = 'rakuten';
     link.setAttribute('aria-label', `${name}を${result.provider === 'amazon' ? 'Amazon' : '楽天'}で見る`);
     const img = document.createElement('img');
     img.src = result.imageUrl;
@@ -285,14 +283,26 @@
   };
 
   const applyRakutenAffiliateLink = (scope, result, name) => {
-    if (!scope || result?.provider !== 'rakuten' || !result?.productUrl) return;
-    const button = scope.querySelector?.('.market-btn.rakuten');
-    if (!button || button.dataset.verifiedAffiliate === '1') return;
-    button.href = result.productUrl;
-    button.dataset.track = 'rakuten_click';
-    button.dataset.product = name || '';
-    button.dataset.affiliate = 'rakuten';
-    button.rel = 'nofollow noopener noreferrer sponsored';
+    if (!scope || result?.provider !== 'rakuten') return;
+    const buttons = scope.querySelectorAll?.('.market-btn.rakuten') || [];
+    for (const button of buttons) {
+      if (button.dataset.verifiedAffiliate === '1') continue;
+      const realAffiliate = Boolean(result.isAffiliate && result.affiliateUrl);
+      const destination = realAffiliate ? result.affiliateUrl : result.productUrl;
+      if (!destination || !/^https:\/\//.test(destination)) continue;
+      button.href = destination;
+      button.dataset.track = 'rakuten_click';
+      button.dataset.product = name || '';
+      if (realAffiliate) {
+        button.dataset.affiliate = 'rakuten';
+        button.rel = 'nofollow noopener noreferrer sponsored';
+        button.title = '楽天アフィリエイトの販売ページ';
+      } else {
+        delete button.dataset.affiliate;
+        button.rel = 'nofollow noopener noreferrer';
+        button.title = '楽天の販売ページ（成果報酬リンクとは限りません）';
+      }
+    }
   };
 
   const enhanceReactCard = async (card) => {
@@ -459,6 +469,8 @@
     targets.forEach((target) => new MutationObserver(scan).observe(target, { childList: true, subtree: true }));
   };
 
+  // Shared, read-only lookup used by lazy thumbnails in the global 430-product search.
+  window.minnaRakutenMediaLookup = lookup;
   const start = () => {
     addStyles();
     enhanceDetailPage();

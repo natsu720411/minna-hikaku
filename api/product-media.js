@@ -299,6 +299,8 @@ async function searchRakutenProduct(query, applicationId, accessKey, affiliateId
     width: item.mediumImageUrl ? 128 : 64,
     height: item.mediumImageUrl ? 128 : 64,
     productUrl: item.affiliateUrl || item.productUrlPC || null,
+    affiliateUrl: affiliateId && item.affiliateUrl ? item.affiliateUrl : null,
+    isAffiliate: Boolean(affiliateId && item.affiliateUrl),
     price: item.salesMinPrice ?? item.minPrice ?? null,
     searchedKeyword: productCode || keyword,
     matchScore: best.score,
@@ -365,6 +367,8 @@ async function searchRakutenItem(query, applicationId, accessKey, affiliateId, o
     width: 128,
     height: 128,
     productUrl: item.affiliateUrl || item.itemUrl || null,
+    affiliateUrl: affiliateId && item.affiliateUrl ? item.affiliateUrl : null,
+    isAffiliate: Boolean(affiliateId && item.affiliateUrl),
     price: item.itemPrice ?? null,
     searchedKeyword: keyword,
     matchScore: best.score,
@@ -425,6 +429,7 @@ export default async function handler(req, res) {
   const configured = {
     amazon: Boolean(process.env.AMAZON_CREATORS_CLIENT_ID && process.env.AMAZON_CREATORS_CLIENT_SECRET && process.env.AMAZON_PARTNER_TAG),
     rakuten: Boolean(process.env.RAKUTEN_APP_ID && process.env.RAKUTEN_ACCESS_KEY),
+    rakutenAffiliate: Boolean(process.env.RAKUTEN_APP_ID && process.env.RAKUTEN_ACCESS_KEY && process.env.RAKUTEN_AFFILIATE_ID),
   };
 
   try {

@@ -71,3 +71,9 @@ body.ux-dock-present{padding-bottom:88px}
   body.ux-dock-present{padding-bottom:120px}
 }
 @media(prefers-reduced-motion:reduce){.ux-toast{transition:none}}
+
+/* Lazy Rakuten photo thumbnails inside the universal 430-product finder. */
+.ux-result-photo{flex:0 0 66px;width:66px;height:66px;border:1px solid #e1e9f3;border-radius:12px;background:#f4f8fd;display:flex;align-items:center;justify-content:center;color:#8797ab;font-size:26px;overflow:hidden}
+.ux-result-photo a{display:flex;width:100%;height:100%;align-items:center;justify-content:center}
+.ux-result-photo img{display:block;width:64px;height:64px;object-fit:contain;max-width:100%;background:#fff}
+@media(max-width:600px){.ux-result-photo{width:54px;height:54px;flex-basis:54px}.ux-result-photo img{width:54px;height:54px}.ux-result{gap:9px}}

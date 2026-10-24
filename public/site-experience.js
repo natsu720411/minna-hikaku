@@ -240,6 +240,7 @@
     if(tab==='favorites'){
       const favs=favRead();box.textContent='保存済み：'+favs.length+'件';
       resultBox.innerHTML=favs.length?favs.map(p=>resultMarkup(p)).join(''):'<p class="ux-empty">保存した商品はありません。商品カードの「☆ 保存」で登録できます。</p>';
+      hydrateSearchImages();
       return;
     }
     if(!cataloguePromise){box.textContent='検索データを読み込み中…';resultBox.innerHTML='';return}
@@ -249,11 +250,57 @@
       const match=rows.filter(p=>(!category||p.category===category) && (!needle||clean([p.name,p.brand,p.description,p.categoryName].join(' ')).includes(needle)));
       box.textContent=match.length+'件の製品'+(match.length>40?'（先頭40件表示）':'');
       resultBox.innerHTML=match.slice(0,40).map(p=>resultMarkup(p)).join('')||'<p class="ux-empty">該当する商品がありません。型番やメーカー名で試してください。</p>';
+      hydrateSearchImages();
     });
   };
   const resultMarkup=p=>{
     const saved=favRead().some(f=>f.url===p.url);
-    return '<div class="ux-result"><div><small>'+escapeHtml(p.categoryName||'商品')+(p.brand?' ・ '+escapeHtml(p.brand):'')+'</small><a href="'+escapeHtml(p.url)+'">'+escapeHtml(p.name)+'</a></div><button type="button" data-ux-fav-url="'+escapeHtml(p.url)+'" data-ux-name="'+escapeHtml(p.name)+'" data-ux-category="'+escapeHtml(p.categoryName||'')+'" data-ux-brand="'+escapeHtml(p.brand||'')+'" aria-label="'+escapeHtml(p.name)+'のお気に入りを切り替える">'+(saved?'★':'☆')+'</button></div>';
+    return '<div class="ux-result"><div class="ux-result-photo" data-rakuten-name="'+escapeHtml(p.name)+'"><span aria-hidden="true">📦</span></div><div><small>'+escapeHtml(p.categoryName||'商品')+(p.brand?' ・ '+escapeHtml(p.brand):'')+'</small><a href="'+escapeHtml(p.url)+'">'+escapeHtml(p.name)+'</a></div><button type="button" data-ux-fav-url="'+escapeHtml(p.url)+'" data-ux-name="'+escapeHtml(p.name)+'" data-ux-category="'+escapeHtml(p.categoryName||'')+'" data-ux-brand="'+escapeHtml(p.brand||'')+'" aria-label="'+escapeHtml(p.name)+'のお気に入りを切り替える">'+(saved?'★':'☆')+'</button></div>';
+  };
+  // Lazily load Rakuten's original API images for visible search results only.
+  let thumbObserver=null;
+  const hydrateSearchImages=()=>{
+    thumbObserver?.disconnect();
+    thumbObserver=null;
+    if(!modal || modal.hidden) return;
+    if(typeof window.minnaRakutenMediaLookup !== 'function'){
+      let script=document.querySelector('script[src="/product-media.js"]');
+      if(!script){
+        script=document.createElement('script');
+        script.src='/product-media.js';
+        script.defer=true;
+        document.head.append(script);
+      }
+      script.addEventListener('load',()=>{if(modal && !modal.hidden)hydrateSearchImages()},{once:true});
+      return;
+    }
+    if(typeof IntersectionObserver==='undefined')return;
+    thumbObserver=new IntersectionObserver(entries=>{
+      for(const entry of entries){
+        if(!entry.isIntersecting)continue;
+        thumbObserver?.unobserve(entry.target);
+        const visual=entry.target,name=visual.dataset.rakutenName;
+        window.minnaRakutenMediaLookup(name).then(result=>{
+          if(!visual.isConnected || !result?.imageUrl || result.provider!=='rakuten')return;
+          const url=result.affiliateUrl||result.productUrl;
+          if(!/^https:\/\//.test(url||''))return;
+          const a=document.createElement('a');
+          a.href=url;
+          a.target='_blank';
+          a.rel=result.isAffiliate?'nofollow noopener noreferrer sponsored':'nofollow noopener noreferrer';
+          a.title='楽天で'+name+'の商品情報を見る';
+          const img=document.createElement('img');
+          img.alt=name+'の商品画像';
+          img.loading='lazy';
+          img.width=64;img.height=64;
+          img.src=result.imageUrl;
+          img.addEventListener('error',()=>{a.remove();visual.textContent='📦'},{once:true});
+          a.append(img);
+          visual.replaceChildren(a);
+        }).catch(()=>{});
+      }
+    },{root:resultBox,rootMargin:'100px 0px'});
+    $('.ux-result-photo',resultBox).forEach(el=>thumbObserver.observe(el));
   };
   const applySharedLegacy=()=>{
     if(!['/smartphones/','/mobile-batteries/'].includes(location.pathname))return;
