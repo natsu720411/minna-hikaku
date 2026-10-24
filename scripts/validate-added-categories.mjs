@@ -117,6 +117,7 @@ if (!rakutenApi.includes("media.dataset.affiliate === 'rakuten'") ||
     !rakutenApi.includes("link.dataset.verifiedAffiliate === '1'"))
   fail('Rakuten affiliate links may be overwritten or falsely attributed');
 const serverRakuten = fs.readFileSync(path.resolve('api/product-media.js'),'utf8');
+if (!serverRakuten.includes('searchRakutenProductSafely') || !serverRakuten.includes("startsWith('rakuten_product_400')")) fail('Invalid product API keyword should retry item API');
 if (!serverRakuten.includes('rakutenAffiliate: Boolean') ||
     !serverRakuten.includes('safeAffiliateUrl') ||
     !serverRakuten.includes('isAffiliate: Boolean(affiliateUrl)'))

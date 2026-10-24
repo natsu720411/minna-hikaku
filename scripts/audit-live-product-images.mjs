@@ -51,6 +51,11 @@ for(const [index,p] of candidates.entries()) {
     state=validImage?(validAffiliate?'affiliate_ok':'image_only'):'not_found';
     if(!validImage)notFound++;
     if(!validImage&&response.status>=500)errors++;
+    if(!validImage) {
+      const code=String(data.error||'no_result');
+      const redacted = code.match(/^(rakuten_[a-z]+(?:_\d+)?|not_configured|lookup_failed)/)?.[1]||'unavailable';
+      console.log('  reason: '+redacted);
+    }
   }catch(e){state=e?.name==='AbortError'?'timeout':'network_error';errors++}
   finally{clearTimeout(handle)}
   rows.push({category:p.category,id:p.id,state,http});

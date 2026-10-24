@@ -395,6 +395,16 @@ async function searchRakutenItem(query, applicationId, accessKey, affiliateId, o
   };
 }
 
+// A malformed/unsupported Product Search keyword should not prevent the separate
+// Ichiba Item Search API from finding the correct model. Keep rate-limit failures fatal.
+async function searchRakutenProductSafely(...args) {
+  try { return await searchRakutenProduct(...args); }
+  catch(error) {
+    if (String(error?.message||'').startsWith('rakuten_product_400')) return null;
+    throw error;
+  }
+}
+
 async function searchRakuten(query) {
   const applicationId = process.env.RAKUTEN_APP_ID;
   const accessKey = process.env.RAKUTEN_ACCESS_KEY;
@@ -404,7 +414,7 @@ async function searchRakuten(query) {
   const override = getSearchOverride(query);
   if (override) {
     if (override.productCode) {
-      const exactProduct = await searchRakutenProduct(query, applicationId, accessKey, affiliateId, {
+      const exactProduct = await searchRakutenProductSafely(query, applicationId, accessKey, affiliateId, {
         productCode: override.productCode,
       });
       if (exactProduct) return exactProduct;
@@ -429,7 +439,7 @@ async function searchRakuten(query) {
     throw new Error('rakuten_no_safe_result');
   }
 
-  const product = await searchRakutenProduct(query, applicationId, accessKey, affiliateId);
+  const product = await searchRakutenProductSafely(query, applicationId, accessKey, affiliateId);
   if (product) return product;
 
   await sleep(1300);
