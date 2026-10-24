@@ -55,10 +55,22 @@ const SEARCH_OVERRIDES = {
     requiredTerms: ['完全ワイヤレス', 'ワイヤレスイヤホン', 'イヤホン'],
   },
   ankerzolopowerbank10000: {
+    // Verified Anker official Rakuten item code: https://item.rakuten.co.jp/anker/a1688/
+    itemCode: 'anker:a1688',
     // Manufacturer A1688: 10000mAh / 30W, not the 22.5W or 20000mAh variant.
     keyword: 'Anker Zolo',
     fallbackKeyword: 'A1688',
     requiredTerms: ['30W','A1688'],
+  },
+  anker32333w: {
+    itemCode: 'anker:a2331',
+    keyword: 'Anker 323 Charger',
+    requiredTerms: ['33W'],
+  },
+  anker323charger33w: {
+    itemCode: 'anker:a2331',
+    keyword: 'Anker 323 Charger',
+    requiredTerms: ['33W'],
   },
   logicoolmxkeyss: {
     // Rakuten keyword search rejects isolated one-letter tokens such as "S".
@@ -336,13 +348,14 @@ const rakutenItemImage = (item) => {
 
 async function searchRakutenItem(query, applicationId, accessKey, affiliateId, options = {}) {
   const keyword = options.keyword || buildModelKeyword(query);
-  if (!keyword) return null;
+  if (!keyword && !options.itemCode) return null;
 
   const url = new URL('https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701');
   url.searchParams.set('applicationId', applicationId);
   url.searchParams.set('accessKey', accessKey);
-  url.searchParams.set('keyword', keyword);
-  url.searchParams.set('hits', '30');
+  if (options.itemCode) url.searchParams.set('itemCode',options.itemCode);
+  else url.searchParams.set('keyword', keyword);
+  url.searchParams.set('hits', options.itemCode ? '1' : '30');
   url.searchParams.set('availability', '0');
   // Do not filter out listings with no image: their affiliate URL may still work.
   // Rakuten API returns both image and no-image listings when imageFlag is omitted.
@@ -415,6 +428,14 @@ async function searchRakuten(query) {
 
   const override = getSearchOverride(query);
   if (override) {
+    if (override.itemCode) {
+      try {
+        const matched=await searchRakutenItem(query, applicationId, accessKey, affiliateId, {itemCode:override.itemCode,requiredTerms:override.requiredTerms});
+        if (matched) return matched;
+      } catch (error) {
+        if (!String(error?.message||'').startsWith('rakuten_item_400')) throw error;
+      }
+    }
     if (override.productCode) {
       const exactProduct = await searchRakutenProductSafely(query, applicationId, accessKey, affiliateId, {
         productCode: override.productCode,
