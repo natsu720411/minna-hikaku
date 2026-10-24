@@ -11,6 +11,16 @@ const json = (res, status, body) => {
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const cleanQuery = (value) => String(value || '').trim().slice(0, 120);
+// API generated links are counted as affiliate links only for approved Rakuten domains.
+// A normal marketplace product link is never labelled as a commission link.
+const safeAffiliateUrl = (url, affiliateId) => {
+  if (!affiliateId || !url || typeof url !== 'string') return null;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'https:' || parsed.hostname !== 'hb.afl.rakuten.co.jp') return null;
+    return parsed.toString();
+  } catch { return null; }
+};
 const SITE_ORIGIN = 'https://minna-hikaku.vercel.app';
 const KNOWN_BRANDS = new Set(["apple","samsung","google","huawei","xiaomi","redmi","garmin","lenovo","anker","cio","ugreen","belkin","sony","jbl","bose","technics","nothing","earfun","beats","soundcore","pixel","galaxy","microsoft","dell","hp","asus","acer","msi","lg","panasonic","dynabook","fujitsu","vaio","benq","eizo","iodata","japannext","philips","gigabyte","tp-link","tplink","buffalo","nec","aterm","netgear","eero","elecom","oral-b","oralb","braun","refa","salonia","dyson","shark","hitachi","toshiba","irobot","roomba","switchbot","roborock","ecovacs","eufy","daikin","tiger","zojirushi","logicool","logitech","buffalo","sandisk","sharp"]);
 const BRAND_ALIAS_GROUPS = [
@@ -298,6 +308,7 @@ async function searchRakutenProduct(query, applicationId, accessKey, affiliateId
   const best = ranked[0];
   if (!best || best.score < 80) return null;
   const item = best.item;
+  const affiliateUrl = safeAffiliateUrl(item.affiliateUrl, affiliateId);
   return {
     provider: 'rakuten',
     sourceType: productCode ? 'product-code' : 'product',
@@ -305,9 +316,9 @@ async function searchRakutenProduct(query, applicationId, accessKey, affiliateId
     imageUrl: item.mediumImageUrl || item.smallImageUrl,
     width: item.mediumImageUrl ? 128 : 64,
     height: item.mediumImageUrl ? 128 : 64,
-    productUrl: item.affiliateUrl || item.productUrlPC || null,
-    affiliateUrl: affiliateId && item.affiliateUrl ? item.affiliateUrl : null,
-    isAffiliate: Boolean(affiliateId && item.affiliateUrl),
+    productUrl: affiliateUrl || item.productUrlPC || null,
+    affiliateUrl,
+    isAffiliate: Boolean(affiliateUrl),
     price: item.salesMinPrice ?? item.minPrice ?? null,
     searchedKeyword: productCode || keyword,
     matchScore: best.score,
@@ -366,6 +377,7 @@ async function searchRakutenItem(query, applicationId, accessKey, affiliateId, o
   const best = ranked[0];
   if (!best || best.score < 60) return null;
   const item = best.item;
+  const affiliateUrl = safeAffiliateUrl(item.affiliateUrl, affiliateId);
   return {
     provider: 'rakuten',
     sourceType: 'item',
@@ -373,9 +385,9 @@ async function searchRakutenItem(query, applicationId, accessKey, affiliateId, o
     imageUrl: rakutenItemImage(item),
     width: 128,
     height: 128,
-    productUrl: item.affiliateUrl || item.itemUrl || null,
-    affiliateUrl: affiliateId && item.affiliateUrl ? item.affiliateUrl : null,
-    isAffiliate: Boolean(affiliateId && item.affiliateUrl),
+    productUrl: affiliateUrl || item.itemUrl || null,
+    affiliateUrl,
+    isAffiliate: Boolean(affiliateUrl),
     price: item.itemPrice ?? null,
     searchedKeyword: keyword,
     matchScore: best.score,

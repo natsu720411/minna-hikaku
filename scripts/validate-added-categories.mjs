@@ -118,13 +118,15 @@ if (!rakutenApi.includes("media.dataset.affiliate === 'rakuten'") ||
   fail('Rakuten affiliate links may be overwritten or falsely attributed');
 const serverRakuten = fs.readFileSync(path.resolve('api/product-media.js'),'utf8');
 if (!serverRakuten.includes('rakutenAffiliate: Boolean') ||
-    !serverRakuten.includes('isAffiliate: Boolean(affiliateId && item.affiliateUrl)') ||
-    !serverRakuten.includes('affiliateUrl: affiliateId && item.affiliateUrl'))
+    !serverRakuten.includes('safeAffiliateUrl') ||
+    !serverRakuten.includes('isAffiliate: Boolean(affiliateUrl)'))
   fail('Rakuten API commission attribution missing');
 const mediaFrontend = read('product-media.js');
 if (!mediaFrontend.includes("fetchLookup(key, 'rakuten')") ||
     !mediaFrontend.includes('window.minnaRakutenMediaLookup = lookup') ||
-    !mediaFrontend.includes('realAffiliate'))
+    !mediaFrontend.includes('realAffiliate') ||
+    !mediaFrontend.includes('楽天で見る（PR）') ||
+    !mediaFrontend.includes('rakuten-affiliate-disclosure'))
   fail('Rakuten-first product media or search thumbnail hooks missing');
 const searchUX = read('site-experience.js');
 if (!searchUX.includes('hydrateSearchImages') ||

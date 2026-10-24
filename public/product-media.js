@@ -135,8 +135,8 @@
       .product-visual.api-media-ready{font-size:0!important;padding:0!important;overflow:hidden;background:#fff!important}
       .product-visual.api-media-ready a,.product-visual.api-media-ready img{display:block;width:100%;height:100%}
       .product-visual.api-media-ready img{object-fit:contain;background:#fff}
-      .api-detail-media{margin:8px 0 20px;width:150px;height:150px}
-      .catalog-detail-visual{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:185px;height:160px;margin:14px 0 20px;border:1px solid #e1e9f4;border-radius:18px;background:#f6f9fe;color:#8291a6}
+      .api-detail-media{margin:8px 0 20px;width:200px;height:200px;max-width:100%}
+      .catalog-detail-visual{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:220px;height:220px;max-width:100%;margin:14px 0 20px;border:1px solid #e1e9f4;border-radius:18px;background:#f6f9fe;color:#8291a6}
       .catalog-detail-visual .catalog-fallback-icon{font-size:56px;line-height:1.2}
       .catalog-detail-visual small{font-size:11px}
       .catalog-detail-visual.api-media-ready .api-product-thumb{width:100%;height:100%;border:0;box-shadow:none;border-radius:0}
@@ -153,7 +153,7 @@
       .api-market-price{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin:8px 0 14px;font-size:11px;color:#6f7f92}
       .api-market-price strong{font-size:17px;color:#173b6a}.api-market-price small{font-size:10px;color:#8492a5}
       .api-market-price-inline{font-weight:800!important;color:#0f6cf9!important}
-      @media(max-width:680px){.api-product-thumb{width:70px;height:70px;border-radius:15px}.catalog-api-media{width:68px;height:68px;margin-right:9px}.api-detail-media{width:120px;height:120px}.catalog-detail-visual{width:150px;height:140px}.api-compare-photo{height:104px}.api-compare-gallery{gap:9px}.api-compare-gallery .api-compare-tile{padding:9px}}
+      @media(max-width:680px){.api-product-thumb{width:70px;height:70px;border-radius:15px}.catalog-api-media{width:68px;height:68px;margin-right:9px}.api-detail-media{width:170px;height:170px}.catalog-detail-visual{width:175px;height:175px}.api-compare-photo{height:104px}.api-compare-gallery{gap:9px}.api-compare-gallery .api-compare-tile{padding:9px}}
     `;
     document.head.appendChild(style);
   };
@@ -202,6 +202,13 @@
       note.id = 'amazon-associate-disclosure';
       note.className = 'api-affiliate-note';
       note.textContent = 'Amazonのアソシエイトとして、みんなの比較表は適格販売により収入を得ています。';
+      target.appendChild(note);
+    }
+    if (provider === 'rakuten' && !document.getElementById('rakuten-affiliate-disclosure')) {
+      const note = document.createElement('p');
+      note.id = 'rakuten-affiliate-disclosure';
+      note.className = 'api-affiliate-note';
+      note.textContent = 'PR：当サイトは楽天アフィリエイトを利用しています。商品画像は楽天APIの提供データを掲載しています。';
       target.appendChild(note);
     }
     if (provider === 'rakuten' && !document.querySelector('a[href="https://developers.rakuten.com/"]')) {
@@ -297,10 +304,14 @@
         button.dataset.affiliate = 'rakuten';
         button.rel = 'nofollow noopener noreferrer sponsored';
         button.title = '楽天アフィリエイトの販売ページ';
+        button.textContent = '楽天で見る（PR）';
+        button.dataset.affiliateVerified = '1';
       } else {
         delete button.dataset.affiliate;
         button.rel = 'nofollow noopener noreferrer';
         button.title = '楽天の販売ページ（成果報酬リンクとは限りません）';
+        button.textContent = '楽天で探す（通常リンク）';
+        delete button.dataset.affiliateVerified;
       }
     }
   };
@@ -349,7 +360,11 @@
     const name = heading.textContent.replace(/を比較.*$/,'').replace(/詳細.*$/,'').trim();
     if (!name) return;
     const result = await lookup(name);
-    if (!result) return;
+    if (!result) {
+      const fallback = main.querySelector('.catalog-detail-visual small');
+      if (fallback) fallback.textContent = '楽天画像は未取得';
+      return;
+    }
     applyRakutenAffiliateLink(main, result, name);
     addMarketPrice(main, result, 'detail');
     if (!result.imageUrl) return;

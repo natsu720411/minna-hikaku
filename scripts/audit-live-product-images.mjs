@@ -1,22 +1,63 @@
-// Read-only coverage sample: never print API secrets or affiliate URLs.
-const base=(process.env.MEDIA_AUDIT_BASE||'https://minna-hikaku.vercel.app').replace(/\/$/,'');
-const samples=[['イヤホン','Soundcore Liberty 5'],['スマートフォン','iPhone 17'],['モバイルバッテリー','Anker Zolo Power Bank 10000'],['スマートウォッチ','HUAWEI WATCH FIT 4 Pro'],['マウス','Logicool MX Master 3S'],['キーボード','Logicool MX Keys S'],['外付けSSD','SanDisk Extreme Portable SSD 1TB'],['電子レンジ','Panasonic NE-FL1C'],['除湿機','SHARP CV-S71']];
-let images=0,affiliates=0;
-for(const [category,name] of samples){
-  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),22000);
-  try{
-    const response=await fetch(base+'/api/product-media?q='+encodeURIComponent(name)+'&provider=rakuten',{headers:{Accept:'application/json'},signal:controller.signal});
-    let data={};try{data=await response.json()}catch{}
-    const result=data?.result;
-    const image=response.ok&&data.ok===true&&result?.provider==='rakuten'&&/^https:\/\//.test(result.imageUrl||'');
-    const affiliate=image&&result.isAffiliate===true&&/^https:\/\//.test(result.affiliateUrl||'');
-    if(image)images++;
-    if(affiliate)affiliates++;
-    console.log(category+': '+(image?'画像OK':'画像未取得')+' / '+(affiliate?'アフィリエイトURLあり':'成果報酬URL未確認')+' / HTTP '+response.status+' / API ID='+(data?.configured?.rakutenAffiliate===true?'設定あり':'設定なし')+(!image?' / '+String(data.error||'no_match').slice(0,38):''));
-  }catch(e){console.warn(category+': 接続確認不可 ('+String(e.name||'error')+')')}
-  finally{clearTimeout(timeout)}
-  await new Promise(resolve=>setTimeout(resolve,1250));
+// Read-only Rakuten affiliate/image audit. Does not generate or modify affiliate URLs.
+// Sample one representative product from each category; --all audits every indexed product.
+// API calls are deliberately sequential and spaced out to respect provider limits.
+import fs from 'node:fs';
+const base=(process.env.MEDIA_AUDIT_BASE || 'https://minna-hikaku.vercel.app').replace(/\/$/,'');
+const full = process.argv.includes('--all');
+const catalogPath='dist/product-catalog.json';
+if(!fs.existsSync(catalogPath))throw Error('Build first: '+catalogPath);
+const catalog=JSON.parse(fs.readFileSync(catalogPath,'utf8'));
+if(catalog.length!==430 || new Set(catalog.map(p=>p.url)).size!==430)throw Error('All 430 products must be indexed');
+const spotlight = new Map([
+ ['earphones','Soundcore Liberty 5'],
+ ['smartphones','iPhone 17'],
+ ['mobile-batteries','Anker Zolo Power Bank 10000'],
+ ['smartwatches','HUAWEI WATCH FIT 4 Pro'],
+ ['mice','Logicool MX Master 3S'],
+ ['keyboards','Logicool MX Keys S'],
+ ['external-ssds','SanDisk Extreme Portable SSD 1TB'],
+ ['microwaves','Panasonic NE-FL1C'],
+ ['dehumidifiers','SHARP CV-S71'],
+]);
+const groups=new Map();
+for(const product of catalog) {
+  if(!groups.has(product.category))groups.set(product.category,[]);
+  groups.get(product.category).push(product);
 }
-console.log('Rakuten sample coverage: image '+images+'/'+samples.length+'; affiliate '+affiliates+'/'+samples.length+'.');
-console.log('Samples do not establish 430/430 availability or commission.');
-if(!affiliates)console.warn('No affiliate result; inspect production affiliate ID configuration.');
+if(groups.size!==20)throw Error('Expected 20 categories; got '+groups.size);
+const candidates=full?catalog:[...groups.entries()].map(([category,rows])=>
+  rows.find(p=>p.name.toLocaleLowerCase('ja')===String(spotlight.get(category)||'').toLocaleLowerCase('ja'))||rows[0]
+);
+let images=0,affiliate=0,notFound=0,errors=0;
+const rows=[];
+for(const [index,p] of candidates.entries()) {
+  const timeout=new AbortController();
+  const handle=setTimeout(()=>timeout.abort(),24000);
+  let state='not_found',http=0;
+  try{
+    const url=base+'/api/product-media?q='+encodeURIComponent(p.name)+'&provider=rakuten';
+    const response=await fetch(url,{signal:timeout.signal,headers:{Accept:'application/json'}});
+    http=response.status;
+    let data={};try{data=await response.json()}catch{}
+    const r=data?.result||{};
+    const validImage=response.ok&&data.ok===true&&r.provider==='rakuten'&&/^https:\/\//.test(r.imageUrl||'');
+    let validAffiliate=false;
+    try{
+      const parsed=new URL(r.affiliateUrl||'');
+      validAffiliate=r.isAffiliate===true&&parsed.protocol==='https:'&&parsed.hostname==='hb.afl.rakuten.co.jp';
+    }catch{}
+    if(validImage)images++;
+    if(validImage&&validAffiliate)affiliate++;
+    state=validImage?(validAffiliate?'affiliate_ok':'image_only'):'not_found';
+    if(!validImage)notFound++;
+    if(!validImage&&response.status>=500)errors++;
+  }catch(e){state=e?.name==='AbortError'?'timeout':'network_error';errors++}
+  finally{clearTimeout(handle)}
+  rows.push({category:p.category,id:p.id,state,http});
+  console.log((index+1)+'/'+candidates.length+' '+p.category+' / '+p.id+' : '+state+' HTTP '+http);
+  if(index<candidates.length-1)await new Promise(r=>setTimeout(r,1350));
+}
+const summary={examined:candidates.length,indexed:catalog.length,categories:groups.size,images,affiliate,notFound,errors};
+console.log('Rakuten coverage summary: '+JSON.stringify(summary));
+console.log('Success means a correctly formatted API affiliate URL was returned, not a guaranteed commission from a future purchase.');
+fs.writeFileSync('rakuten-audit-result.json',JSON.stringify({summary,items:rows},null,2));

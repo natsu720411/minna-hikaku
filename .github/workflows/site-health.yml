@@ -25,5 +25,13 @@ jobs:
       - run: node scripts/audit-live-product-images.mjs
         if: github.event_name == 'push'
         continue-on-error: true
+      - name: Save Rakuten sample audit
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rakuten-affiliate-check
+          path: rakuten-audit-result.json
+          if-no-files-found: warn
+          retention-days: 7
       - run: npm run audit:external
         if: github.event_name != 'push'

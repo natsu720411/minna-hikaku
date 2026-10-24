@@ -54,8 +54,8 @@
     a.href = verified || href;
     a.target = '_blank';
     a.rel = cls === 'amazon' || verified ? 'nofollow noopener noreferrer sponsored' : 'nofollow noopener noreferrer';
-    a.textContent = verified ? (label === '楽天' ? '楽天（ブラック）' : '楽天で見る（ブラック）') : label;
-    if (verified) { a.dataset.verifiedAffiliate = '1'; a.dataset.affiliate = 'rakuten'; }
+    a.textContent = verified ? (label === '楽天' ? '楽天（ブラック・PR）' : '楽天で見る（ブラック・PR）') : label;
+    if (verified) { a.dataset.verifiedAffiliate = '1'; a.dataset.affiliate = 'rakuten'; a.dataset.affiliateVerified = '1'; }
     a.dataset.track = cls === 'amazon' ? 'amazon_click' : 'rakuten_click';
     a.dataset.product = name || '';
     if (cls === 'amazon') a.dataset.affiliate = 'amazon';
@@ -77,6 +77,8 @@
         else delete link.dataset.affiliate;
         link.rel = isAffiliate ? 'nofollow noopener noreferrer sponsored' : 'nofollow noopener noreferrer';
         link.setAttribute('aria-label', `${name}を楽天で見る${isAffiliate ? '（アフィリエイトリンク）' : ''}`);
+        if (isAffiliate) { link.textContent = '楽天で見る（PR）'; link.dataset.affiliateVerified = '1'; }
+        else { link.textContent = '楽天で探す（通常リンク）'; delete link.dataset.affiliateVerified; }
       });
     });
   };
