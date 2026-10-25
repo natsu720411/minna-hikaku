@@ -82,4 +82,49 @@ patch('earphones/index.html',html=>{
   }
   return html;
 });
+
+// 2026-10-26 GSC: Galaxy Watch8 40mm vs 44mm (40 impressions, 2 clicks, position 6.65).
+// Both sizes' facts were verified against Samsung's published Watch8 specifications.
+patch('smartwatches/compare/galaxy-watch8-40-vs-galaxy-watch8-44/index.html',html=>{
+  html=meta(html,
+    'Galaxy Watch8 40mmと44mmの違い｜重さ・画面・電池を比較【2026】',
+    'Galaxy Watch8の40mmと44mmを比較。約30g対34g、画面1.34型対1.47型、バッテリー325mAh対435mAh。選び方と公式仕様を整理。');
+  if(!html.includes('data-windsor-focus="watch8-size-comparison"')){
+    html=appendAfterLead(html,
+      '<section class="summary-box" data-windsor-focus="watch8-size-comparison"><h2>Galaxy Watch8 40mmと44mmの主な違い</h2><ul><li><b>本体重量：</b>40mmは約30g、44mmは約34g（いずれもバンドを除くメーカー公称値）。</li><li><b>画面：</b>40mmは約1.34型、44mmは約1.47型。文字の見やすさと装着感のどちらを優先するかで選びます。</li><li><b>電池容量：</b>40mmは325mAh、44mmは435mAh。ただしSamsung公称の使用時間は両サイズともAODオフ最大40時間、AODオン最大30時間です。容量だけで実際の駆動時間は判断できません。</li></ul><p>どちらもAndroid向けのGalaxy Watch8です。価格は容量・通信方式・販売先で異なるため、購入時点のメーカー公式表示を確認してください。</p></section>');
+    html=insertBefore(html,'<div class="cta">',
+      '<h2>40mmと44mmはどちらを選ぶ？</h2><p>軽さや手首への収まりを優先するなら40mm、画面の見やすさを優先するなら44mmから試すと選びやすくなります。装着感は個人差があるため、可能なら実機で確認してください。</p><div class="related"><a href="https://www.samsung.com/jp/watches/galaxy-watch/galaxy-watch8-40mm-silver-bluetooth-sm-l320nzsjxjp/" target="_blank" rel="noopener noreferrer">Samsung公式｜40mmの仕様 ↗</a><a href="https://www.samsung.com/jp/watches/galaxy-watch/galaxy-watch8-44mm-silver-bluetooth-sm-l330nzsjxjp/" target="_blank" rel="noopener noreferrer">Samsung公式｜44mmの仕様 ↗</a><a href="/smartwatches/battery/">スマートウォッチの電池持ちを比較</a><a href="/smartwatches/android/">Android向けの選び方</a></div>');
+  }
+  return html;
+});
+patch('smartwatches/index.html',html=>{
+  if(!html.includes('data-windsor-focus="watch8-size-discovery"')){
+    html=insertBefore(html,'<section class="static-product-list">',
+      '<section class="discovery-block" data-windsor-focus="watch8-size-discovery"><h2>Galaxy Watch8のサイズで迷ったら</h2><p>40mmと44mmの重量・画面・電池容量をメーカー公称値で比較できます。</p><div class="discovery-grid"><a class="discovery-card" href="/smartwatches/compare/galaxy-watch8-40-vs-galaxy-watch8-44/"><b>Galaxy Watch8 40mm vs 44mm</b><small>約30gと34g、画面・電池の違いを見る →</small></a></div></section>');
+  }
+  return html;
+});
+
+// 2026-10-26 GSC: AQUOS sense10 vs motorola edge 60 pro (20 impressions, 0 clicks, position 9.75).
+// Specs below are from SHARP and Motorola official product specifications; no unverified price claim.
+patch('smartphones/compare/aquos-sense10-vs-motorola-edge-60-pro/index.html',html=>{
+  html=meta(html,
+    'AQUOS sense10 vs motorola edge 60 pro｜重さ・画面・充電を比較【2026】',
+    'AQUOS sense10とmotorola edge 60 proの違いを比較。166g対184g、6.1型対6.7型、5000mAh、急速充電、microSD対応の選び分けを公式仕様で解説。');
+  if(!html.includes('data-windsor-focus="aquos-motorola-comparison"')){
+    html=appendAfterLead(html,
+      '<section class="summary-box" data-windsor-focus="aquos-motorola-comparison"><h2>最初に確認したい違い</h2><ul><li><b>軽さ・画面：</b>AQUOS sense10は約166g・約6.1型、edge 60 proは約184g・約6.7型。軽さを優先するか、大きな画面を優先するかが分かれ目です。</li><li><b>バッテリー：</b>どちらも公称5,000mAh。電池持ちは画面や使い方によって変わるため、容量だけで優劣は断定できません。</li><li><b>充電・保存：</b>AQUOS sense10は最大36W給電・microSDXC対応、edge 60 proは125W TurboPower対応・microSD非対応。充電出力は対応充電器や条件で変わります。</li></ul></section>');
+    html=insertBefore(html,'<div class="cta">',
+      '<h2>購入前に確認すること</h2><p>本体価格は容量・販売店・セールによって変動します。掲載価格だけでなく、保存容量と充電器の付属条件をそろえて比較してください。カメラ画質や実使用の電池持ちは、仕様値だけでは優劣を決められません。</p><div class="related"><a href="https://jp.sharp/k-tai/products/aquos-sense10/specs/" target="_blank" rel="noopener noreferrer">SHARP公式｜AQUOS sense10仕様 ↗</a><a href="https://store.motorola.co.jp/item/EDGE60PRO.html" target="_blank" rel="noopener noreferrer">Motorola公式｜edge 60 pro仕様 ↗</a><a href="/smartphones/under-100000/">10万円以下のスマホ比較</a><a href="/smartphones/compare/">ほかの2機種比較</a></div>');
+  }
+  return html;
+});
+patch('smartphones/index.html',html=>{
+  if(!html.includes('data-windsor-focus="aquos-motorola-discovery"')){
+    html=insertBefore(html,'<section class="discovery-block"><h2>人気機種の詳細</h2>',
+      '<section class="discovery-block" data-windsor-focus="aquos-motorola-discovery"><h2>軽さと大画面で迷う2機種</h2><div class="discovery-grid"><a class="discovery-card" href="/smartphones/compare/aquos-sense10-vs-motorola-edge-60-pro/"><b>AQUOS sense10 vs motorola edge 60 pro</b><small>166gと184g・画面・充電を直接比較 →</small></a></div></section>');
+  }
+  return html;
+});
+
 console.log('Windsor/GSC SEO: enhanced 5 established pages, with answer-first comparisons and internal links.');
