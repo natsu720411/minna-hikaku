@@ -98,6 +98,81 @@
       [
         "meeting"
       ]
+    ],
+    [
+      "elgato-facecam-4k",
+      "Elgato Facecam 4K",
+      "Elgato",
+      "https://help.elgato.com/hc/en-us/articles/10342848394765-Elgato-Facecam-Products-Comparison-Chart",
+      "4K/60fps",
+      "USB 3.0 Type-C",
+      "固定フォーカス",
+      [
+        "resolution",
+        "stream"
+      ]
+    ],
+    [
+      "elgato-facecam-pro",
+      "Elgato Facecam Pro",
+      "Elgato",
+      "https://help.elgato.com/hc/ja/articles/10342848394765-Elgato-Facecam-Pro-Facecam-%E6%AF%94%E8%BC%83",
+      "4K/60fps",
+      "USB 3.0 Type-C",
+      "可変フォーカス",
+      [
+        "resolution",
+        "stream"
+      ]
+    ],
+    [
+      "elgato-facecam-mk2",
+      "Elgato Facecam MK.2",
+      "Elgato",
+      "https://help.elgato.com/hc/ja/articles/10342848394765-Elgato-Facecam-Pro-Facecam-%E6%AF%94%E8%BC%83",
+      "1080p/60fps",
+      "USB 3.0 Type-C",
+      "固定フォーカス",
+      [
+        "stream"
+      ]
+    ],
+    [
+      "elgato-facecam-neo",
+      "Elgato Facecam Neo",
+      "Elgato",
+      "https://help.elgato.com/hc/ja/articles/10342848394765-Elgato-Facecam-Pro-Facecam-%E6%AF%94%E8%BC%83",
+      "1080p/60fps",
+      "USB Type-C",
+      "可変フォーカス",
+      [
+        "meeting",
+        "stream"
+      ]
+    ],
+    [
+      "anker-powerconf-c200",
+      "Anker PowerConf C200",
+      "Anker",
+      "https://www.ankerjapan.com/collections/web-camera",
+      "Webカメラ",
+      "オンライン会議向け",
+      "Anker公式掲載モデル",
+      [
+        "meeting"
+      ]
+    ],
+    [
+      "anker-powerconf-c300",
+      "Anker PowerConf C300",
+      "Anker",
+      "https://www.ankerjapan.com/collections/web-camera",
+      "Webカメラ",
+      "オンライン会議向け",
+      "在庫状況は公式で確認",
+      [
+        "meeting"
+      ]
     ]
   ],
   "over-ear-headphones": [
@@ -203,6 +278,84 @@
         "light",
         "everyday"
       ]
+    ],
+    [
+      "bose-qc-headphones-2",
+      "Bose QuietComfort Headphones（第2世代）",
+      "Bose",
+      "https://support.bose.co.jp/article/quietcomfort-headphones-2nd-gen-whats-new-in-the-latest-generation",
+      "ワイヤレス",
+      "USB-Cオーディオ対応",
+      "ノイズコントロール機能",
+      [
+        "anc",
+        "audio",
+        "everyday"
+      ]
+    ],
+    [
+      "bose-qc-ultra-headphones-2",
+      "Bose QuietComfort Ultra Headphones（第2世代）",
+      "Bose",
+      "https://support.bose.co.jp/article/quietcomfort-headphones-2nd-gen-whats-new-in-the-latest-generation",
+      "ワイヤレス",
+      "USB-Cオーディオ対応",
+      "上位QuietComfortシリーズ",
+      [
+        "anc",
+        "audio"
+      ]
+    ],
+    [
+      "bose-qc-headphones",
+      "Bose QuietComfort Headphones",
+      "Bose",
+      "https://support.bose.co.jp/article/quietcomfort-headphones-2nd-gen-whats-new-in-the-latest-generation",
+      "ワイヤレス",
+      "USB-C充電",
+      "QuietComfortシリーズ",
+      [
+        "anc",
+        "everyday"
+      ]
+    ],
+    [
+      "sennheiser-momentum-4",
+      "Sennheiser MOMENTUM 4 Wireless",
+      "Sennheiser",
+      "https://jp.sennheiser-hearing.com/ja/products/momentum-4-wireless",
+      "ワイヤレス",
+      "アダプティブANC対応",
+      "公称最大60時間（メーカー測定条件）",
+      [
+        "anc",
+        "audio"
+      ]
+    ],
+    [
+      "sony-wh-ch530",
+      "Sony WH-CH530",
+      "Sony",
+      "https://support.sony.jp/electronics/support/wireless-headphones-bluetooth-headphones/wh-1000xm4/articles/con/00258104",
+      "ワイヤレス",
+      "オーバーヘッドバンド型",
+      "仕様はメーカーで確認",
+      [
+        "everyday"
+      ]
+    ],
+    [
+      "sony-wh-1000xm4",
+      "Sony WH-1000XM4",
+      "Sony",
+      "https://support.sony.jp/electronics/support/wireless-headphones-bluetooth-headphones/wh-1000xm4/articles/con/00258104",
+      "ワイヤレス",
+      "オーバーヘッドバンド型",
+      "旧世代モデル／販売状況は要確認",
+      [
+        "anc",
+        "audio"
+      ]
     ]
   ],
   "electric-kettles": [
@@ -301,6 +454,87 @@
       "1.0L",
       "蒸気レス",
       "転倒お湯もれ防止構造",
+      [
+        "capacity",
+        "safety"
+      ]
+    ],
+    [
+      "tiger-pcz-a080",
+      "タイガー PCZ-A080",
+      "タイガー魔法瓶",
+      "https://www.tiger-corporation.com/en/jpn/product/list/electric-kettles/",
+      "0.8L",
+      "蒸気レス",
+      "細口のドリップケトル",
+      [
+        "small",
+        "pour",
+        "safety"
+      ]
+    ],
+    [
+      "tiger-pck-a081",
+      "タイガー PCK-A081",
+      "タイガー魔法瓶",
+      "https://www.tiger-corporation.com/en/jpn/product/list/electric-kettles/",
+      "0.8L",
+      "蒸気レス",
+      "QUICK&SAFE＋シリーズ",
+      [
+        "small",
+        "safety"
+      ]
+    ],
+    [
+      "tiger-ptv-a080",
+      "タイガー PTV-A080",
+      "タイガー魔法瓶",
+      "https://www.tiger-corporation.com/en/jpn/product/list/electric-kettles/",
+      "0.8L",
+      "温度調節対応",
+      "蒸気レス",
+      [
+        "small",
+        "pour",
+        "safety"
+      ]
+    ],
+    [
+      "tiger-ptv-a120",
+      "タイガー PTV-A120",
+      "タイガー魔法瓶",
+      "https://www.tiger-corporation.com/en/jpn/product/list/electric-kettles/",
+      "1.2L",
+      "温度調節対応",
+      "蒸気レス",
+      [
+        "capacity",
+        "pour",
+        "safety"
+      ]
+    ],
+    [
+      "tiger-pcv-a080",
+      "タイガー PCV-A080",
+      "タイガー魔法瓶",
+      "https://www.tiger-corporation.com/en/jpn/product/list/electric-kettles/",
+      "0.8L",
+      "蒸気レス",
+      "二重構造",
+      [
+        "small",
+        "safety"
+      ]
+    ],
+    [
+      "tiger-pcs-a100",
+      "タイガー PCS-A100",
+      "タイガー魔法瓶",
+      "https://www.tiger-corporation.com/en/jpn/product/list/electric-kettles/",
+      "1.0L",
+      "省スチーム設計",
+      "コンパクトなシリーズ",
       [
         "capacity",
         "safety"
@@ -412,6 +646,84 @@
         "toast",
         "compact"
       ]
+    ],
+    [
+      "iris-keot-201-b",
+      "アイリスオーヤマ KEOT-201-B",
+      "アイリスオーヤマ",
+      "https://www.irisohyama.co.jp/products/electrical-appliances/cooking-appliances/flyer-toaster/toaster/toaster-oven",
+      "2枚焼き",
+      "温度調節80〜230℃",
+      "30分タイマー",
+      [
+        "toast",
+        "compact"
+      ]
+    ],
+    [
+      "iris-eot-401-c",
+      "アイリスオーヤマ EOT-401-C",
+      "アイリスオーヤマ",
+      "https://www.irisohyama.co.jp/products/manual/7",
+      "オーブントースター",
+      "アイボリー",
+      "2025年発売モデル",
+      [
+        "toast",
+        "large"
+      ]
+    ],
+    [
+      "iris-eot-201-c",
+      "アイリスオーヤマ EOT-201-C",
+      "アイリスオーヤマ",
+      "https://www.irisohyama.co.jp/products/electrical-appliances/cooking-appliances/flyer-toaster/toaster/toaster-oven",
+      "2枚焼き",
+      "温度調節80〜230℃",
+      "アイボリー",
+      [
+        "toast",
+        "compact"
+      ]
+    ],
+    [
+      "iris-eot-011-w",
+      "アイリスオーヤマ EOT-011-W",
+      "アイリスオーヤマ",
+      "https://www.irisohyama.co.jp/products/electrical-appliances/cooking-appliances/flyer-toaster/toaster/toaster-oven",
+      "2枚焼き",
+      "1000W",
+      "15分タイマー",
+      [
+        "toast",
+        "compact"
+      ]
+    ],
+    [
+      "zojirushi-eq-ah22",
+      "象印 EQ-AH22",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/kitchen/?bid=t8",
+      "2枚焼き",
+      "上火グリル",
+      "在庫限定モデル",
+      [
+        "toast",
+        "cook"
+      ]
+    ],
+    [
+      "zojirushi-eq-ab22",
+      "象印 EQ-AB22",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/kitchen/?bid=t8",
+      "2枚焼き",
+      "オーブントースター",
+      "在庫限定モデル",
+      [
+        "toast",
+        "compact"
+      ]
     ]
   ],
   "electric-shavers": [
@@ -515,6 +827,84 @@
       "メーカー仕様で詳細確認",
       [
         "everyday"
+      ]
+    ],
+    [
+      "braun-series-9-9687cc",
+      "ブラウン シリーズ9 Pro+ 9687cc",
+      "Braun",
+      "https://www.braun.jp/ja-jp/male-grooming/shavers-for-men/series-9/series-9-pro-plus-9687cc",
+      "シリーズ9 Pro+",
+      "5+1カットシステム",
+      "美顔器ヘッド・洗浄器付属",
+      [
+        "blades",
+        "care"
+      ]
+    ],
+    [
+      "braun-series-9-9680cc",
+      "ブラウン シリーズ9 Pro+ 9680cc",
+      "Braun",
+      "https://www.braun.jp/ja-jp/male-grooming/shavers-for-men/series-9/series-9-pro-plus-9680cc",
+      "シリーズ9 Pro+",
+      "5+1カットシステム",
+      "美顔器ヘッド・洗浄器付属",
+      [
+        "blades",
+        "care"
+      ]
+    ],
+    [
+      "braun-series-9-9677cc",
+      "ブラウン シリーズ9 Pro+ 9677cc",
+      "Braun",
+      "https://www.braun.jp/ja-jp/male-grooming/shavers-for-men/series-9/series-9-pro-plus-9677cc",
+      "シリーズ9 Pro+",
+      "5+1カットシステム",
+      "充電トラベルケース付属",
+      [
+        "blades",
+        "travel",
+        "care"
+      ]
+    ],
+    [
+      "braun-series-7-70-n1200s",
+      "ブラウン シリーズ7 70-N1200s",
+      "Braun",
+      "https://www.braun.jp/ja-jp/male-grooming/shavers-for-men",
+      "シリーズ7",
+      "3連密着ブレード",
+      "型番別仕様は公式で確認",
+      [
+        "everyday"
+      ]
+    ],
+    [
+      "panasonic-es-lt2c",
+      "Panasonic ラムダッシュ ES-LT2C",
+      "Panasonic",
+      "https://panasonic.jp/shaver/products/ES-LT2C/spec.html",
+      "3枚刃",
+      "リニアモーター",
+      "本体水洗い対応",
+      [
+        "everyday",
+        "care"
+      ]
+    ],
+    [
+      "panasonic-es-lt4c",
+      "Panasonic ラムダッシュ ES-LT4C",
+      "Panasonic",
+      "https://panasonic.jp/shaver/products/ES-LT4C/spec.html",
+      "3枚刃",
+      "密着スイングヘッド",
+      "生産終了モデル／販売状況は要確認",
+      [
+        "everyday",
+        "care"
       ]
     ]
   ]
