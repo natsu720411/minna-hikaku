@@ -1,0 +1,521 @@
+{
+  "webcams": [
+    [
+      "c920n",
+      "Logicool C920n HD Pro",
+      "Logicool",
+      "https://www.logicool.co.jp/ja-jp/shop/c/webcams",
+      "フルHD 1080p",
+      "USB接続",
+      "ビデオ通話向け",
+      [
+        "meeting"
+      ]
+    ],
+    [
+      "brio-4k",
+      "Logicool Brio 4K",
+      "Logicool",
+      "https://www.logicool.co.jp/ja-jp/discover/a/best-webcams-for-home-office",
+      "4K対応",
+      "USB接続",
+      "オンライン会議と配信用",
+      [
+        "resolution",
+        "meeting",
+        "stream"
+      ]
+    ],
+    [
+      "brio-300",
+      "Logicool Brio 300",
+      "Logicool",
+      "https://www.logicool.co.jp/ja-jp/discover/a/best-webcams-for-home-office",
+      "フルHD 1080p",
+      "USB-C接続",
+      "ビデオ会議向け",
+      [
+        "meeting"
+      ]
+    ],
+    [
+      "streamcam",
+      "Logicool StreamCam",
+      "Logicool",
+      "https://www.logicool.co.jp/ja-jp/discover/a/best-webcams-for-home-office",
+      "フルHD 1080p",
+      "最大60fps",
+      "配信用",
+      [
+        "stream",
+        "resolution"
+      ]
+    ],
+    [
+      "c930er",
+      "Logicool C930eR",
+      "Logicool",
+      "https://www.logicool.co.jp/ja-jp/products/webcams/c930e-business-webcam.html",
+      "フルHD 1080p",
+      "USB-A接続",
+      "ビジネス向け",
+      [
+        "meeting"
+      ]
+    ],
+    [
+      "c925e",
+      "Logicool C925e",
+      "Logicool",
+      "https://press.logicool.co.jp/ja-jp/huruhd30fpsDuiYingnoGaoHuaZhiGaoYinZhiuebukameradekoraboreshiyonnoZhiwoXiangShang/",
+      "フルHD 1080p",
+      "USB接続",
+      "ビジネス向け",
+      [
+        "meeting"
+      ]
+    ],
+    [
+      "c920e",
+      "Logicool C920e",
+      "Logicool",
+      "https://www.logicool.co.jp/ja-jp/products/webcams/c930e-business-webcam.html",
+      "フルHD 1080p",
+      "USB-A接続",
+      "会議向け",
+      [
+        "meeting"
+      ]
+    ],
+    [
+      "c505e",
+      "Logicool C505e",
+      "Logicool",
+      "https://www.logicool.co.jp/ja-jp/business/video-conferencing/webcams.html",
+      "HD Webカメラ",
+      "USB接続",
+      "ビデオ会議向け",
+      [
+        "meeting"
+      ]
+    ]
+  ],
+  "over-ear-headphones": [
+    [
+      "jbl-tour-one-m3",
+      "JBL Tour One M3",
+      "JBL",
+      "https://jp.jbl.com/TOUR-ONE-M3.html",
+      "ワイヤレス",
+      "ANC対応",
+      "オーバーイヤー",
+      [
+        "anc",
+        "audio"
+      ]
+    ],
+    [
+      "jbl-tour-one-m3-tx",
+      "JBL Tour One M3 Smart Tx",
+      "JBL",
+      "https://jp.jbl.com/TOUR-ONE-M3-TX.html",
+      "ワイヤレス",
+      "ANC対応",
+      "トランスミッター付属",
+      [
+        "anc",
+        "audio"
+      ]
+    ],
+    [
+      "jbl-live-780nc",
+      "JBL Live 780NC",
+      "JBL",
+      "https://jp.jbl.com/LIVE780NC.html",
+      "ワイヤレス",
+      "ANC対応",
+      "オーバーイヤー",
+      [
+        "anc",
+        "everyday"
+      ]
+    ],
+    [
+      "jbl-live-770nc",
+      "JBL Live 770NC",
+      "JBL",
+      "https://jp.jbl.com/LIVE770NC.html",
+      "ワイヤレス",
+      "ANC対応",
+      "オーバーイヤー",
+      [
+        "anc",
+        "everyday"
+      ]
+    ],
+    [
+      "jbl-tune-780nc",
+      "JBL Tune 780NC",
+      "JBL",
+      "https://jp.jbl.com/TUNE780NC.html",
+      "ワイヤレス",
+      "ANC対応",
+      "オーバーイヤー",
+      [
+        "anc",
+        "everyday"
+      ]
+    ],
+    [
+      "jbl-tune-730bt",
+      "JBL Tune 730BT",
+      "JBL",
+      "https://jp.jbl.com/TUNE730BT.html",
+      "ワイヤレス",
+      "ANC非搭載",
+      "オーバーイヤー",
+      [
+        "everyday"
+      ]
+    ],
+    [
+      "jbl-tune-770nc",
+      "JBL Tune 770NC",
+      "JBL",
+      "https://jp.jbl.com/TUNE770NC.html",
+      "ワイヤレス",
+      "ANC対応",
+      "オーバーイヤー",
+      [
+        "anc",
+        "everyday"
+      ]
+    ],
+    [
+      "jbl-tune-720bt",
+      "JBL Tune 720BT",
+      "JBL",
+      "https://jp.jbl.com/TUNE720BT.html",
+      "ワイヤレス",
+      "ANC非搭載",
+      "折りたたみ型",
+      [
+        "light",
+        "everyday"
+      ]
+    ]
+  ],
+  "electric-kettles": [
+    [
+      "ck-la08",
+      "象印 CK-LA08",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/pot_kettle/kettle/ck-la/",
+      "0.8L",
+      "細口ドリップケトル",
+      "注ぎやすさを重視",
+      [
+        "small",
+        "pour"
+      ]
+    ],
+    [
+      "ck-ka10",
+      "象印 CK-KA10",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/pot_kettle/",
+      "1.0L",
+      "選択式1時間保温",
+      "お茶・コーヒー向け",
+      [
+        "capacity",
+        "pour"
+      ]
+    ],
+    [
+      "ck-sa06",
+      "象印 CK-SA06",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/pot_kettle/kettle/ck-sa/",
+      "0.6L",
+      "注ぎ口ほこりブロック",
+      "小容量",
+      [
+        "small"
+      ]
+    ],
+    [
+      "ck-sa08",
+      "象印 CK-SA08",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/pot_kettle/kettle/ck-sa/",
+      "0.8L",
+      "注ぎ口ほこりブロック",
+      "家庭向け",
+      [
+        "small"
+      ]
+    ],
+    [
+      "ck-jh08",
+      "象印 CK-JH08",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/pot_kettle/",
+      "0.8L",
+      "600Wタイプ",
+      "宿泊施設向け",
+      [
+        "small"
+      ]
+    ],
+    [
+      "ck-dh08",
+      "象印 CK-DH08",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/pot_kettle/",
+      "0.8L",
+      "600Wタイプ",
+      "在庫限定モデル",
+      [
+        "small"
+      ]
+    ],
+    [
+      "pcj-a082",
+      "タイガー PCJ-A082",
+      "タイガー魔法瓶",
+      "https://www.tiger-corporation.com/ja/jpn/product/kettle-pot/PCJ-A2/",
+      "0.8L",
+      "蒸気レス",
+      "転倒お湯もれ防止構造",
+      [
+        "small",
+        "safety"
+      ]
+    ],
+    [
+      "pcj-a102",
+      "タイガー PCJ-A102",
+      "タイガー魔法瓶",
+      "https://www.tiger-corporation.com/ja/jpn/product/kettle-pot/PCJ-A2/",
+      "1.0L",
+      "蒸気レス",
+      "転倒お湯もれ防止構造",
+      [
+        "capacity",
+        "safety"
+      ]
+    ]
+  ],
+  "toasters": [
+    [
+      "eq-ja22",
+      "象印 EQ-JA22",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/kitchen/toaster/concept/",
+      "2枚焼き",
+      "サクふわトースト",
+      "高火力スイッチヒーティング",
+      [
+        "toast",
+        "compact"
+      ]
+    ],
+    [
+      "eq-fa22",
+      "象印 EQ-FA22",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/kitchen/toaster/concept/",
+      "2枚焼き",
+      "マイコン自動コース",
+      "冷凍パン対応コース",
+      [
+        "toast",
+        "cook"
+      ]
+    ],
+    [
+      "eq-hm30",
+      "象印 EQ-HM30",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/kitchen/toaster/concept/",
+      "4枚焼き",
+      "マイコンタイプ",
+      "サクふわトーストコース",
+      [
+        "toast",
+        "large",
+        "cook"
+      ]
+    ],
+    [
+      "eq-he30",
+      "象印 EQ-HE30",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/kitchen/toaster/concept/",
+      "4枚焼き",
+      "温度調節タイプ",
+      "料理に応じて温度調節",
+      [
+        "large",
+        "cook"
+      ]
+    ],
+    [
+      "eq-ha30",
+      "象印 EQ-HA30",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/kitchen/toaster/concept/",
+      "4枚焼き",
+      "火力切りかえタイプ",
+      "上火グリル",
+      [
+        "large",
+        "cook"
+      ]
+    ],
+    [
+      "eq-sc22",
+      "象印 EQ-SC22",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/kitchen/?bid=t3",
+      "2枚焼き",
+      "30分ロングタイマー",
+      "遠赤外線ヒーター（上部）",
+      [
+        "toast",
+        "compact"
+      ]
+    ],
+    [
+      "eq-bj22",
+      "象印 EQ-BJ22",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/kitchen/?bid=t3",
+      "2枚焼き",
+      "5段階火力切りかえ",
+      "上火グリル",
+      [
+        "toast",
+        "cook"
+      ]
+    ],
+    [
+      "eq-be22",
+      "象印 EQ-BE22",
+      "象印",
+      "https://www.zojirushi.co.jp/syohin/kitchen/?bid=t3",
+      "2枚焼き",
+      "シンプルタイプ",
+      "グラタン皿も置ける庫内",
+      [
+        "toast",
+        "compact"
+      ]
+    ]
+  ],
+  "electric-shavers": [
+    [
+      "es-l690u",
+      "Panasonic ラムダッシュPRO ES-L690U",
+      "Panasonic",
+      "https://panasonic.jp/shaver/products/ES-L690U.html",
+      "6枚刃",
+      "ラムダッシュPRO",
+      "ナビモニター搭載",
+      [
+        "blades",
+        "care"
+      ]
+    ],
+    [
+      "es-l670u",
+      "Panasonic ラムダッシュPRO ES-L670U",
+      "Panasonic",
+      "https://panasonic.jp/shaver/comparison.html",
+      "6枚刃",
+      "ラムダッシュPRO",
+      "全自動洗浄充電器付属",
+      [
+        "blades",
+        "care"
+      ]
+    ],
+    [
+      "es-l650u",
+      "Panasonic ラムダッシュPRO ES-L650U",
+      "Panasonic",
+      "https://panasonic.jp/shaver/comparison.html",
+      "6枚刃",
+      "ラムダッシュPRO",
+      "USB-C充電対応",
+      [
+        "blades",
+        "everyday"
+      ]
+    ],
+    [
+      "es-l650d",
+      "Panasonic ラムダッシュPRO ES-L650D",
+      "Panasonic",
+      "https://panasonic.jp/shaver/comparison.html",
+      "6枚刃",
+      "ラムダッシュPRO",
+      "充電中にも使用可能なタイプ",
+      [
+        "blades",
+        "everyday"
+      ]
+    ],
+    [
+      "es-l572u",
+      "Panasonic ラムダッシュPRO ES-L572U",
+      "Panasonic",
+      "https://panasonic.jp/shaver/comparison.html",
+      "5枚刃",
+      "ラムダッシュPRO",
+      "メーカー仕様で洗浄方式を確認",
+      [
+        "blades",
+        "everyday"
+      ]
+    ],
+    [
+      "es-l552u",
+      "Panasonic ラムダッシュPRO ES-L552U",
+      "Panasonic",
+      "https://panasonic.jp/shaver/comparison.html",
+      "5枚刃",
+      "ラムダッシュPRO",
+      "メーカー仕様で洗浄方式を確認",
+      [
+        "blades",
+        "everyday"
+      ]
+    ],
+    [
+      "es-l382w",
+      "Panasonic ラムダッシュ ES-L382W",
+      "Panasonic",
+      "https://panasonic.jp/shaver/comparison.html",
+      "3枚刃",
+      "ラムダッシュ",
+      "メーカー仕様で詳細確認",
+      [
+        "everyday"
+      ]
+    ],
+    [
+      "es-l362w",
+      "Panasonic ラムダッシュ ES-L362W",
+      "Panasonic",
+      "https://panasonic.jp/shaver/comparison.html",
+      "3枚刃",
+      "ラムダッシュ",
+      "メーカー仕様で詳細確認",
+      [
+        "everyday"
+      ]
+    ]
+  ]
+}
