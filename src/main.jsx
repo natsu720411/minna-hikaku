@@ -42,6 +42,7 @@ function App() {
   const [query, setQuery] = useState('');
   const [brand, setBrand] = useState('all');
   const [sort, setSort] = useState('match');
+  const [differencesOnly, setDifferencesOnly] = useState(false);
 
   const brands = useMemo(() => [...new Set(earphones.map((item) => item.brand))].sort((a, b) => a.localeCompare(b, 'ja')), []);
 
@@ -117,6 +118,17 @@ function App() {
   };
 
   const selectedItems = earphones.filter((item) => selected.includes(item.id));
+  const compareRows = [
+    { label: '公式参考価格', value: (item) => `¥${item.price.toLocaleString()}` },
+    { label: '音質スコア', value: (item) => `${item.scores.sound}点` },
+    { label: 'ノイキャンスコア', value: (item) => `${item.scores.noiseCancel}点` },
+    { label: 'バッテリー', value: (item) => item.batteryText || '未確認' },
+    { label: '防水・防塵', value: (item) => item.waterRating || '未確認' },
+    { label: 'コスパスコア', value: (item) => `${item.scores.value}点` },
+  ];
+  const visibleCompareRows = differencesOnly && selectedItems.length > 1
+    ? compareRows.filter((row) => new Set(selectedItems.map(row.value)).size > 1)
+    : compareRows;
   const previewRanking = earphones
     .map((item) => ({ ...item, match: Math.round((item.scores.value * 3 + item.scores.sound + item.scores.noiseCancel) / 5) }))
     .sort((a, b) => b.match - a.match)
@@ -173,7 +185,7 @@ function App() {
           </div>
         </section>}
 
-        {step === 4 && selectedItems.length > 0 && <section className="compare-panel" aria-label="選択した商品の比較表"><div className="compare-title"><div><p className="eyebrow">COMPARE</p><h2>選んだ商品を比較</h2></div><span>{selectedItems.length}/3商品</span></div><div className="table-scroll"><table><thead><tr><th>比較項目</th>{selectedItems.map((item) => <th key={item.id}><a className="compare-product-link" href={productPath(item.id)}>{item.name}</a></th>)}</tr></thead><tbody><tr><td>公式参考価格</td>{selectedItems.map((item) => <td key={item.id}>¥{item.price.toLocaleString()}</td>)}</tr><tr><td>音質スコア</td>{selectedItems.map((item) => <td key={item.id}>{item.scores.sound}点</td>)}</tr><tr><td>ノイキャンスコア</td>{selectedItems.map((item) => <td key={item.id}>{item.scores.noiseCancel}点</td>)}</tr><tr><td>バッテリー</td>{selectedItems.map((item) => <td key={item.id}>{item.batteryText}</td>)}</tr><tr><td>防水・防塵</td>{selectedItems.map((item) => <td key={item.id}>{item.waterRating}</td>)}</tr><tr><td>コスパスコア</td>{selectedItems.map((item) => <td key={item.id}>{item.scores.value}点</td>)}</tr></tbody></table></div></section>}
+        {step === 4 && selectedItems.length > 0 && <section className="compare-panel" aria-label="選択した商品の比較表"><div className="compare-title"><div><p className="eyebrow">COMPARE</p><h2>選んだ商品を比較</h2></div><span>{selectedItems.length}/3商品</span></div><div style={{display:'flex',gap:12,alignItems:'center',flexWrap:'wrap',marginBottom:12}}><label style={{display:'flex',gap:7,alignItems:'center',cursor:'pointer'}}><input type="checkbox" checked={differencesOnly} disabled={selectedItems.length < 2} onChange={(e) => setDifferencesOnly(e.target.checked)} />違いがある項目だけ表示</label><button type="button" className="ghost-btn" onClick={() => setSelected([])}>比較をクリア</button></div><p style={{fontSize:12,color:'#53657e',marginBottom:10}}>表は左右にスクロールできます。スコアは独自の編集指標です。</p><div className="table-scroll" role="region" aria-label="商品比較表（横スクロール可能）" tabIndex={0}><table><thead><tr><th scope="col">比較項目</th>{selectedItems.map((item) => <th scope="col" key={item.id}><a className="compare-product-link" href={productPath(item.id)}>{item.name}</a></th>)}</tr></thead><tbody>{visibleCompareRows.map((row) => <tr key={row.label}><th scope="row">{row.label}</th>{selectedItems.map((item) => <td key={item.id}>{row.value(item)}</td>)}</tr>)}</tbody></table></div>{visibleCompareRows.length === 0 && <p>選択した商品の比較項目に違いはありません。</p>}</section>}
 
         <section id="how" className="section how-section"><div className="section-heading"><div><p className="eyebrow">HOW IT WORKS</p><h2>比較の仕組み</h2></div></div><div className="how-grid"><div><span>01</span><h3>予算を決める</h3><p>候補を予算内の商品に絞り込みます。</p></div><div><span>02</span><h3>重視ポイントを選ぶ</h3><p>あなたが大事にする項目の比重を高くします。</p></div><div><span>03</span><h3>相性順に並べる</h3><p>条件ごとのスコアから、あなた向けの順番を作ります。</p></div></div></section>
         <section id="method" className="section method-section"><div className="section-heading"><div><p className="eyebrow">METHODOLOGY</p><h2>比較基準について</h2></div><p>最終更新：{LAST_UPDATED}</p></div><div className="method-grid"><div><span>公式データ</span><h3>価格・バッテリー・防水</h3><p>メーカー公式サイトに掲載されている公称値を優先して確認しています。価格はセール等で変動する場合があります。</p></div><div><span>編集スコア</span><h3>音質・ANC・装着感など</h3><p>比較しやすいよう100点満点の編集スコアに整理しています。メーカー公式の採点ではありません。</p></div><div><span>ランキング</span><h3>あなたの条件で重み付け</h3><p>選んだ重要度に応じて各スコアの比重を変えます。広告掲載の有無で相性点を変えない設計です。</p></div></div></section>
