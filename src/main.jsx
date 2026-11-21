@@ -43,6 +43,27 @@ function App() {
   const [brand, setBrand] = useState('all');
   const [sort, setSort] = useState('match');
   const [differencesOnly, setDifferencesOnly] = useState(false);
+  const [copyStatus, setCopyStatus] = useState('');
+  const [favorites, setFavorites] = useState(() => {
+    try { const saved = JSON.parse(window.localStorage.getItem('minna-earphone-favorites') || '[]'); return Array.isArray(saved) ? saved.filter(id => earphones.some(p => p.id === id)) : []; }
+    catch { return []; }
+  });
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const toggleFavorite = (id) => {
+    setFavorites(current => {
+      const next = current.includes(id) ? current.filter(x => x !== id) : [...current, id];
+      try { window.localStorage.setItem('minna-earphone-favorites', JSON.stringify(next)); } catch { /* Storage may be disabled */ }
+      return next;
+    });
+  };
+  const shareComparison = async () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('compare', selected.join(','));
+    url.searchParams.set('budget', String(budget));
+    url.searchParams.set('priority', primary);
+    try { await navigator.clipboard.writeText(url.toString()); setCopyStatus('比較リンクをコピーしました'); }
+    catch { setCopyStatus('リンクをコピーできませんでした'); }
+  };
 
   const brands = useMemo(() => [...new Set(earphones.map((item) => item.brand))].sort((a, b) => a.localeCompare(b, 'ja')), []);
 
@@ -68,13 +89,13 @@ function App() {
     const items = baseRanking.filter((item) => {
       const matchesText = !needle || `${item.name} ${item.brand} ${item.tags.join(' ')}`.toLocaleLowerCase('ja').includes(needle);
       const matchesBrand = brand === 'all' || item.brand === brand;
-      return matchesText && matchesBrand;
+      return matchesText && matchesBrand && (!favoritesOnly || favorites.includes(item.id));
     });
     if (sort === 'price-asc') return [...items].sort((a, b) => a.price - b.price);
     if (sort === 'price-desc') return [...items].sort((a, b) => b.price - a.price);
     if (sort === 'name') return [...items].sort((a, b) => a.name.localeCompare(b.name, 'ja'));
     return items;
-  }, [baseRanking, query, brand, sort]);
+  }, [baseRanking, query, brand, sort, favoritesOnly, favorites]);
 
   const primaryLabel = criteria.find((c) => c.key === primary)?.label;
   const budgetLabel = budgets.find((b) => b.value === budget)?.label || '予算は決めていない';
@@ -87,6 +108,7 @@ function App() {
     setQuery('');
     setBrand('all');
     setSort('match');
+    setFavoritesOnly(false);
   };
 
   const showResults = () => {
@@ -179,13 +201,13 @@ function App() {
 
         {step === 4 && <section id="results" className="section results-section" data-ux-priority={primary} data-ux-budget={budget}>
           <div className="result-intro"><p className="eyebrow">YOUR RANKING</p><h2>あなたは「<span>{primaryLabel}重視</span>」タイプ</h2><p>公式公称スペックと編集スコアを、あなたが選んだ重要度で重み付けしています。相性点は絶対的な製品評価ではありません。</p><div className="result-summary"><span>{ranking.length}/{baseRanking.length}製品を表示</span><span>{budgetLabel}</span><button type="button" onClick={changeConditions}>条件を変更する</button></div></div>
-          <div className="catalog-tools" aria-label="ランキングの絞り込みと並べ替え"><input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="商品名・メーカー・特徴で検索" aria-label="イヤホンを検索" /><select value={brand} onChange={(e) => setBrand(e.target.value)} aria-label="メーカーで絞り込み"><option value="all">すべてのメーカー</option>{brands.map((item) => <option key={item} value={item}>{item}</option>)}</select><select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="並べ替え"><option value="match">相性順</option><option value="price-asc">価格が安い順</option><option value="price-desc">価格が高い順</option><option value="name">商品名順</option></select><button type="button" onClick={resetCatalogTools}>絞り込み解除</button><div className="tools-count">検索・メーカー・並べ替えを組み合わせて30機種から候補を絞れます。</div></div>
+          <div className="catalog-tools" aria-label="ランキングの絞り込みと並べ替え"><input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="商品名・メーカー・特徴で検索" aria-label="イヤホンを検索" /><select value={brand} onChange={(e) => setBrand(e.target.value)} aria-label="メーカーで絞り込み"><option value="all">すべてのメーカー</option>{brands.map((item) => <option key={item} value={item}>{item}</option>)}</select><select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="並べ替え"><option value="match">相性順</option><option value="price-asc">価格が安い順</option><option value="price-desc">価格が高い順</option><option value="name">商品名順</option></select><label className="favorites-filter"><input type="checkbox" checked={favoritesOnly} onChange={(e) => setFavoritesOnly(e.target.checked)} /> ★ お気に入りのみ ({favorites.length})</label><button type="button" onClick={resetCatalogTools}>絞り込み解除</button><div className="tools-count">検索・メーカー・並べ替えを組み合わせて30機種から候補を絞れます。</div></div>
           <div className="ranking-list">
-            {ranking.length ? ranking.map((item, index) => <article className="rank-card" key={item.id}><div className="rank-index"><span>{index + 1}</span><small>位</small></div><div className="big-product-icon">{item.accent}</div><div className="rank-main"><div className="brand-row"><span className="brand">{item.brand}</span><span className="verified-badge">✓ 公式仕様確認</span></div><h3><a className="product-title-link" href={productPath(item.id)}>{item.name}</a></h3><div className="tag-row">{item.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><p className="reason">重視条件：{primaryLabel}。確認できる特徴：{item.tags.slice(0,2).join('・')}。{item.batteryText ? 'バッテリー：' + item.batteryText + '。' : ''}相性点は独自の編集指標です。</p><div className="rank-links"><a className="detail-link" href={productPath(item.id)}>詳しく見る →</a><a className="source-link" href={item.sourceUrl} target="_blank" rel="noopener noreferrer">{item.sourceLabel}で仕様を見る ↗</a></div></div><div className="match-box"><strong>{item.match}</strong><span>/ 100</span><small>あなたとの相性</small></div><div className="rank-actions"><button type="button" aria-pressed={selected.includes(item.id)} className={selected.includes(item.id) ? 'compare-btn selected' : 'compare-btn'} onClick={() => toggleCompare(item.id)}>{selected.includes(item.id) ? '✓ 比較中' : '+ 比較する'}</button><div className="price">¥{item.price.toLocaleString()}<small>公式参考価格</small></div></div></article>) : <div className="no-result"><h3>条件に合う商品がありません</h3><p>検索語やメーカー、予算を変更してください。</p><button type="button" className="primary-btn" onClick={resetCatalogTools}>絞り込みを解除</button></div>}
+            {ranking.length ? ranking.map((item, index) => <article className="rank-card" key={item.id}><div className="rank-index"><span>{index + 1}</span><small>位</small></div><div className="big-product-icon">{item.accent}</div><div className="rank-main"><div className="brand-row"><span className="brand">{item.brand}</span><span className="verified-badge">✓ 公式仕様確認</span></div><h3><a className="product-title-link" href={productPath(item.id)}>{item.name}</a></h3><div className="tag-row">{item.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><p className="reason">重視条件：{primaryLabel}。確認できる特徴：{item.tags.slice(0,2).join('・')}。{item.batteryText ? 'バッテリー：' + item.batteryText + '。' : ''}相性点は独自の編集指標です。</p><div className="rank-links"><a className="detail-link" href={productPath(item.id)}>詳しく見る →</a><a className="source-link" href={item.sourceUrl} target="_blank" rel="noopener noreferrer">{item.sourceLabel}で仕様を見る ↗</a></div></div><div className="match-box"><strong>{item.match}</strong><span>/ 100</span><small>あなたとの相性</small></div><div className="rank-actions"><button type="button" aria-pressed={favorites.includes(item.id)} className="compare-btn" onClick={() => toggleFavorite(item.id)}>{favorites.includes(item.id) ? "★ 保存済み" : "☆ お気に入り"}</button><button type="button" aria-pressed={selected.includes(item.id)} className={selected.includes(item.id) ? 'compare-btn selected' : 'compare-btn'} onClick={() => toggleCompare(item.id)}>{selected.includes(item.id) ? '✓ 比較中' : '+ 比較する'}</button><div className="price">¥{item.price.toLocaleString()}<small>公式参考価格</small></div></div></article>) : <div className="no-result"><h3>条件に合う商品がありません</h3><p>検索語やメーカー、予算を変更してください。</p><button type="button" className="primary-btn" onClick={resetCatalogTools}>絞り込みを解除</button></div>}
           </div>
         </section>}
 
-        {step === 4 && selectedItems.length > 0 && <section className="compare-panel" aria-label="選択した商品の比較表"><div className="compare-title"><div><p className="eyebrow">COMPARE</p><h2>選んだ商品を比較</h2></div><span>{selectedItems.length}/3商品</span></div><div style={{display:'flex',gap:12,alignItems:'center',flexWrap:'wrap',marginBottom:12}}><label style={{display:'flex',gap:7,alignItems:'center',cursor:'pointer'}}><input type="checkbox" checked={differencesOnly} disabled={selectedItems.length < 2} onChange={(e) => setDifferencesOnly(e.target.checked)} />違いがある項目だけ表示</label><button type="button" className="ghost-btn" onClick={() => setSelected([])}>比較をクリア</button></div><p style={{fontSize:12,color:'#53657e',marginBottom:10}}>表は左右にスクロールできます。スコアは独自の編集指標です。</p><div className="table-scroll" role="region" aria-label="商品比較表（横スクロール可能）" tabIndex={0}><table><thead><tr><th scope="col">比較項目</th>{selectedItems.map((item) => <th scope="col" key={item.id}><a className="compare-product-link" href={productPath(item.id)}>{item.name}</a></th>)}</tr></thead><tbody>{visibleCompareRows.map((row) => <tr key={row.label}><th scope="row">{row.label}</th>{selectedItems.map((item) => <td key={item.id}>{row.value(item)}</td>)}</tr>)}</tbody></table></div>{visibleCompareRows.length === 0 && <p>選択した商品の比較項目に違いはありません。</p>}</section>}
+        {step === 4 && selectedItems.length > 0 && <section className="compare-panel" aria-label="選択した商品の比較表"><div className="compare-title"><div><p className="eyebrow">COMPARE</p><h2>選んだ商品を比較</h2></div><span>{selectedItems.length}/3商品</span></div><div style={{display:'flex',gap:12,alignItems:'center',flexWrap:'wrap',marginBottom:12}}><label style={{display:'flex',gap:7,alignItems:'center',cursor:'pointer'}}><input type="checkbox" checked={differencesOnly} disabled={selectedItems.length < 2} onChange={(e) => setDifferencesOnly(e.target.checked)} />違いがある項目だけ表示</label><button type="button" className="ghost-btn" onClick={shareComparison}>比較リンクをコピー</button><button type="button" className="ghost-btn" onClick={() => setSelected([])}>比較をクリア</button>{copyStatus && <span role="status">{copyStatus}</span>}</div><p style={{fontSize:12,color:'#53657e',marginBottom:10}}>表は左右にスクロールできます。スコアは独自の編集指標です。</p><div className="table-scroll" role="region" aria-label="商品比較表（横スクロール可能）" tabIndex={0}><table><thead><tr><th scope="col">比較項目</th>{selectedItems.map((item) => <th scope="col" key={item.id}><a className="compare-product-link" href={productPath(item.id)}>{item.name}</a></th>)}</tr></thead><tbody>{visibleCompareRows.map((row) => <tr key={row.label}><th scope="row">{row.label}</th>{selectedItems.map((item) => <td key={item.id}>{row.value(item)}</td>)}</tr>)}</tbody></table></div>{visibleCompareRows.length === 0 && <p>選択した商品の比較項目に違いはありません。</p>}</section>}
 
         <section id="how" className="section how-section"><div className="section-heading"><div><p className="eyebrow">HOW IT WORKS</p><h2>比較の仕組み</h2></div></div><div className="how-grid"><div><span>01</span><h3>予算を決める</h3><p>候補を予算内の商品に絞り込みます。</p></div><div><span>02</span><h3>重視ポイントを選ぶ</h3><p>あなたが大事にする項目の比重を高くします。</p></div><div><span>03</span><h3>相性順に並べる</h3><p>条件ごとのスコアから、あなた向けの順番を作ります。</p></div></div></section>
         <section id="method" className="section method-section"><div className="section-heading"><div><p className="eyebrow">METHODOLOGY</p><h2>比較基準について</h2></div><p>最終更新：{LAST_UPDATED}</p></div><div className="method-grid"><div><span>公式データ</span><h3>価格・バッテリー・防水</h3><p>メーカー公式サイトに掲載されている公称値を優先して確認しています。価格はセール等で変動する場合があります。</p></div><div><span>編集スコア</span><h3>音質・ANC・装着感など</h3><p>比較しやすいよう100点満点の編集スコアに整理しています。メーカー公式の採点ではありません。</p></div><div><span>ランキング</span><h3>あなたの条件で重み付け</h3><p>選んだ重要度に応じて各スコアの比重を変えます。広告掲載の有無で相性点を変えない設計です。</p></div></div></section>
