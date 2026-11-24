@@ -192,4 +192,27 @@ for(const rel of ['earphones/compare/index.html','earphones/compare/soundcore-li
   patch(rel,html=>html.includes('data-gsc-plus-link="1"')?html:html.replace('</main>',plusLink+'</main>'));
 }
 
+
+ // GSC screenshot: robot vacuum comparison and manufacturer/price intent.
+ // Use the existing manufacturer table; do not introduce new product claims.
+patch(robotPath,html=>{
+  html=html.replace(/<title>[^<]*<\/title>/i,'<title>ロボット掃除機のメーカー比較｜5社のスペック・価格一覧【2026】</title>');
+  html=html.replace(/<meta name="description" content="[^"]*">/i,'<meta name="description" content="ロボット掃除機の主要5メーカー（iRobot・Roborock・ECOVACS・SwitchBot・Eufy）を比較。代表機種の価格目安・吸引力・水拭き・自動ゴミ収集の一覧と、部屋や予算に合う選び方を解説。">');
+  if(!html.includes('data-gsc-robot-buying="1"')){
+    const block='<section class="summary-box" data-gsc-robot-buying="1"><h2>ロボット掃除機は何を比較すればいい？</h2><ul><li><b>予算：</b>本体とステーションがセットか確認し、同じ購入条件で価格を比べる。</li><li><b>水拭き：</b>モップ方式だけでなく、洗浄・乾燥の自動化と床材の対応を確認する。</li><li><b>設置場所：</b>家具下の高さ、段差、ドックの寸法と周囲に必要な空間を測ってから選ぶ。</li><li><b>維持費：</b>紙パック、フィルター、ブラシ、モップの交換費用と入手性も確認する。</li></ul><p>この一覧は各社の代表機種の比較であり、メーカー全製品の性能ランキングではありません。</p></section>';
+    html=html.replace(/<p class="lead">[\s\S]*?<\/p>/i,m=>m+block);
+    const scenarios='<section data-gsc-robot-scenarios="1"><h2>部屋・使い方から比較対象を絞る</h2><div class="criteria-grid"><div class="criteria-card"><b>一人暮らし・狭い部屋</b><p>本体とドックの大きさ、家具下の高さ、ゴミ収集の必要性を確認します。</p><a href="/robot-vacuums/">20製品を条件別に比較 →</a></div><div class="criteria-card"><b>フローリング・水拭き重視</b><p>対応床材、モップの方式、洗浄・乾燥、カーペットへの対処を確認します。</p><a href="/robot-vacuums/mop/">水拭き重視の比較 →</a></div><div class="criteria-card"><b>ペット・髪の毛対策</b><p>ブラシへの毛絡み対策、障害物検知、集じん部のお手入れ方法を確認します。</p><a href="/robot-vacuums/pet/">ペット向けの比較 →</a></div><div class="criteria-card"><b>掃除の手間を減らしたい</b><p>ゴミ収集だけでなくモップの手入れ、給排水や消耗品交換など自分で行う作業を確認します。</p><a href="/robot-vacuums/auto-empty/">自動ゴミ収集の比較 →</a></div></div><p><a href="/robot-vacuums/compare/">候補が2つに絞れたら直接比較する →</a></p></section>';
+    html=html.replace('<h2>価格を見るときの注意</h2>',scenarios+'<h2>価格を見るときの注意</h2>');
+  }
+  return html;
+});
+for(const guide of ['auto-empty','mop','pet','obstacle','compare']){
+  const rel='robot-vacuums/'+guide+'/index.html';
+  if(!fs.existsSync(path.join(targetDir,rel))) continue;
+  patch(rel,html=>{
+    if(html.includes('/robot-vacuums/manufacturers/')) return html;
+    return html.replace('</main>','<section class="discovery-block" data-gsc-robot-backlink="1"><h2>メーカーごとの違いも確認</h2><p>主要5社の代表機種を、吸引・水拭き・自動化・価格目安で横並びに比較できます。</p><div class="related"><a href="/robot-vacuums/manufacturers/">ロボット掃除機のメーカー・スペック・価格一覧 →</a></div></section></main>');
+  });
+}
+
 console.log('Applied GSC growth opportunities: Xperia vs iPhone, gym earphones CTR, iOS fast charging, robot vacuum manufacturer guide.');
