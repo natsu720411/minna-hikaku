@@ -29,8 +29,8 @@
     }catch{return []}
   };
   const favWrite=items=>{
-    try{localStorage.setItem(FAV_KEY,JSON.stringify(items.slice(0,60)))}catch{}
-    window.dispatchEvent(new Event('minna:favorites-changed'));
+    try{localStorage.setItem(FAV_KEY,JSON.stringify(items.slice(0,60)))}catch{announce('お気に入りを保存できませんでした');return false}
+    window.dispatchEvent(new Event('minna:favorites-changed'));return true;
   };
   const toggleFav=(product)=>{
     const favs=favRead();
@@ -40,7 +40,7 @@
       if(favs.length>=60){announce('お気に入りは60件まで保存できます');return}
       favs.unshift({url:product.url,name:product.name,categoryName:product.categoryName||'',brand:product.brand||''});
     }
-    favWrite(favs);
+    if(!favWrite(favs))return;
     announce(existing>=0?'お気に入りから削除しました':'お気に入りに保存しました');
   };
   let modal=null,searchBox=null,resultBox=null,categorySelect=null,tab='search',launcher=null,updateCount=null,toastTimer=0;
@@ -126,7 +126,7 @@
       const select=$('select',chooser), button=$('button',chooser);
       select.addEventListener('change',()=>{button.disabled=!select.value});
       button.addEventListener('click',()=>{const other=candidates.find(p=>p.id===select.value);if(!other)return;const href=compareHref(current.category,[current.id,other.id]);remember(href,[current.name,other.name]);location.assign(href)});
-      main.append(chooser,section);
+      const slot=main.querySelector('.ux-detail-fav');if(slot)slot.after(chooser);else main.append(chooser);main.append(section);
     });
   };
   const getCompare=()=>$('#compare:not([hidden])')||$('.compare-panel');
@@ -378,7 +378,7 @@
   };
   const init=()=>{
     ensureLauncher();
-    const refreshFavorites=()=>{updateFavButtons();updateCounter();if(modal&&!modal.hidden&&tab==='favorites')renderModal()};
+    const refreshFavorites=()=>{updateFavButtons();updateCounter();if(modal&&!modal.hidden){if(tab==='favorites')renderModal();else if(tab==='search'){const saved=new Set(favRead().map(p=>p.url));$$('[data-ux-fav-url]',modal).forEach(btn=>{btn.textContent=saved.has(btn.dataset.uxFavUrl)?'★':'☆';btn.setAttribute('aria-pressed',String(saved.has(btn.dataset.uxFavUrl)))})}}};
     window.addEventListener('minna:favorites-changed',refreshFavorites);
     window.addEventListener('storage',e=>{if(e.key===FAV_KEY||e.key===null)refreshFavorites()});
     document.addEventListener('click',event=>{
