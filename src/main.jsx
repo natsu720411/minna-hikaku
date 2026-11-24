@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { earphones, criteria } from './data/earphones';
 import './style.css';
@@ -44,17 +44,34 @@ function App() {
   const [sort, setSort] = useState('match');
   const [differencesOnly, setDifferencesOnly] = useState(false);
   const [copyStatus, setCopyStatus] = useState('');
-  const [favorites, setFavorites] = useState(() => {
-    try { const saved = JSON.parse(window.localStorage.getItem('minna-earphone-favorites') || '[]'); return Array.isArray(saved) ? saved.filter(id => earphones.some(p => p.id === id)) : []; }
-    catch { return []; }
-  });
+  const favoriteKey='minna-hikaku:favorites:v1';
+  const readFavorites=()=>{
+    try { const data=JSON.parse(localStorage.getItem(favoriteKey)||'[]');return Array.isArray(data)?data.filter(p=>p&&typeof p.url==='string'&&typeof p.name==='string'):[]; } catch {return [];}
+  };
+  const readFavoriteIds=()=>earphones.filter(p=>readFavorites().some(f=>f.url===productPath(p.id))).map(p=>p.id);
+  const [favorites, setFavorites] = useState(readFavoriteIds);
   const [favoritesOnly, setFavoritesOnly] = useState(false);
+  useEffect(()=>{
+    try {
+      const old=JSON.parse(localStorage.getItem('minna-earphone-favorites')||'[]');
+      if(Array.isArray(old)&&old.length){
+        const current=readFavorites();
+        for(const p of earphones.filter(p=>old.includes(p.id)))if(current.length<60&&!current.some(f=>f.url===productPath(p.id)))current.push({url:productPath(p.id),name:p.name,brand:p.brand,categoryName:'ワイヤレスイヤホン'});
+        localStorage.setItem(favoriteKey,JSON.stringify(current));localStorage.removeItem('minna-earphone-favorites');
+      }
+    }catch{}
+    const refresh=()=>setFavorites(readFavoriteIds());
+    refresh();window.dispatchEvent(new Event('minna:favorites-changed'));
+    window.addEventListener('minna:favorites-changed',refresh);
+    window.addEventListener('storage',refresh);
+    return()=>{window.removeEventListener('minna:favorites-changed',refresh);window.removeEventListener('storage',refresh)};
+  },[]);
   const toggleFavorite = (id) => {
-    setFavorites(current => {
-      const next = current.includes(id) ? current.filter(x => x !== id) : [...current, id];
-      try { window.localStorage.setItem('minna-earphone-favorites', JSON.stringify(next)); } catch { /* Storage may be disabled */ }
-      return next;
-    });
+    const p=earphones.find(p=>p.id===id);if(!p)return;
+    let current=readFavorites(),url=productPath(id);
+    if(current.some(f=>f.url===url))current=current.filter(f=>f.url!==url);
+    else {if(current.length>=60){window.alert('お気に入りは60件まで保存できます');return;}current.unshift({url,name:p.name,brand:p.brand,categoryName:'ワイヤレスイヤホン'});}
+    try {localStorage.setItem(favoriteKey,JSON.stringify(current));setFavorites(readFavoriteIds());window.dispatchEvent(new Event('minna:favorites-changed'));}catch{window.alert('お気に入りを保存できませんでした');}
   };
   const shareComparison = async () => {
     const url = new URL(window.location.href);
@@ -203,7 +220,7 @@ function App() {
           <div className="result-intro"><p className="eyebrow">YOUR RANKING</p><h2>あなたは「<span>{primaryLabel}重視</span>」タイプ</h2><p>公式公称スペックと編集スコアを、あなたが選んだ重要度で重み付けしています。相性点は絶対的な製品評価ではありません。</p><div className="result-summary"><span>{ranking.length}/{baseRanking.length}製品を表示</span><span>{budgetLabel}</span><button type="button" onClick={changeConditions}>条件を変更する</button></div></div>
           <div className="catalog-tools" aria-label="ランキングの絞り込みと並べ替え"><input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="商品名・メーカー・特徴で検索" aria-label="イヤホンを検索" /><select value={brand} onChange={(e) => setBrand(e.target.value)} aria-label="メーカーで絞り込み"><option value="all">すべてのメーカー</option>{brands.map((item) => <option key={item} value={item}>{item}</option>)}</select><select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="並べ替え"><option value="match">相性順</option><option value="price-asc">価格が安い順</option><option value="price-desc">価格が高い順</option><option value="name">商品名順</option></select><label className="favorites-filter"><input type="checkbox" checked={favoritesOnly} onChange={(e) => setFavoritesOnly(e.target.checked)} /> ★ お気に入りのみ ({favorites.length})</label><button type="button" onClick={resetCatalogTools}>絞り込み解除</button><div className="tools-count">検索・メーカー・並べ替えを組み合わせて30機種から候補を絞れます。</div></div>
           <div className="ranking-list">
-            {ranking.length ? ranking.map((item, index) => <article className="rank-card" key={item.id}><div className="rank-index"><span>{index + 1}</span><small>位</small></div><div className="big-product-icon">{item.accent}</div><div className="rank-main"><div className="brand-row"><span className="brand">{item.brand}</span><span className="verified-badge">✓ 公式仕様確認</span></div><h3><a className="product-title-link" href={productPath(item.id)}>{item.name}</a></h3><div className="tag-row">{item.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><p className="reason">重視条件：{primaryLabel}。確認できる特徴：{item.tags.slice(0,2).join('・')}。{item.batteryText ? 'バッテリー：' + item.batteryText + '。' : ''}相性点は独自の編集指標です。</p><div className="rank-links"><a className="detail-link" href={productPath(item.id)}>詳しく見る →</a><a className="source-link" href={item.sourceUrl} target="_blank" rel="noopener noreferrer">{item.sourceLabel}で仕様を見る ↗</a></div></div><div className="match-box"><strong>{item.match}</strong><span>/ 100</span><small>あなたとの相性</small></div><div className="rank-actions"><button type="button" aria-pressed={favorites.includes(item.id)} className="compare-btn" onClick={() => toggleFavorite(item.id)}>{favorites.includes(item.id) ? "★ 保存済み" : "☆ お気に入り"}</button><button type="button" aria-pressed={selected.includes(item.id)} className={selected.includes(item.id) ? 'compare-btn selected' : 'compare-btn'} onClick={() => toggleCompare(item.id)}>{selected.includes(item.id) ? '✓ 比較中' : '+ 比較する'}</button><div className="price">¥{item.price.toLocaleString()}<small>公式参考価格</small></div></div></article>) : <div className="no-result"><h3>条件に合う商品がありません</h3><p>検索語やメーカー、予算を変更してください。</p><button type="button" className="primary-btn" onClick={resetCatalogTools}>絞り込みを解除</button></div>}
+            {ranking.length ? ranking.map((item, index) => <article className="rank-card" key={item.id}><div className="rank-index"><span>{index + 1}</span><small>位</small></div><div className="big-product-icon">{item.accent}</div><div className="rank-main"><div className="brand-row"><span className="brand">{item.brand}</span><span className="verified-badge">✓ 公式仕様確認</span></div><h3><a className="product-title-link" href={productPath(item.id)}>{item.name}</a></h3><div className="tag-row">{item.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><p className="reason">重視条件：{primaryLabel}。確認できる特徴：{item.tags.slice(0,2).join('・')}。{item.batteryText ? 'バッテリー：' + item.batteryText + '。' : ''}相性点は独自の編集指標です。</p><div className="rank-links"><a className="detail-link" href={productPath(item.id)}>詳しく見る →</a><a className="source-link" href={item.sourceUrl} target="_blank" rel="noopener noreferrer">{item.sourceLabel}で仕様を見る ↗</a></div></div><div className="match-box"><strong>{item.match}</strong><span>/ 100</span><small>あなたとの相性</small></div><div className="rank-actions"><button type="button" aria-pressed={favorites.includes(item.id)} data-react-favorite="1" className="compare-btn" onClick={() => toggleFavorite(item.id)}>{favorites.includes(item.id) ? "★ 保存済み" : "☆ お気に入り"}</button><button type="button" aria-pressed={selected.includes(item.id)} className={selected.includes(item.id) ? 'compare-btn selected' : 'compare-btn'} onClick={() => toggleCompare(item.id)}>{selected.includes(item.id) ? '✓ 比較中' : '+ 比較する'}</button><div className="price">¥{item.price.toLocaleString()}<small>公式参考価格</small></div></div></article>) : <div className="no-result"><h3>条件に合う商品がありません</h3><p>検索語やメーカー、予算を変更してください。</p><button type="button" className="primary-btn" onClick={resetCatalogTools}>絞り込みを解除</button></div>}
           </div>
         </section>}
 

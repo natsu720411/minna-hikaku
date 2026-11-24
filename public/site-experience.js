@@ -30,9 +30,7 @@
   };
   const favWrite=items=>{
     try{localStorage.setItem(FAV_KEY,JSON.stringify(items.slice(0,60)))}catch{}
-    updateFavButtons();
-    updateCounter();
-    if(modal && !modal.hidden) renderModal();
+    window.dispatchEvent(new Event('minna:favorites-changed'));
   };
   const toggleFav=(product)=>{
     const favs=favRead();
@@ -75,7 +73,7 @@
   };
   const enhanceCards=()=>{
     $$('.rank-card,#list > article.card').forEach(card=>{
-      if(card.querySelector('.ux-fav-btn'))return;
+      if(card.querySelector('.ux-fav-btn,[data-react-favorite]'))return;
       const link=card.querySelector('a[href*="/products/"]');
       const url=link?.getAttribute('href')?.split(/[?#]/)[0]||'';
       const name=card.querySelector('h3')?.textContent?.trim()||'';
@@ -93,8 +91,13 @@
       }
     });
   };
+  const HISTORY_KEY='minna-hikaku:comparisons:v1';
+  const historyRead=()=>{try{const a=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');return Array.isArray(a)?a.filter(p=>p && typeof p.url==='string' && /^\/(?:[a-z0-9-]+\/)?\?compare=[a-z0-9,%_-]+(?:&[a-z0-9_%=-]+)*$/i.test(p.url) && Array.isArray(p.names) && p.names.every(n=>typeof n==='string')).slice(0,20):[]}catch{return []}};
+  const historyWrite=items=>{try{localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,20)))}catch{}};
+  const remember=(url,names)=>{if(names.length<2)return;const key=url.split('?')[0]+'?'+new URLSearchParams(url.split('?')[1]).get('compare')?.split(',').sort().join(',');const rows=historyRead();if(rows[0]?.key===key)return;historyWrite([{key,url,names},...rows.filter(r=>r.key!==key)])};
+  const compareHref=(category,ids)=> (category==='earphones'?'/':'/'+category+'/')+'?compare='+encodeURIComponent(ids.join(','));
   const enhanceDetail=()=>{
-    const url=location.pathname;
+    const url=location.pathname.replace(/\/?$/,'/');
     if(!isProductUrl(url))return;
     const main=$('.guide-main');
     const h1=$('h1',main||document);
@@ -109,14 +112,21 @@
       if(!main.isConnected||main.querySelector('.ux-related'))return;
       const current=rows.find(p=>p.url===url);
       if(!current)return;
-      const siblings=rows.filter(p=>p.category===current.category && p.url!==url)
-        .sort((a,b)=>Number(b.brand===current.brand)-Number(a.brand===current.brand))
-        .slice(0,4);
+      const candidates=rows.filter(p=>p.category===current.category && p.url!==url);
+      const terms=p=>new Set(clean(p.description).split(/[\s、。・／,.:：()（）]+/).filter(t=>t.length>=3));
+      const base=terms(current);
+      const score=p=>Number(!!current.brand && p.brand===current.brand)*3+[...terms(p)].filter(t=>base.has(t)).length;
+      const siblings=[...candidates].sort((a,b)=>score(b)-score(a)||a.name.localeCompare(b.name,'ja')).slice(0,4);
       if(!siblings.length)return;
       const section=document.createElement('section');
       section.className='ux-related';
-      section.innerHTML='<h2>同じカテゴリの類似候補も比較</h2><p>同じカテゴリの商品から、同じメーカーを優先して表示しています。性能が近いことを保証するものではありません。</p><div class="ux-related-grid">'+siblings.map(p=>'<a href="'+escapeHtml(p.url)+'"><b>'+escapeHtml(p.name)+'</b><small>'+escapeHtml(p.brand||p.categoryName)+'　詳細を見る →</small></a>').join('')+'</div>';
-      main.append(section);
+      section.innerHTML='<h2>同じカテゴリの類似候補も比較</h2><p>同じカテゴリの商品から、メーカーと掲載説明の共通点を参考に表示しています。性能が近いことを保証するものではありません。</p><div class="ux-related-grid">'+siblings.map(p=>'<a href="'+escapeHtml(p.url)+'"><b>'+escapeHtml(p.name)+'</b><small>'+escapeHtml(p.brand||p.categoryName)+'　詳細を見る →</small></a>').join('')+'</div>';
+      const chooser=document.createElement('div');chooser.className='ux-detail-compare';
+      chooser.innerHTML='<h2>この商品と直接比較する</h2><label>比較相手を選択<select><option value="">商品を選ぶ</option>'+candidates.sort((a,b)=>a.name.localeCompare(b.name,'ja')).map(p=>'<option value="'+escapeHtml(p.id)+'">'+escapeHtml(p.name)+'</option>').join('')+'</select></label><button type="button" class="ux-fav-btn" disabled>2商品を比較 →</button>';
+      const select=$('select',chooser), button=$('button',chooser);
+      select.addEventListener('change',()=>{button.disabled=!select.value});
+      button.addEventListener('click',()=>{const other=candidates.find(p=>p.id===select.value);if(!other)return;const href=compareHref(current.category,[current.id,other.id]);remember(href,[current.name,other.name]);location.assign(href)});
+      main.append(chooser,section);
     });
   };
   const getCompare=()=>$('#compare:not([hidden])')||$('.compare-panel');
@@ -135,6 +145,13 @@
         const tag=document.createElement('span');tag.className='ux-diff-label';tag.textContent='違いあり';row.cells[0].append(tag);
       }else if(!varied){row.cells[0].querySelector('.ux-diff-label')?.remove()}
     });
+    if(panel.id==='compare' && !panel.querySelector('[data-ux-differences]')){
+      const label=document.createElement('label');label.className='ux-differences-control';label.innerHTML='<input type="checkbox" data-ux-differences> 違いがある項目だけ表示';
+      table.closest('.table-scroll')?.before(label);
+      label.addEventListener('change',()=>updateDifferences());
+    }
+    const diff=panel.querySelector('[data-ux-differences]');
+    if(diff){const multi=(table.tHead?.rows[0]?.cells.length||0)>2;diff.disabled=!multi;$$('tbody tr',table).forEach(row=>{row.hidden=multi&&diff.checked&&!row.classList.contains('ux-different')})}
     const header=panel.querySelector('.compare-title,.summary,h2');
     if(header && !panel.querySelector('.ux-share')){
       const btn=document.createElement('button');
@@ -178,6 +195,13 @@
     document.body.append(input);input.select();const copied=document.execCommand('copy');input.remove();
     announce(copied?'比較結果のURLをコピーしました':'URLのコピーに失敗しました');
   };
+  let lastCompared='';
+  const saveCurrentComparison=()=>{
+    const names=selectedNames();if(names.length<2){lastCompared='';return}
+    const category=currentCategory(), signature=category+'|'+names.join('|');
+    if(signature===lastCompared)return;lastCompared=signature;
+    catalogue().then(rows=>{if(lastCompared!==signature)return;const ids=names.map(n=>rows.find(p=>p.category===category && clean(p.name)===clean(n))?.id);if(ids.every(Boolean))remember(compareHref(category,ids),names)});
+  };
   const syncDock=()=>{
     if(!window.COMPARISON_CONFIG)return;
     const panel=$('#compare'),names=selectedNames();
@@ -213,7 +237,7 @@
   const ensureModal=()=>{
     if(modal)return;
     modal=document.createElement('div');modal.className='ux-modal';modal.hidden=true;
-    modal.innerHTML='<div class="ux-modal-panel" role="dialog" aria-modal="true" aria-label="商品検索とお気に入り"><div class="ux-modal-head"><strong>全商品から探す</strong><button type="button" class="ux-modal-close" aria-label="閉じる">×</button></div><div class="ux-tabs"><button type="button" data-ux-tab="search">商品を検索</button><button type="button" data-ux-tab="favorites">お気に入り</button></div><div class="ux-search-filters"><input type="search" id="ux-search-input" placeholder="商品名・型番・メーカーで検索" aria-label="全商品を検索"><select id="ux-category-filter" aria-label="カテゴリを絞り込む"><option value="">すべてのカテゴリ</option></select></div><p class="ux-search-count" aria-live="polite"></p><div class="ux-results"></div><p class="ux-modal-note">商品は公開済みの詳細ページから検索します。お気に入りはこのブラウザに保存されます。</p></div>';
+    modal.innerHTML='<div class="ux-modal-panel" role="dialog" aria-modal="true" aria-label="商品検索とお気に入り"><div class="ux-modal-head"><strong>全商品から探す</strong><button type="button" class="ux-modal-close" aria-label="閉じる">×</button></div><div class="ux-tabs"><button type="button" data-ux-tab="search">商品を検索</button><button type="button" data-ux-tab="favorites">お気に入り</button><button type="button" data-ux-tab="history">比較履歴</button></div><div class="ux-search-filters"><input type="search" id="ux-search-input" placeholder="商品名・型番・メーカーで検索" aria-label="全商品を検索"><select id="ux-category-filter" aria-label="カテゴリを絞り込む"><option value="">すべてのカテゴリ</option></select></div><p class="ux-search-count" aria-live="polite"></p><div class="ux-results"></div><p class="ux-modal-note">商品は公開済みの詳細ページから検索します。お気に入りはこのブラウザに保存されます。</p></div>';
     document.body.append(modal);searchBox=$('#ux-search-input',modal);resultBox=$('.ux-results',modal);categorySelect=$('#ux-category-filter',modal);
     $('.ux-modal-close',modal).addEventListener('click',closeModal);
     modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
@@ -221,6 +245,7 @@
     const resetResults=()=>{resultLimit=PAGE_SIZE;resultBox.scrollTop=0;renderModal()};
     searchBox.addEventListener('input',resetResults);categorySelect.addEventListener('change',resetResults);
     modal.addEventListener('click',e=>{
+      if(e.target.closest('[data-ux-history-clear]')){historyWrite([]);renderModal();return}
       if(e.target.closest('[data-ux-more]')){resultLimit+=PAGE_SIZE;renderModal();return}
       if(e.target.closest('[data-ux-retry]')){cataloguePromise=null;catalogueFailed=false;catalogue();renderModal();return}
       const b=e.target.closest('[data-ux-fav-url]');if(!b)return;
@@ -251,6 +276,10 @@
     $$('.ux-tabs button',modal).forEach(b=>b.setAttribute('aria-selected',String(b.dataset.uxTab===tab)));
     $('.ux-search-filters',modal).hidden=tab!=='search';
     const box=$('.ux-search-count',modal);
+    if(tab==='history'){
+      const rows=historyRead();box.textContent='最近の比較：'+rows.length+'件';
+      resultBox.innerHTML=rows.length?rows.map(p=>'<div class="ux-result"><div><small>保存した商品比較</small><a href="'+escapeHtml(p.url)+'">'+escapeHtml(p.names.join(' vs '))+'</a></div></div>').join('')+'<button type="button" class="ux-fav-btn" data-ux-history-clear>履歴を消去</button>':'<p class="ux-empty">2商品以上を比較すると履歴が保存されます。</p>';return;
+    }
     if(tab==='favorites'){
       const favs=favRead();box.textContent='保存済み：'+favs.length+'件';
       resultBox.innerHTML=favs.length?favs.map(p=>resultMarkup(p)).join(''):'<p class="ux-empty">保存した商品はありません。商品カードの「☆ 保存」で登録できます。</p>';
@@ -331,7 +360,7 @@
         }).catch(()=>{});
       }
     },{root:resultBox,rootMargin:'100px 0px'});
-    $('.ux-result-photo',resultBox).forEach(el=>thumbObserver.observe(el));
+    $$('.ux-result-photo',resultBox).forEach(el=>thumbObserver.observe(el));
   };
   const applySharedLegacy=()=>{
     if(!['/smartphones/','/mobile-batteries/'].includes(location.pathname))return;
@@ -345,10 +374,13 @@
     });
   };
   const run=()=>{
-    enhanceCards();enhanceDetail();updateDifferences();syncDock();ensureLegacyShare();applySharedLegacy();
+    enhanceCards();enhanceDetail();updateDifferences();syncDock();ensureLegacyShare();applySharedLegacy();saveCurrentComparison();
   };
   const init=()=>{
     ensureLauncher();
+    const refreshFavorites=()=>{updateFavButtons();updateCounter();if(modal&&!modal.hidden&&tab==='favorites')renderModal()};
+    window.addEventListener('minna:favorites-changed',refreshFavorites);
+    window.addEventListener('storage',e=>{if(e.key===FAV_KEY||e.key===null)refreshFavorites()});
     document.addEventListener('click',event=>{
       const fav=event.target.closest('.ux-fav-btn');
       if(fav){toggleFav({url:fav.dataset.url,name:fav.dataset.name,categoryName:fav.dataset.categoryName});return}
@@ -357,7 +389,7 @@
     document.addEventListener('keydown',event=>{
       if(event.key==='Escape' && modal && !modal.hidden)closeModal();
       if(event.key==='Tab' && modal && !modal.hidden){
-        const focusable=$('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled])',modal).filter(el=>el.getClientRects().length>0);
+        const focusable=$$('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled])',modal).filter(el=>el.getClientRects().length>0);
         if(focusable.length){const first=focusable[0],last=focusable[focusable.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}}
       }
       if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'&&!event.altKey){

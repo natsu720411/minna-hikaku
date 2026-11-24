@@ -215,4 +215,17 @@ for(const guide of ['auto-empty','mop','pet','obstacle','compare']){
   });
 }
 
+
+ // A new direct comparison using the two existing verified October product pages.
+const p42LibertyUrl='/earphones/compare/soundcore-p42i-vs-soundcore-liberty-5/';
+write('earphones/compare/soundcore-p42i-vs-soundcore-liberty-5/index.html',shell(
+  'Soundcore P42i vs Liberty 5｜価格・ANC・防水の違いを比較',
+  'Anker Soundcore P42iとLiberty 5を比較。2026年10月掲載の参考価格、ANCオンの公称再生時間、防塵・防水、LDAC対応を整理。',
+  ORIGIN+p42LibertyUrl,
+  `<div class="breadcrumbs"><a href="/">トップ</a> › <a href="/earphones/">イヤホン</a> › <a href="/earphones/compare/">直接比較</a> › P42i vs Liberty 5</div><h1>Soundcore P42iとLiberty 5を比較</h1><p class="lead">同じAnker Soundcoreシリーズで予算を迷う場合に、公開済みの商品詳細のメーカー公称仕様を比較します。</p><div class="summary-box"><h2>主な違い</h2><ul><li>2026年10月掲載の参考価格はP42iが9,990円、Liberty 5が14,990円。</li><li>ANC使用時の公称再生時間はP42iが最大8.5時間、Liberty 5が最大8時間。測定条件が違う場合があるため実使用の電池持ちの差は断定できません。</li><li>どちらもIP55・LDAC対応。ノイズ低減や音質は実測比較していません。</li></ul></div><h2>仕様比較表</h2><div class="table-scroll"><table><thead><tr><th>比較項目</th><th>Soundcore P42i</th><th>Soundcore Liberty 5</th></tr></thead><tbody><tr><th>掲載参考価格</th><td>9,990円</td><td>14,990円</td></tr><tr><th>ANC使用時再生</th><td>最大8.5時間</td><td>最大8時間</td></tr><tr><th>防塵・防水</th><td>IP55</td><td>IP55</td></tr><tr><th>LDAC</th><td>対応</td><td>対応</td></tr></tbody></table></div><h2>購入前の確認ポイント</h2><p>価格差を基準に、イヤーチップの装着感、アプリで調整できる機能、現在の販売価格を確認してください。掲載値は2026年10月時点の情報であり、最新価格や在庫ではありません。</p><div class="related"><a href="/earphones/products/soundcore-p42i/">P42iの詳細</a><a href="/earphones/products/soundcore-liberty-5/">Liberty 5の詳細</a><a href="https://www.ankerjapan.com/products/d1205" target="_blank" rel="noopener noreferrer">P42iメーカー公式 ↗</a><a href="https://www.ankerjapan.com/products/a3957" target="_blank" rel="noopener noreferrer">Liberty 5メーカー公式 ↗</a><a href="/earphones/under-10000/">1万円以下のイヤホン比較</a></div><p class="note">公称仕様を整理した比較で、実機レビューではありません。</p>`
+));
+for(const rel of ['earphones/compare/index.html','earphones/products/soundcore-p42i/index.html','earphones/products/soundcore-liberty-5/index.html']){
+  patch(rel,html=>html.includes('data-gsc-p42-liberty="1"')?html:html.replace('</main>','<section class="discovery-block" data-gsc-p42-liberty="1"><h2>Soundcoreの価格帯で迷ったら</h2><div class="related"><a href="'+p42LibertyUrl+'">P42i vs Liberty 5｜価格・ANC・防水比較 →</a></div></section></main>'));
+}
+
 console.log('Applied GSC growth opportunities: Xperia vs iPhone, gym earphones CTR, iOS fast charging, robot vacuum manufacturer guide.');
