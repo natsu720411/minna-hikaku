@@ -89,3 +89,10 @@ body.ux-dock-present{padding-bottom:88px}
 #compare .table-scroll thead th:first-child,.compare-panel .table-scroll thead th:first-child{z-index:2}
 #compare tr[hidden]{display:none!important}
 @media(max-width:700px){#compare .table-scroll th:first-child,#compare .table-scroll td:first-child,.compare-panel .table-scroll th:first-child,.compare-panel .table-scroll td:first-child{max-width:104px;min-width:75px;white-space:normal;overflow-wrap:anywhere}.ux-tabs button{padding:10px 8px;font-size:13px}}
+
+/* Finder selection and grouped browsing */
+.ux-selection[hidden]{display:none!important}.ux-selection{margin:4px 18px 8px;padding:10px;border:1px solid #c9daf0;border-radius:12px;background:#f2f7fe;display:grid;gap:8px;font-size:12px;overflow-wrap:anywhere}.ux-selection>div{display:flex;gap:6px}.ux-selection button,.ux-guide-select button{min-height:38px;padding:8px 12px;border:1px solid #c9daf0;background:#fff;color:#1558a4;border-radius:9px;font-weight:700;cursor:pointer}.ux-selection [data-ux-start-compare],.ux-guide-select button{background:#0f6cf9;color:#fff}.ux-selection button:disabled,.ux-guide-select button:disabled{opacity:.5;cursor:not-allowed}
+.ux-result button.ux-select-btn{flex:0 0 auto;width:auto;padding:0 8px;font-size:12px;font-weight:750;white-space:nowrap}.ux-select-btn[aria-pressed=true]{background:#e1edff;border-color:#0f6cf9}.ux-result-price{margin-top:5px!important;color:#415a78!important;line-height:1.45}
+.ux-guide-select{display:grid;gap:12px;padding:14px;background:#f6faff;border-radius:12px}.ux-guide-select label{display:grid;gap:8px}.ux-guide-select select{width:100%;min-height:44px;border:1px solid #c9daf0;border-radius:9px;padding:8px;background:white;color:#223d5d}.ux-guide-select p{font-size:13px;margin:0}
+.ux-results{flex:1 1 auto;min-height:0}.ux-tabs{flex-shrink:0}
+@media(max-width:600px){.ux-result{gap:6px}.ux-result button.ux-select-btn{font-size:11px;padding:0 5px}.ux-result button:not(.ux-select-btn){flex-basis:33px;width:33px}.ux-selection{margin:4px 10px;font-size:11px}}

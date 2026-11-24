@@ -187,7 +187,7 @@
     }).then((result) => {
       // Do not persist a negative lookup: temporary rate limits or provider errors
       // must be retryable on the gateway without refreshing the whole browser.
-      if (result) { cache.set(key, result); saveCachedLookup(key, result); }
+      if (result) { result.observedAt=Date.now(); cache.set(key, result); saveCachedLookup(key, result); }
       return result;
     }).catch(() => null).finally(() => pending.delete(key));
 
@@ -276,7 +276,8 @@
     const row = document.createElement('div');
     row.className = 'api-market-price';
     row.dataset.liveMarketPrice = '1';
-    row.innerHTML = `<span>楽天市場参考価格</span><strong>${marketPriceText(result)}</strong><small>取得時・販売店やセールで変動</small>`;
+    row.innerHTML = `<span>楽天市場参考価格</span><strong>${marketPriceText(result)}</strong><small>販売店やセールで変動</small>`;
+    if(Number.isFinite(result.observedAt)){row.querySelector('small').textContent=new Date(result.observedAt).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'})+'取得・販売店やセールで変動';}
     const anchor = scope.querySelector?.('.product-visual, .api-detail-media, h1');
     if (anchor) anchor.insertAdjacentElement('afterend', row);
   };
