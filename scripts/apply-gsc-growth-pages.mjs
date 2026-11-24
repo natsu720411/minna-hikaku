@@ -161,4 +161,35 @@ patch('category-home.js',(js)=>{
 addSitemapUrl('sitemap-guides.xml',`${ORIGIN}/smartwatches/fast-charging-ios/`,'0.86');
 addSitemapUrl('sitemap-guides.xml',`${ORIGIN}/robot-vacuums/manufacturers/`,'0.86');
 
+
+ // 2026-11-24: actual GSC query "earfun air pro 4+ anker soundcore liberty 5 比較" (32 impressions, 1 click).
+// Separate the Plus model from the existing non-Plus comparison. Official specs checked 2026-11-24.
+const plusUrl='/earphones/compare/earfun-air-pro-4-plus-vs-soundcore-liberty-5/';
+write('earphones/compare/earfun-air-pro-4-plus-vs-soundcore-liberty-5/index.html',shell(
+  'EarFun Air Pro 4+ vs Soundcore Liberty 5｜価格・音質機能・電池を比較',
+  'EarFun Air Pro 4+（Plus）とAnker Soundcore Liberty 5の違いを、公式価格、対応コーデック、防水、再生時間、ドライバー構成から比較。Air Pro 4とは別モデルです。',
+  ORIGIN+plusUrl,
+  `<div class="breadcrumbs"><a href="/">トップ</a> › <a href="/earphones/">イヤホン</a> › <a href="/earphones/compare/">直接比較</a> › Air Pro 4+ vs Liberty 5</div>
+  <span class="update-pill">2026年11月24日 公式情報確認</span>
+  <h1>EarFun Air Pro 4+と<br>Soundcore Liberty 5を比較</h1>
+  <p class="lead">1万円台のANC対応イヤホン2機種を、メーカーおよび国内取扱元の公開情報で比較します。Air Pro 4+（Plus）はAir Pro 4とは異なる製品です。</p>
+  <div class="summary-box"><h2>先に確認したい違い</h2><ul><li>確認時の税込表示価格はAir Pro 4+が13,990円、Liberty 5が14,990円。差額は1,000円です。</li><li>両機ともIP55（イヤホン本体）・LDAC対応。Air Pro 4+はaptX Losslessなどにも対応します。</li><li>通常モード相当の公称再生時間は両機ともイヤホン単体で最大12時間。ケース込みの公称値は54時間と48時間です。</li></ul></div>
+  <h2>公式スペック比較表</h2><div class="table-scroll"><table><thead><tr><th>項目</th><th>EarFun Air Pro 4+</th><th>Soundcore Liberty 5</th></tr></thead><tbody>
+  <tr><th>確認時の税込表示価格</th><td>13,990円</td><td>14,990円</td></tr>
+  <tr><th>Bluetooth</th><td>6.0</td><td>5.4</td></tr>
+  <tr><th>対応コーデック（主なもの）</th><td>LDAC / aptX Adaptive / aptX Lossless / SBC / AAC</td><td>SBC / AAC / LDAC</td></tr>
+  <tr><th>ドライバー構成</th><td>BA＋10mmダイナミック</td><td>9.2mmダイナミック</td></tr>
+  <tr><th>通常再生（本体 / ケース込み）</th><td>最大12時間 / 54時間（ANCオフ）</td><td>最大12時間 / 48時間（通常モード）</td></tr>
+  <tr><th>防塵・防水（本体）</th><td>IP55</td><td>IP55</td></tr>
+  <tr><th>ケース充電</th><td>USB-C / ワイヤレス</td><td>USB-C / ワイヤレス</td></tr>
+  </tbody></table></div>
+  <h2>どちらを選ぶ？</h2><div class="criteria-grid"><div class="criteria-card"><b>Androidでコーデックを重視</b><p>aptX Lossless対応端末を使うならAir Pro 4+が候補です。LDACは両機対応ですが、端末・設定・ファームウェア条件を確認してください。</p></div><div class="criteria-card"><b>iPhoneで使う</b><p>iPhoneではLDACやaptX Losslessを利用できないため、価格、装着感、操作性、アプリなどを優先すると選びやすくなります。</p></div><div class="criteria-card"><b>ANCや音質を重視</b><p>ドライバー構成や公称ANC値だけでは実際の音質・遮音性能の優劣は決まりません。共通条件での実測比較は未実施です。</p></div></div>
+  <h2>メーカー公式情報と関連比較</h2><div class="related"><a href="https://www.myearfun.com/jp/headphones/earfun-air-pro-4-plus-hi-res-adaptive-anc-true-wireless-earbuds-black" target="_blank" rel="noopener noreferrer">EarFun公式｜Air Pro 4+ ↗</a><a href="https://knicom.co.jp/product/earfun-air-pro-4plus/" target="_blank" rel="noopener noreferrer">国内取扱元｜Air Pro 4+仕様 ↗</a><a href="https://www.ankerjapan.com/products/a3957" target="_blank" rel="noopener noreferrer">Anker公式｜Liberty 5 ↗</a><a href="/earphones/products/soundcore-liberty-5/">Liberty 5の商品詳細</a><a href="/earphones/compare/soundcore-liberty-5-vs-earfun-air-pro-4/">Air Pro 4（Plusなし）とLiberty 5の比較</a><a href="/earphones/noise-cancelling/">ANC重視のイヤホン比較</a></div>
+  <p class="note">価格・仕様は2026年11月24日に確認した公開情報です。セール、測定条件、使用状況により変動します。実機レビューではありません。</p>`
+));
+const plusLink='<section data-gsc-plus-link="1" class="discovery-block"><h2>Air Pro 4+（Plus）との比較</h2><p>Air Pro 4とは異なるモデルです。価格・コーデック・電池・防水を公式仕様で確認できます。</p><div class="related"><a href="'+plusUrl+'">EarFun Air Pro 4+ vs Soundcore Liberty 5 →</a></div></section>';
+for(const rel of ['earphones/compare/index.html','earphones/compare/soundcore-liberty-5-vs-earfun-air-pro-4/index.html','earphones/products/soundcore-liberty-5/index.html']){
+  patch(rel,html=>html.includes('data-gsc-plus-link="1"')?html:html.replace('</main>',plusLink+'</main>'));
+}
+
 console.log('Applied GSC growth opportunities: Xperia vs iPhone, gym earphones CTR, iOS fast charging, robot vacuum manufacturer guide.');
