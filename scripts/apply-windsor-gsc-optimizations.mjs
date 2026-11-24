@@ -127,4 +127,31 @@ patch('smartphones/index.html',html=>{
   return html;
 });
 
+
+ // 2026-11-24: user-provided GSC screenshot shows 89 impressions / 0 clicks
+ // across three gym earphone queries. Existing gym model table stays intact.
+patch('earphones/sports/index.html',html=>{
+  html=meta(html,
+    'ジム・筋トレ用ワイヤレスイヤホン比較｜汗・外れにくさ・4機種の違い【2026】',
+    'スポーツジムの筋トレ・ランニングマシンに使うワイヤレスイヤホンを比較。4機種の防水・装着方式・ANC・外音取り込みの一覧と、予算や運動内容で選ぶポイントを解説。');
+  if(!html.includes('data-windsor-focus="gym-use-cases"')){
+    html=insertBefore(html,'<h2>スポーツ向けの注目候補</h2>',
+      '<section data-windsor-focus="gym-use-cases"><h2>筋トレ・ランニングマシン・普段使いで選ぶ</h2><div class="criteria-grid"><div class="criteria-card"><b>筋トレ・フリーウェイト</b><p>前かがみになったときも安定する形状を優先し、イヤーフックやイヤーチップが耳に合うか確認します。周囲の声や器具の音が聞こえることも大切です。</p><a href="/earphones/products/soundcore-sport-x20/">Sport X20の仕様を見る →</a></div><div class="criteria-card"><b>ランニングマシン・有酸素運動</b><p>汗への耐性と装着安定性を優先。音量を上げすぎず、施設のアナウンスや周囲の状況を確認できる設定で使いましょう。</p><a href="/earphones/open-ear/">オープンイヤー型の比較 →</a></div><div class="criteria-card"><b>通勤とジムで兼用</b><p>ANCと外音取り込みの切替、充電頻度、持ち運びやすさを確認します。予算を先に決めると候補を絞りやすくなります。</p><a href="/earphones/under-10000/">1万円以下のイヤホン比較 →</a></div></div><p class="note">装着感・外れにくさには個人差があります。実際の運動時の性能を測定したランキングではありません。</p></section>');
+  }
+  return html;
+});
+
+// Existing pair is generated earlier by expand-legacy-comparisons.
+// Values are from the existing October product detail pages, not new tests.
+patch('earphones/compare/earfun-air-pro-4-vs-soundcore-p42i/index.html',html=>{
+  html=meta(html,
+    'EarFun Air Pro 4 vs Soundcore P42i｜価格・ANC・防水の違い【2026】',
+    'EarFun Air Pro 4とAnker Soundcore P42iを比較。掲載時の参考価格、ANCオン時の公称再生時間、IPX5とIP55、LDAC・aptX対応の違いを確認。');
+  if(!html.includes('data-windsor-focus="earfun-p42i"')){
+    html=appendAfterLead(html,
+      '<section class="summary-box" data-windsor-focus="earfun-p42i"><h2>価格が近い2機種は何が違う？</h2><ul><li>サイト掲載の2026年10月時点の価格は両機とも9,990円。現在の実売価格は販売先で確認してください。</li><li>ANCオン時の公称再生時間はAir Pro 4が最大7.5時間、P42iが最大8.5時間。測定条件や使い方が異なるため、実際の電池持ちの優劣は断定できません。</li><li>防水表記はAir Pro 4がIPX5、P42iがIP55。IP55には防塵等級の表記もあります。</li><li>両機ともLDAC対応。Air Pro 4はaptX Adaptive・Losslessも掲載仕様で確認済みです。P42iのaptX対応についてはこのページでは未確認です。スマートフォン側の対応も確認してください。</li></ul><p>Air Pro 4+は別モデルです。本ページではAir Pro 4のみを比較しています。</p><p><a href="/earphones/products/earfun-air-pro-4/">Air Pro 4の商品詳細</a> ｜ <a href="/earphones/products/soundcore-p42i/">P42iの商品詳細</a></p></section>');
+  }
+  return html;
+});
+
 console.log('Windsor/GSC SEO: enhanced 5 established pages, with answer-first comparisons and internal links.');
