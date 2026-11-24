@@ -76,8 +76,16 @@
     if (/^\d+$/.test(token) && token.length < 2) return false;
     return token.length >= 2 || /\d/.test(token);
   });
+  const airPro4Variants = value => [...new Set([...String(value||'').normalize('NFKC').matchAll(/air[\s_-]*pro[\s_-]*4(?!\d)(?:[\s_-]*(\+|plus|プラス|i(?![a-z])))?/gi)].map(m=>{const suffix=(m[1]||'').toLowerCase();return suffix==='i'?'4i':suffix?'4+':'4'}))];
+  const airPro4Compatible = (title,query) => {
+    const wanted=airPro4Variants(query);
+    if(!wanted.length)return true;
+    const found=airPro4Variants(title);
+    return wanted.length===1&&found.length===1&&wanted[0]===found[0];
+  };
   const isLikelyProductMatch = (result, query) => {
     const title = result?.title || '';
+    if(!airPro4Compatible(title,query))return false;
     if (!title || isAccessoryTitle(title)) return false;
     const q = normalize(query);
     const t = normalize(title);

@@ -125,7 +125,15 @@ const requiredModelTokens = (query) => cleanTokens(query)
   .map(normalizeComparable)
   .filter((token) => /\d/.test(token) && token.length >= 2);
 
+const airPro4Variants = value => [...new Set([...String(value||'').normalize('NFKC').matchAll(/air[\s_-]*pro[\s_-]*4(?!\d)(?:[\s_-]*(\+|plus|プラス|i(?![a-z])))?/gi)].map(m=>{const suffix=(m[1]||'').toLowerCase();return suffix==='i'?'4i':suffix?'4+':'4'}))];
+const airPro4Compatible = (title,query) => {
+  const wanted=airPro4Variants(query);
+  if(!wanted.length)return true;
+  const found=airPro4Variants(title);
+  return wanted.length===1&&found.length===1&&wanted[0]===found[0];
+};
 const modelIsCompatible = (text, query) => {
+  if(!airPro4Compatible(text,query))return false;
   const haystack = normalizeComparable(text);
   const tokens = requiredModelTokens(query);
   return !tokens.length || tokens.every((token) => haystack.includes(token));

@@ -96,3 +96,5 @@ body.ux-dock-present{padding-bottom:88px}
 .ux-guide-select{display:grid;gap:12px;padding:14px;background:#f6faff;border-radius:12px}.ux-guide-select label{display:grid;gap:8px}.ux-guide-select select{width:100%;min-height:44px;border:1px solid #c9daf0;border-radius:9px;padding:8px;background:white;color:#223d5d}.ux-guide-select p{font-size:13px;margin:0}
 .ux-results{flex:1 1 auto;min-height:0}.ux-tabs{flex-shrink:0}
 @media(max-width:600px){.ux-result{gap:6px}.ux-result button.ux-select-btn{font-size:11px;padding:0 5px}.ux-result button:not(.ux-select-btn){flex-basis:33px;width:33px}.ux-selection{margin:4px 10px;font-size:11px}}
+
+.ux-result .ux-rakuten-link{display:inline-block;margin-top:5px;padding:5px 8px;border:1px solid #e3b7b7;background:#fff8f8;color:#9b2424;border-radius:7px;font-size:11px;line-height:1.4;overflow-wrap:anywhere}

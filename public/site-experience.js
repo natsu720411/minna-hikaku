@@ -384,7 +384,7 @@
   };
   const resultMarkup=p=>{
     const saved=favRead().some(f=>f.url===p.url);
-    return '<div class="ux-result"><div class="ux-result-photo" data-rakuten-name="'+escapeHtml(p.name)+'"><span aria-hidden="true">📦</span></div><div><small>'+escapeHtml(p.categoryName||'商品')+(p.brand?' ・ '+escapeHtml(p.brand):'')+'</small><a href="'+escapeHtml(p.url)+'">'+escapeHtml(p.name)+'</a><small class="ux-result-price">楽天参考価格：未取得</small></div><button type="button" class="ux-select-btn" data-ux-select="'+escapeHtml(p.url)+'" data-ux-select-name="'+escapeHtml(p.name)+'" aria-pressed="false">比較</button><button type="button" data-ux-fav-url="'+escapeHtml(p.url)+'" data-ux-name="'+escapeHtml(p.name)+'" data-ux-category="'+escapeHtml(p.categoryName||'')+'" data-ux-brand="'+escapeHtml(p.brand||'')+'" aria-label="'+escapeHtml(p.name)+'のお気に入りを切り替える">'+(saved?'★':'☆')+'</button></div>';
+    return '<div class="ux-result"><div class="ux-result-photo" data-rakuten-name="'+escapeHtml(p.name)+'"><span aria-hidden="true">📦</span></div><div><small>'+escapeHtml(p.categoryName||'商品')+(p.brand?' ・ '+escapeHtml(p.brand):'')+'</small><a href="'+escapeHtml(p.url)+'">'+escapeHtml(p.name)+'</a><small class="ux-result-price">楽天参考価格：未取得</small><a class="ux-rakuten-link" href="/rakuten/?q='+encodeURIComponent(p.name)+'" target="_blank" rel="nofollow noopener noreferrer" data-track="rakuten_click" data-product="'+escapeHtml(p.name)+'">楽天の販売先を確認（PR）</a></div><button type="button" class="ux-select-btn" data-ux-select="'+escapeHtml(p.url)+'" data-ux-select-name="'+escapeHtml(p.name)+'" aria-pressed="false">比較</button><button type="button" data-ux-fav-url="'+escapeHtml(p.url)+'" data-ux-name="'+escapeHtml(p.name)+'" data-ux-category="'+escapeHtml(p.categoryName||'')+'" data-ux-brand="'+escapeHtml(p.brand||'')+'" aria-label="'+escapeHtml(p.name)+'のお気に入りを切り替える">'+(saved?'★':'☆')+'</button></div>';
   };
   // Lazily load Rakuten's original API images for visible search results only.
   let thumbObserver=null;
@@ -417,6 +417,8 @@
           let url = null;
           try { const u = new URL(result.affiliateUrl || ''); if(result.isAffiliate === true && u.protocol === 'https:' && u.hostname === 'hb.afl.rakuten.co.jp') url = u.toString(); } catch (_) {}
           if (!url) url = '/rakuten/?q=' + encodeURIComponent(name);
+          const merchant=visual.closest('.ux-result')?.querySelector('.ux-rakuten-link');
+          if(merchant&&url.startsWith('https://hb.afl.rakuten.co.jp/')){merchant.href=url;merchant.rel='nofollow noopener noreferrer sponsored';merchant.dataset.affiliate='rakuten';merchant.textContent='楽天で見る（PR）'}
           const a=document.createElement('a');
           a.href=url;
           a.target='_blank';
